@@ -1,3 +1,10 @@
+Pour creer une nouvelle fonctionnalite, il faut :
+- API (Raha mila API)
+- Creation du page "src/features/customers/pages/"
+- Routage 
+- Creer un compononent (si on utilise formulaire,boutton ...)
+- Service (Logique metier)
+
 Jours 0 ==> 06/05/2026
 - lister les tables a supprimer les donnees (via checbox)
     - appel API (OK)
@@ -21,6 +28,6 @@ DEADLINE : 09/05/2025
 - completion des moyens d'import des fichiers 
   dans le fichiers "moduleRegistry.js", ajouter tout les modules
   a fin d'importer pleins de fichier.
-- 
+- maitrise du code (Au Nom de Jesus)
 
 DEADLINE : 10/05/2025
