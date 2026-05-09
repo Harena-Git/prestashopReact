@@ -9,12 +9,16 @@ Jours 0 ==> 06/05/2026
     - tester (OK)
   Done ==> 07/05/2026
 
-- sidebar :
+- sidebar : (OK)
   Constante (sidebar) -> Page -> AppRouter (app) (OK)
 
-- import csv (google sheet)
-    - CRUD basique des tables essentiels
-    - import csv des tables et modules essentiels
-  fichier -> API (prestashop.api.js) ->  
+- import csv (google sheet) (OK)
+    - CRUD basique des tables essentiels 
+    - import csv des tables et modules essentiels (OK)
 
 DEADLINE : 09/05/2025
+
+- creation des donnees csv a importer
+- completion des moyens d'import des fichiers
+
+DEADLINE : 10/05/2025
