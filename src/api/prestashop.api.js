@@ -53,30 +53,58 @@ async function safeReadText(response) {
 
 // 1) Recuperer tous les IDs d'un module
 export async function fetchModuleIds(moduleName) {
+  // 1. Appel API : Maka ny data avy any amin'ny PrestaShop (On lance la requête)
   const response = await requestXml(
-    `${BASE_URL}${moduleName}?ws_key=${API_KEY}`,
+    `${BASE_URL}${moduleName}?ws_key=${API_KEY}`
   );
+
+  // 2. Vérification : Raha misy erreur ny API dia avoaka ny antony (Si la requête échoue)
   if (!response.ok) {
     const details = await safeReadText(response);
     throw new Error(
-      `Erreur GET ${moduleName}: ${response.status} ${details}`.trim(),
+      `Erreur GET ${moduleName}: ${response.status} ${details}`.trim()
     );
   }
 
+  // 3. Mamaky ny text XML : Alaina ny contenu (On récupère le texte brut de la réponse)
   const xmlPayload = await response.text();
+  
+  // 4. Avadika ho JSON (Objet JS) ilay XML mba ho mora ampiasaina (On parse le XML)
   const parsedPayload = parser.parse(xmlPayload);
+
+  // 5. Mitady ilay liste anaty JSON. 
+  // Ny "?." (optional chaining) dia misoroka erreur raha tsy misy ilay data (Sécurité)
   const collectionRoot = parsedPayload?.prestashop?.[moduleName];
 
-  // mamerina tableau vide raha tsy misy data na module tsy valide
-  if (!collectionRoot) return [];
+  // Mamerina tableau vide raha tsy misy data na module tsy valide
+  // (Si on n'a rien trouvé, on arrête tout de suite et on renvoie une liste vide)
+  if (!collectionRoot) {
+    return [];
+  }
 
+  // 6. Maka ilay anarana au singulier, ohatra: "products" lasa "product"
   const singleName = toSingleName(moduleName);
-  const rawItems = collectionRoot[singleName] || [];
-  const items = Array.isArray(rawItems) ? rawItems : [rawItems];
 
+  // 7. Alaina ny données an'ilay module (On cible les éléments précis)
+  const rawItems = collectionRoot[singleName] || [];
+
+  // 8. Fanaovana "Tableau" (Simplification du code ternaire difficile)
+  // Raha tsy tableau (liste) ilay "rawItems", dia fonosina anaty "[]" isika mba tsy hisy bug
+  let items = [];
+  if (Array.isArray(rawItems)) {
+    items = rawItems;
+  } else {
+    items = [rawItems];
+  }
+
+  // 9. Fanivanana ny IDs (Extraction et filtrage des numéros ID)
   return items
+    // .map : Maka ny attribut "@_id" isaky ny element ary avadika ho chiffre (Number)
     .map((item) => Number(item?.["@_id"]))
-    .filter((id) => Number.isFinite(id));
+    
+    // .filter : Manivana mba hitazona izay tena chiffre ihany. 
+    // !isNaN midika hoe "Tsy is Not a Number" = tena chiffre marina ilay izy.
+    .filter((id) => !isNaN(id)); 
 }
 
 export async function deleteModuleRecord(moduleName, id) {

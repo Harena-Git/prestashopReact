@@ -6,82 +6,87 @@ import { deleteSelectedModules } from "../services/moduleDeletion.service";
 import { areAllModulesSelected, toggleModuleSelection } from "../utils/selection";
 
 function ModuleCleanupPage() {
-  // sauvena anaty usememo le valeur an'ilay modules
+  // 1. Maka ny anaran'ny modules rehetra ao amin'ny REGISTRY
   const modules = useMemo(() => Object.keys(MODULE_REGISTRY), []);
-  // mi-gerer an'ilay fonction de selection
+  
+  // 2. State hitahirizana ireo modules nosoratana (checkbox)
   const [selectedModules, setSelectedModules] = useState([]);
 
-  // etat pour gerer les chargement
+  // 3. State hanaraha-maso raha mbola miandry valiny avy amin'ny API (chargement)
   const [loading, setLoading] = useState(false);
 
-  // verification raha selectionner daholo (dia cochena daholo)
+  // 4. Manamarina raha voafidy daholo ny modules rehetra
   const allSelected = areAllModulesSelected(selectedModules, modules);
 
-  // mise a jours de state : Toggle d'un module
+  // 5. Fonction manampy na manala module iray ao anaty lisitra
   const onToggleModule = (moduleName) => {
-    setSelectedModules((currentSelection) =>
-      toggleModuleSelection(currentSelection, moduleName),
-    );
+    const vaovao = toggleModuleSelection(selectedModules, moduleName);
+    setSelectedModules(vaovao);
   };
 
-  // tout selectionner (checkbox)
+  // 6. Misafidy ny rehetra na manala ny rehetra (Tout sélectionner)
   const onToggleAll = () => {
-    setSelectedModules(allSelected ? [] : [...modules]);
+    if (allSelected) {
+      setSelectedModules([]); // Esory daholo
+    } else {
+      setSelectedModules([...modules]); // Fidiana daholo
+    }
   };
 
-  // fonction principale de suppression de donnee de module
+  // 7. Fonction famafana ny données (Fanalana ny contenu ao anaty PrestaShop)
   const onDeleteSelected = async () => {
-    const shouldDelete = window.confirm(
-      `Voulez-vous vraiment supprimer les donnees de ${selectedModules.length} modules ?`,
+    const fanamafisana = window.confirm(
+      `Voulez-vous vraiment supprimer les données de ${selectedModules.length} modules ?`
     );
 
-    if (!shouldDelete) return;
+    if (fanamafisana === false) return; // Mijato raha "Annuler" no tsindrina
 
-    // bloquer le bouton
-    setLoading(true);
+    setLoading(true); // Manomboka ny chargement (bloquer bouton)
 
     try {
       const results = await deleteSelectedModules(selectedModules);
-      console.log("Suppression terminee :", results);
 
-      const failed = results.filter((result) => !result.success);
-      const deletedRecords = results.reduce(
-        (sum, result) => sum + (result.deleted || 0),
-        0,
-      );
-      if (failed.length === 0) {
-        alert(
-          `Suppression reussie ! ${deletedRecords} enregistrement(s) supprime(s) sur ${results.length} module(s).`,
-        );
-        setSelectedModules([]);
-      } else if (failed.length === results.length) {
-        // Tous les modules ont echoue
-        alert(
-          `Erreur : Aucun module n'a pu etre supprime.\n\nEchecs:\n${failed
-            .map((item) => `${item.module}: ${item.error}`)
-            .join("\n")}`,
-        );
-      } else {
-        // Certains modules ont ete supprimes, d'autres non
-        alert(
-          `Suppression partielle : ${deletedRecords} enregistrement(s) supprime(s), ${failed.length} module(s) en echec.\n\nEchecs:\n${failed
-            .map((item) => `${item.module}: ${item.error}`)
-            .join("\n")}`,
-        );
-        setSelectedModules(failed.map((item) => item.module)); // Garder les modules echoues selectionnes
+      // Mikarakara ny vokatry ny famafana
+      let countSuccess = 0;
+      let failed = [];
+      let totalDeleted = 0;
+
+      // Loop tsotra hanisana ny vokatra
+      for (let i = 0; i < results.length; i++) {
+        const res = results[i];
+        if (res.success) {
+          countSuccess = countSuccess + 1;
+          totalDeleted = totalDeleted + (res.deleted || 0);
+        } else {
+          failed.push(res);
+        }
       }
+
+      // Fanambarana ny vokatra (Alert)
+      if (failed.length === 0) {
+        alert(`Vita soamantsara! Enregistrements ${totalDeleted} voafafa.`);
+        setSelectedModules([]);
+      } else {
+        // Raha misy erreur ny sasany
+        const hafatraErreur = failed.map((f) => `${f.module}: ${f.error}`).join("\n");
+        alert(`Nisy erreur vitsivitsy:\n${hafatraErreur}`);
+        
+        // Tehirizina izay tsy tafa ihany mba hamerenana azy
+        setSelectedModules(failed.map((f) => f.module));
+      }
+
     } catch (error) {
-      console.error("Erreur lors de la suppression :", error);
-      alert("Une erreur est survenue lors de la suppression.");
+      alert("Nisy olana tsy nampoizina: " + error.message);
     } finally {
-      setLoading(false); // Debloque le bouton
+      setLoading(false); // Atsahatra ny chargement (débloquer bouton)
     }
   };
 
   return (
     <main style={{ padding: 16 }}>
-      <h1>Suppression des donnees des modules</h1>
+      <h1>Suppression des données des modules</h1>
 
+      {/* Lisitry ny modules azo isafidianana */}
       <ModuleSelectionList
         modules={modules}
         selectedModules={selectedModules}
@@ -91,6 +96,7 @@ function ModuleCleanupPage() {
         onToggleModule={onToggleModule}
       />
 
+      {/* Bouton hamafana izay voafidy */}
       <DeleteModulesButton
         loading={loading}
         selectedCount={selectedModules.length}
