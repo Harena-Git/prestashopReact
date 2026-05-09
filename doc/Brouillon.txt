@@ -1,0 +1,106 @@
+// Ajoutez XMLBuilder à vos imports existants
+import { XMLParser, XMLBuilder } from "fast-xml-parser";
+
+const builder = new XMLBuilder({ format: true, ignoreAttributes: false });
+
+// ... vos constantes BASE_URL et API_KEY ...
+
+export async function createResource(resourceName, xmlData) {
+  const url = `${BASE_URL}${resourceName}?ws_key=${API_KEY}`;
+  
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/xml" },
+    body: xmlData,
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error("Détails erreur PrestaShop:", errorText);
+    throw new Error(`Erreur lors de la création dans ${resourceName}`);
+  }
+  return await res.text();
+}
+
+// Service
+import Papa from "papaparse";
+import { XMLBuilder } from "fast-xml-parser";
+import { createResource } from "../../../api/prestashop.api";
+
+const builder = new XMLBuilder({ format: true, ignoreAttributes: false });
+
+export const importCsvToPrestashop = async (file, resourceName) => {
+  return new Promise((resolve, reject) => {
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        const jsonData = results.data; // Étape CSV -> JSON
+        let successCount = 0;
+        let errors = [];
+
+        for (const item of jsonData) {
+          try {
+            // Étape JSON -> XML (Adaptation au format PrestaShop)
+            const xmlObject = {
+              prestashop: {
+                [resourceName.slice(0, -1)]: { // ex: "product" au lieu de "products"
+                  ...item,
+                  // Exemple pour les champs traduisibles si nécessaire :
+                  // name: { language: { "@_id": "1", "#text": item.name } }
+                }
+              }
+            };
+            const xmlData = builder.build(xmlObject);
+
+            // Étape XML -> Base
+            await createResource(resourceName, xmlData);
+            successCount++;
+          } catch (err) {
+            errors.push({ item, error: err.message });
+          }
+        }
+        resolve({ successCount, errors });
+      },
+      error: (error) => reject(error),
+    });
+  });
+};
+
+// Componement 
+import { useState } from "react";
+import { importCsvToPrestashop } from "../services/import.service";
+
+export const CsvImporter = ({ resourceName }) => {
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const result = await importCsvToPrestashop(file, resourceName);
+      alert(`Import terminé ! ${result.successCount} éléments créés.`);
+      if (result.errors.length > 0) console.table(result.errors);
+    } catch (err) {
+      alert("Erreur lors de la lecture du fichier.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div style={{ padding: "10px", border: "1px solid #ccc", marginTop: "20px" }}>
+      <h4>Importer des {resourceName} via CSV</h4>
+      <input 
+        type="file" 
+        accept=".csv" 
+        onChange={handleFileChange} 
+        disabled={uploading} 
+      />
+      {uploading && <p>Importation en cours... ne fermez pas la page.</p>}
+    </div>
+  );
+};
+

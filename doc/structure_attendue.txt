@@ -1,0 +1,55 @@
+src/
+│
+├── api/                 # appels HTTP vers Symfony
+│   ├── axios.js
+│   ├── auth.api.js
+│   ├── users.api.js
+│   └── products.api.js
+│
+├── app/                 # config globale
+│   ├── store.js
+│   └── router.jsx
+│
+├── assets/              # images, fonts, icons
+│
+├── components/          # composants réutilisables
+│   ├── ui/
+│   ├── forms/
+│   └── layout/
+│
+├── features/            # logique métier par module
+│   ├── auth/
+│   │   ├── pages/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── authSlice.js
+│   │   └── auth.service.js
+│   │
+│   ├── users/
+│   └── products/
+│
+├── hooks/               # hooks globaux
+│   ├── useAuth.js
+│   └── useFetch.js
+│
+├── pages/               # pages principales
+│   ├── Home.jsx
+│   ├── Login.jsx
+│   └── Dashboard.jsx
+│
+├── services/            # services globaux
+│   ├── storage.service.js
+│   └── token.service.js
+│
+├── styles/
+│   ├── globals.css
+│   └── variables.css
+│
+├── utils/               # helpers
+│   ├── formatDate.js
+│   ├── validators.js
+│   └── constants.js
+│
+├── App.jsx
+├── main.jsx
+└── vite.config.js

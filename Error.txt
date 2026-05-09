@@ -1,0 +1,11 @@
+prestashop.api.js:112
+ POST http://localhost:5173/api/products?ws_key=5SYPY9N926AJC1FR75YVNBFXVAPJFFBC 400 (Bad Request)
+installHook.js:1 Détails erreur PrestaShop: <?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+<errors>
+<error>
+<code><![CDATA[93]]></code>
+<message><![CDATA[parameter "quantity" not writable. Please remove this attribute of this XML]]></message>
+</error>
+</errors>
+</prestashop>
