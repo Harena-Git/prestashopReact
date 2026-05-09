@@ -1,106 +1,41 @@
-// Ajoutez XMLBuilder à vos imports existants
-import { XMLParser, XMLBuilder } from "fast-xml-parser";
+// Ce fichier serait à l'emplacement : src/features/products/services/product.service.js
 
-const builder = new XMLBuilder({ format: true, ignoreAttributes: false });
+import { fetchModuleRecord } from "../../../api/prestashop.api";
 
-// ... vos constantes BASE_URL et API_KEY ...
+/**
+ * Service pour récupérer les informations détaillées d'un produit spécifique.
+ * 
+ * @param {number} productId - L'ID du produit à récupérer.
+ * @returns {Promise<object|null>} Un objet avec les détails du produit, ou null si non trouvé.
+ */
+export async function getProductDetailsService(productId) {
+  try {
+    console.log(`Tentative de récupération du produit avec l'ID : ${productId}`);
 
-export async function createResource(resourceName, xmlData) {
-  const url = `${BASE_URL}${resourceName}?ws_key=${API_KEY}`;
-  
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/xml" },
-    body: xmlData,
-  });
+    // On appelle la fonction API généralisée avec le nom du module "products"
+    const productData = await fetchModuleRecord("products", productId);
 
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.error("Détails erreur PrestaShop:", errorText);
-    throw new Error(`Erreur lors de la création dans ${resourceName}`);
-  }
-  return await res.text();
-}
-
-// Service
-import Papa from "papaparse";
-import { XMLBuilder } from "fast-xml-parser";
-import { createResource } from "../../../api/prestashop.api";
-
-const builder = new XMLBuilder({ format: true, ignoreAttributes: false });
-
-export const importCsvToPrestashop = async (file, resourceName) => {
-  return new Promise((resolve, reject) => {
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        const jsonData = results.data; // Étape CSV -> JSON
-        let successCount = 0;
-        let errors = [];
-
-        for (const item of jsonData) {
-          try {
-            // Étape JSON -> XML (Adaptation au format PrestaShop)
-            const xmlObject = {
-              prestashop: {
-                [resourceName.slice(0, -1)]: { // ex: "product" au lieu de "products"
-                  ...item,
-                  // Exemple pour les champs traduisibles si nécessaire :
-                  // name: { language: { "@_id": "1", "#text": item.name } }
-                }
-              }
-            };
-            const xmlData = builder.build(xmlObject);
-
-            // Étape XML -> Base
-            await createResource(resourceName, xmlData);
-            successCount++;
-          } catch (err) {
-            errors.push({ item, error: err.message });
-          }
-        }
-        resolve({ successCount, errors });
-      },
-      error: (error) => reject(error),
-    });
-  });
-};
-
-// Componement 
-import { useState } from "react";
-import { importCsvToPrestashop } from "../services/import.service";
-
-export const CsvImporter = ({ resourceName }) => {
-  const [uploading, setUploading] = useState(false);
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setUploading(true);
-    try {
-      const result = await importCsvToPrestashop(file, resourceName);
-      alert(`Import terminé ! ${result.successCount} éléments créés.`);
-      if (result.errors.length > 0) console.table(result.errors);
-    } catch (err) {
-      alert("Erreur lors de la lecture du fichier.");
-    } finally {
-      setUploading(false);
+    if (!productData) {
+      console.warn(`Le produit avec l'ID ${productId} n'a pas été trouvé.`);
+      return null;
     }
-  };
 
-  return (
-    <div style={{ padding: "10px", border: "1px solid #ccc", marginTop: "20px" }}>
-      <h4>Importer des {resourceName} via CSV</h4>
-      <input 
-        type="file" 
-        accept=".csv" 
-        onChange={handleFileChange} 
-        disabled={uploading} 
-      />
-      {uploading && <p>Importation en cours... ne fermez pas la page.</p>}
-    </div>
-  );
-};
+    // Ici, on pourrait transformer les données si nécessaire avant de les envoyer au composant React.
+    // Par exemple, extraire seulement les champs qui nous intéressent.
+    const simplifiedProduct = {
+      id: productData.id,
+      name: productData.name.language.find(l => l['@_id'] === '1')['#text'], // Récupérer le nom en français
+      price: parseFloat(productData.price),
+      reference: productData.reference,
+      description: productData.description.language.find(l => l['@_id'] === '1')['#text'], // Desc en français
+    };
 
+    console.log("Produit récupéré et simplifié :", simplifiedProduct);
+    return simplifiedProduct;
+
+  } catch (error) {
+    console.error(`Erreur dans getProductDetailsService pour l'ID ${productId}:`, error);
+    // On propage l'erreur pour que le composant React puisse l'afficher à l'utilisateur.
+    throw error;
+  }
+}

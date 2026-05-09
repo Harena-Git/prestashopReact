@@ -5,6 +5,13 @@ import { MODULE_REGISTRY } from "../constants/moduleRegistry"; // Importer le re
 
 const builder = new XMLBuilder({ format: true, ignoreAttributes: false });
 
+/**
+ * Met à jour une ressource existante.
+ * @param {string} file - fichier CSV à importer.
+ * @param {string} resourceName - Le nom de la ressource (ex: "products").
+ * @returns {Promise<string>} La réponse de l'API.
+ */
+
 export const importCsvToPrestashop = async (file, resourceName) => {
   // 1. Maka ny configuration an'ilay module (ohatra: products). Raha tsy hita dia mamoaka erreur.
   const moduleConfig = MODULE_REGISTRY[resourceName];
