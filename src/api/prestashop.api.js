@@ -14,9 +14,6 @@ if (!BASE_URL) {
   console.warn("VITE_API_BASE_URL n'est pas definie dans .env");
 }
 
-{
-  /*=================================== CLEAN DATA ================================================ */
-}
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -49,6 +46,10 @@ async function safeReadText(response) {
   } catch {
     return "";
   }
+}
+
+{
+  /*=================================== General functions ================================================ */
 }
 
 // 1) Recuperer tous les IDs d'un module
@@ -107,6 +108,10 @@ export async function fetchModuleIds(moduleName) {
     .filter((id) => !isNaN(id)); 
 }
 
+{
+  /*=================================== CLEAN DATA ================================================ */
+}
+
 export async function deleteModuleRecord(moduleName, id) {
   const response = await requestXml(
     `${BASE_URL}${moduleName}/${id}?ws_key=${API_KEY}`,
@@ -154,4 +159,62 @@ export async function createResource(resourceName, xmlData) {
 
 {
   /*=============================================Lister Module================================================== */
+}
+
+/**
+ * Récupère les données complètes d'une ressource unique par son ID.
+ * @param {string} moduleName - Le nom de la ressource (ex: "products").
+ * @param {number} id - L'ID de la ressource.
+ * @returns {Promise<object>} Un objet contenant les données de la ressource.
+ */
+
+export async function ListModules(resourceName, id) {
+
+  const response = await requestXml(
+    `${BASE_URL}${resourceName}/${id}?ws_key=${API_KEY}`
+  );
+
+  if (!response.ok) {
+    if(response.status === 404) {
+      return null; 
+    }
+  }
+  const details = await safeReadText(response);
+  throw new Error(
+    `Erreur GET ${resourceName}/${id}: ${response.status} ${details}`.trim()
+  );
+
+  const XmlPayload = await response.text();
+  const parsedPayload = parser.parse(XmlPayload);
+
+  const singleName = toSingleName(resourceName);
+
+
+  return parsedPayload?.prestashop?.[singleName] || null;
+}
+
+{
+  /*=============================================Modifier Module================================================== */
+}
+
+/**
+ * Met à jour une ressource existante.
+ * @param {string} resourceName - Le nom de la ressource (ex: "products").
+ * @param {string} xmlData - Les données XML complètes de la ressource à mettre à jour.
+ * @returns {Promise<string>} La réponse de l'API.
+ */
+export async function updateResource(resourceName, xmlData) {
+  const response = await fetch(`${BASE_URL}${resourceName}?ws_key=${API_KEY}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/xml" },
+    body: xmlData,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Détails erreur PrestaShop:", errorText);
+    throw new Error(`Erreur lors de la mise à jour dans ${resourceName}`);
+  }
+
+  return await response.text();
 }
