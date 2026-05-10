@@ -33,6 +33,10 @@
   cursor: pointer;
   border-bottom: 1px solid #eee;
   transition: background-color 0.2s;
+  display: flex;                      /* ← Nouveau */
+  justify-content: space-between;     /* ← Nouveau */
+  align-items: center;                /* ← Nouveau */
+  gap: 10px;                          /* ← Nouveau */
 }
 
 .product-list li:hover {
@@ -58,12 +62,61 @@
   cursor: default;
 }
 
-.product-name {
-  font-weight: 500;
+/* ← Nouvelles règles pour les boutons */
+
+.product-info {
+  flex: 1;                            /* Prend l'espace disponible */
+  min-width: 0;                       /* Évite overflow des textes longs */
 }
 
-.product-price {
-  font-size: 0.9em;
-  color: #666;
-  margin-top: 4px;
+.product-actions {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;                     /* Les boutons ne rétrécissent pas */
+}
+
+.btn-edit,
+.btn-delete {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-edit {
+  background-color: #28a745;          /* Vert pour modifier */
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #218838;
+}
+
+.btn-delete {
+  background-color: #dc3545;          /* Rouge pour supprimer */
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #c82333;
+}
+
+/* Quand le produit est sélectionné, les boutons changent de style */
+.product-list li.selected .btn-edit {
+  background-color: #66bb6a;
+}
+
+.product-list li.selected .btn-delete {
+  background-color: #ef5350;
+}
+
+/* Style au focus pour l'accessibilité */
+.btn-edit:focus,
+.btn-delete:focus {
+  outline: 2px solid #ccc;
+  outline-offset: -2px;
 }

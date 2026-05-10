@@ -8,10 +8,14 @@ import "./ProductSelectionList.css";
  * @param {object[]} products - La liste des produits à afficher.
  * @param {function} onSelectProduct - La fonction à appeler avec l'ID du produit cliqué.
  * @param {string} title - Le titre à afficher au-dessus de la liste.
+ * @param {function} onEdit - La fonction à appeler quand on clique sur "Modifier".
+ * @param {function} onDelete - La fonction à appeler quand on clique sur "Supprimer".
  */
 function ProductSelectionList({
   products,
   onSelectProduct,
+  onEdit = () => {},      
+  onDelete = () => {},    
   title = "Liste des Produits",
 }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,6 +33,12 @@ function ProductSelectionList({
   const handleProductClick = (productId) => {
     setSelectedId(productId);
     onSelectProduct(productId);
+  };
+
+  // ← Nouvelle fonction : éviter que les boutons déselectionent
+  const handleActionClick = (e, callback, productId) => {
+    e.stopPropagation(); // Arrête la propagation du clic
+    callback(productId);
   };
 
   return (
@@ -49,8 +59,29 @@ function ProductSelectionList({
               className={product.id === selectedId ? "selected" : ""}
               onClick={() => handleProductClick(product.id)}
             >
-              <div className="product-name">{product.name}</div>
-              <div className="product-price">{product.price}€</div>
+              {/* Colonne gauche : infos du produit */}
+              <div className="product-info">
+                <div className="product-name">{product.name}</div>
+                <div className="product-price">{product.price}€</div>
+              </div>
+
+              {/* Colonne droite : boutons d'action */}
+              <div className="product-actions">
+                <button
+                  className="btn-edit"
+                  onClick={(e) => handleActionClick(e, onEdit, product.id)}
+                  title="Modifier ce produit"
+                >
+                  ✏️ Modifier
+                </button>
+                <button
+                  className="btn-delete"
+                  onClick={(e) => handleActionClick(e, onDelete, product.id)}
+                  title="Supprimer ce produit"
+                >
+                  🗑️ Supprimer
+                </button>
+              </div>
             </li>
           ))
         ) : (
