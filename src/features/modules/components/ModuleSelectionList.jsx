@@ -4,12 +4,12 @@
  *       Ahafahana mifantina modules maromaro indray miaraka.
  */
 function ModuleSelectionList({
-  modules,           // Lisitry ny modules rehetra azo isafidianana.
-  selectedModules,   // Ireo modules efa voafantina.
-  loading,           // Mampiseho raha mbola misy asa mandeha (ohatra: maka modules).
-  allSelected,       // Marina (true) raha voafantina daholo ny modules rehetra.
-  onToggleAll,       // Asa (fonction) antsoina rehefa tsindriana ilay checkbox "Tout sélectionner".
-  onToggleModule,    // Asa (fonction) antsoina rehefa tsindriana ny checkbox-n'ny module iray.
+  modules,
+  selectedModules,
+  loading,
+  allSelected,
+  onToggleAll,
+  onToggleModule,
 }) {
   
   // Ny ampahany hita maso (HTML/JSX) izay avoakan'ity fonction ity.

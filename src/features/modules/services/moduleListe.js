@@ -1,6 +1,33 @@
 // Ce fichier serait à l'emplacement : src/features/products/services/product.service.js
 
-import { fetchModuleRecord } from "../../../api/prestashop.api";
+import { fetchModuleIds, fetchModuleRecord } from "../../../api/prestashop.api";
+
+/**
+ * Récupère les IDs de tous les produits, puis les détails de chaque produit.
+ * C'est une approche simple, mais qui peut être lente si vous avez beaucoup de produits.
+ * 
+ * @returns {Promise<object[]>} Une liste d'objets produits.
+ */
+export async function listAllProducts() {
+  try {
+    // 1. On récupère la liste de tous les numéros (ID) de produits.
+    const productIds = await fetchModuleIds("products");
+
+    // 2. Pour chaque numéro, on va chercher les détails complets.
+    // Promise.all est une technique pour lancer plusieurs requêtes en même temps,
+    // c'est beaucoup plus rapide que de les faire une par une.
+    const products = await Promise.all(
+      productIds.map(id => getProductDetailsService(id))
+    );
+
+    // 3. On retourne la liste des produits qui ont bien été trouvés (on filtre les "null").
+    return products.filter(p => p !== null);
+
+  } catch (error) {
+    console.error("Erreur en listant les produits:", error);
+    return []; // On retourne une liste vide en cas de problème.
+  }
+}
 
 /**
  * Service pour récupérer les informations détaillées d'un produit spécifique.
@@ -10,32 +37,36 @@ import { fetchModuleRecord } from "../../../api/prestashop.api";
  */
 export async function getProductDetailsService(productId) {
   try {
-    console.log(`Tentative de récupération du produit avec l'ID : ${productId}`);
-
     // On appelle la fonction API généralisée avec le nom du module "products"
     const productData = await fetchModuleRecord("products", productId);
 
     if (!productData) {
-      console.warn(`Le produit avec l'ID ${productId} n'a pas été trouvé.`);
       return null;
     }
 
-    // Ici, on pourrait transformer les données si nécessaire avant de les envoyer au composant React.
-    // Par exemple, extraire seulement les champs qui nous intéressent.
-    const simplifiedProduct = {
-      id: productData.id,
-      name: productData.name.language.find(l => l['@_id'] === '1')['#text'], // Récupérer le nom en français
-      price: parseFloat(productData.price),
-      reference: productData.reference,
-      description: productData.description.language.find(l => l['@_id'] === '1')['#text'], // Desc en français
+    // --- CORRECTIF ---
+    // On sécurise l'accès aux champs multilingues.
+    // On transforme le champ en tableau s'il n'en est pas un, puis on cherche la langue.
+    const getName = (field) => {
+      if (!field || !field.language) return "Nom non disponible";
+      const languages = Array.isArray(field.language) ? field.language : [field.language];
+      const lang = languages.find(l => l['@_id'] === '1');
+      return lang ? lang['#text'] : "Nom non trouvé";
     };
 
-    console.log("Produit récupéré et simplifié :", simplifiedProduct);
+    // On transforme les données brutes en un objet simple et facile à utiliser.
+    const simplifiedProduct = {
+      id: productData.id,
+      name: getName(productData.name),
+      price: parseFloat(productData.price),
+      reference: productData.reference,
+      description: getName(productData.description),
+    };
+
     return simplifiedProduct;
 
   } catch (error) {
     console.error(`Erreur dans getProductDetailsService pour l'ID ${productId}:`, error);
-    // On propage l'erreur pour que le composant React puisse l'afficher à l'utilisateur.
     throw error;
   }
 }

@@ -17,4 +17,10 @@ export const SIDEBAR_PAGES = [
         path: "/modules/import",
         showInSidebar: true,
     },
+        {
+        id : "list-products",
+        label: "Liste des produits",
+        path: "/modules/list",
+        showInSidebar: true,
+    },
   ];
