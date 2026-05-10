@@ -161,35 +161,39 @@ export async function createResource(resourceName, xmlData) {
   /*=============================================Lister Module================================================== */
 }
 
+// Dans src/api/prestashop.api.js
+
 /**
  * Récupère les données complètes d'une ressource unique par son ID.
  * @param {string} moduleName - Le nom de la ressource (ex: "products").
  * @param {number} id - L'ID de la ressource.
- * @returns {Promise<object>} Un objet contenant les données de la ressource.
+ * @returns {Promise<object|null>} Un objet contenant les données de la ressource, ou null si non trouvée.
  */
-
-export async function ListModules(resourceName, id) {
-
+export async function fetchModuleRecord(moduleName, id) {
   const response = await requestXml(
-    `${BASE_URL}${resourceName}/${id}?ws_key=${API_KEY}`
+    `${BASE_URL}${moduleName}/${id}?ws_key=${API_KEY}`
   );
 
+  // Si la requête échoue
   if (!response.ok) {
-    if(response.status === 404) {
-      return null; 
+    // Si c'est une erreur 404, c'est que le produit n'existe pas. On retourne null.
+    if (response.status === 404) {
+      return null;
     }
+    // Pour les autres erreurs, on lève une exception pour informer l'utilisateur.
+    const details = await safeReadText(response);
+    throw new Error(
+      `Erreur GET ${moduleName}/${id}: ${response.status} ${details}`.trim()
+    );
   }
-  const details = await safeReadText(response);
-  throw new Error(
-    `Erreur GET ${resourceName}/${id}: ${response.status} ${details}`.trim()
-  );
 
-  const XmlPayload = await response.text();
-  const parsedPayload = parser.parse(XmlPayload);
+  // Si tout s'est bien passé, on traite la réponse
+  const xmlPayload = await response.text();
+  const parsedPayload = parser.parse(xmlPayload);
 
-  const singleName = toSingleName(resourceName);
+  const singleName = toSingleName(moduleName);
 
-
+  // On retourne l'objet principal de la ressource
   return parsedPayload?.prestashop?.[singleName] || null;
 }
 
