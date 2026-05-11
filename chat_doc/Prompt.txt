@@ -1,6 +1,8 @@
-En partant de l'import qu'on vient de faire,
-nous allons ajouter une nouvelle champ dans cet import.
-Dans les champs d'import des donnees csv, nous allons ajouter un nouveau champ pour importer des images (plusieurs images compressées
-dans un fichier zip, exemple concret @images.zip).
-Les noms des images dans le fichier zip seront les valeurs de la colonne "reference" vis a vis des csv.
-But : Importer les images depuis un fichier zip avec les imports des donnees csv.
+1-Apres ces imports, maintenant j'aimerai adapter notre "MODULE_REGISTRY" dans moduleRegistry.js.
+La page de netoyages de donnees (dans le lien :
+"http://localhost:5173/admin/modules/cleanup"),
+J'aimerai que ce soit les modules des fichiers que nous avons importés dans les champs d'importation "http://localhost:5173/admin/modules/data-import".
+Parce que de la, nous pouvons donc tester de supprimer et importer les modules presents ici.
+
+
+2-Si il y juste un erreur lors de l'importation, dans "http://localhost:5173/admin/modules/data-import", on appelles automatiquement le boutton "Supprimer le module selectionné" et appliquer directement la reinitialisation sur les champs presents.

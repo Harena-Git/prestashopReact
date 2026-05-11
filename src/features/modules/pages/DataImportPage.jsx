@@ -9,15 +9,64 @@
 
 import { useState } from "react";
 import { runImport } from "../services/importOrchestrator";
+import { deleteSelectedModules } from "../services/moduleDeletion.service";
+import { ROLLBACK_MODULES_BY_FILE } from "../constants/moduleRegistry";
 import "./DataImportPage.css";
 
+// Champs vides — utilisé pour réinitialiser le formulaire
+const EMPTY_FILES = {
+  fichier1_products: null,
+  fichier2_combinations: null,
+  fichier3_transactions: null,
+  images_zip: null,
+};
+
+/**
+ * Rollback : supprime les modules qui ont été partiellement insérés.
+ * Respecte l'ordre FK : enfants supprimés avant les parents.
+ * @param {Array} insertedResults - Résultats avec inserted > 0
+ * @param {Function} log - Fonction de log
+ */
+async function runRollback(insertedResults, log) {
+  log("");
+  log("🔄 Rollback automatique — suppression des données insérées...");
+
+  // Construire la liste unique des modules à supprimer (ordre FK respecté)
+  const modulesToDelete = [];
+  for (const result of insertedResults) {
+    const modules = ROLLBACK_MODULES_BY_FILE[result.file] || [];
+    for (const mod of modules) {
+      if (!modulesToDelete.includes(mod)) {
+        modulesToDelete.push(mod);
+      }
+    }
+  }
+
+  if (modulesToDelete.length === 0) {
+    log("  Aucun module à nettoyer");
+    return;
+  }
+
+  log(`  Modules à nettoyer : ${modulesToDelete.join(", ")}`);
+
+  // Suppression séquentielle (respecte les FK)
+  for (const moduleName of modulesToDelete) {
+    try {
+      log(`  Suppression ${moduleName}...`);
+      const results = await deleteSelectedModules([moduleName]);
+      const deleted = results[0]?.deleted ?? 0;
+      log(`  ✓ ${moduleName}: ${deleted} enregistrement(s) supprimé(s)`);
+    } catch (err) {
+      log(`  ⚠️ ${moduleName}: ${err.message}`);
+    }
+  }
+
+  log("✅ Rollback terminé");
+  log("");
+}
+
 function DataImportPage() {
-  const [files, setFiles] = useState({
-    fichier1_products: null,
-    fichier2_combinations: null,
-    fichier3_transactions: null,
-    images_zip: null,
-  });
+  const [files, setFiles] = useState({ ...EMPTY_FILES });
   const [importing, setImporting] = useState(false);
   const [logs, setLogs] = useState([]);
   const [results, setResults] = useState(null);
@@ -40,9 +89,22 @@ function DataImportPage() {
       const allResults = await runImport(files, addLog);
       const hasErrors = allResults.some((r) => r.errors?.length > 0);
       setResults({ success: !hasErrors, allResults });
+
+      // Rollback automatique si erreur + au moins une insertion partielle
+      if (hasErrors) {
+        const partiallyInserted = allResults.filter((r) => r.inserted > 0);
+        if (partiallyInserted.length > 0) {
+          await runRollback(partiallyInserted, addLog);
+        }
+        // Réinitialiser tous les champs d'import
+        setFiles({ ...EMPTY_FILES });
+        addLog("↺ Champs réinitialisés");
+      }
     } catch (err) {
       addLog(`❌ Erreur générale: ${err.message}`);
       setResults({ success: false, error: err.message });
+      // Reset aussi en cas d'erreur complète
+      setFiles({ ...EMPTY_FILES });
     } finally {
       setImporting(false);
     }
