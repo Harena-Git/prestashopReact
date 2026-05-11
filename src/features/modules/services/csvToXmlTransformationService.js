@@ -14,8 +14,7 @@ import { XMLBuilder } from "fast-xml-parser";
 import {
   PRODUCTS_FILE_MAPPING,
   COMBINATIONS_FILE_MAPPING,
-  CUSTOMERS_FILE_MAPPING,
-  ORDERS_FILE_MAPPING,
+  TRANSACTIONS_FILE_MAPPING,
 } from "../constants/dataImportConstants";
 
 /**
