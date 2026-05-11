@@ -10,13 +10,14 @@ const xmlParser = new XMLParser({ ignoreAttributes: false });
 
 // Cache mémoire - évite les requêtes doublons (remplace les tables temporaires)
 let cache = {
-  categories: {},   // "Akanjo" → id
-  taxGroups: {},    // "11.65" → id
-  products: {},     // "T_01" → { id, price_ht, tax_rate, name }
-  attrGroups: {},   // "taille" → id
-  attrValues: {},   // "10:ngoza" → id (clé = groupId:valueName)
+  categories: {}, // "Akanjo" → id
+  taxGroups: {}, // "11.65" → id
+  products: {}, // "T_01" → { id, price_ht, tax_rate, name }
+  attrGroups: {}, // "taille" → id
+  attrValues: {}, // "10:ngoza" → id (clé = groupId:valueName)
   combinations: {}, // "T_01:ngoza" → id
-  customers: {},    // "email@..." → id
+  customers: {}, // "email@..." → id
+  customerKeys: {}, // "email@..." → secure_key (obligatoire pour les commandes)
 };
 
 // Réinitialiser le cache avant un nouvel import
@@ -29,6 +30,7 @@ export function resetCache() {
     attrValues: {},
     combinations: {},
     customers: {},
+    customerKeys: {}, // secure_key du client — requis pour la création de commande
   };
 }
 
@@ -51,7 +53,9 @@ export async function postXml(resource, xmlBody) {
   });
   const text = await response.text();
   if (!response.ok) {
-    throw new Error(`POST ${resource}: ${response.status} - ${text.substring(0, 400)}`);
+    throw new Error(
+      `POST ${resource}: ${response.status} - ${text.substring(0, 400)}`,
+    );
   }
   return text;
 }
@@ -66,7 +70,9 @@ export async function putXml(resourcePath, xmlBody) {
   });
   const text = await response.text();
   if (!response.ok) {
-    throw new Error(`PUT ${resourcePath}: ${response.status} - ${text.substring(0, 400)}`);
+    throw new Error(
+      `PUT ${resourcePath}: ${response.status} - ${text.substring(0, 400)}`,
+    );
   }
   return text;
 }
@@ -154,13 +160,17 @@ export async function findTaxGroupId(rateStr) {
   try {
     // Étape 1: Chercher la taxe par taux (format PS: 3 décimales)
     const rateFormatted = rate.toFixed(3);
-    const taxData = await client.get(`taxes?filter[rate]=[${rateFormatted}]&display=full`);
+    const taxData = await client.get(
+      `taxes?filter[rate]=[${rateFormatted}]&display=full`,
+    );
     const taxes = toArray(taxData.taxes);
 
     for (const tax of taxes) {
       if (!tax.id) continue;
       // Étape 2: Trouver la règle de taxe associée
-      const ruleData = await client.get(`tax_rules?filter[id_tax]=[${tax.id}]&display=full`);
+      const ruleData = await client.get(
+        `tax_rules?filter[id_tax]=[${tax.id}]&display=full`,
+      );
       const rules = toArray(ruleData.tax_rules);
 
       if (rules.length > 0 && rules[0].id_tax_rules_group) {
@@ -204,12 +214,19 @@ export function getProductInfo(reference) {
 export async function findProductByReference(reference) {
   if (cache.products[reference]) return cache.products[reference].id;
 
-  const data = await client.get(`products?filter[reference]=[${reference}]&display=full`);
+  const data = await client.get(
+    `products?filter[reference]=[${reference}]&display=full`,
+  );
   const products = toArray(data.products);
 
   if (products.length > 0 && products[0].id) {
     const id = parseInt(products[0].id, 10);
-    cache.products[reference] = { id, price_ht: null, tax_rate: null, name: "" };
+    cache.products[reference] = {
+      id,
+      price_ht: null,
+      tax_rate: null,
+      name: "",
+    };
     return id;
   }
 
@@ -258,7 +275,9 @@ export async function findOrCreateAttrValue(valueName, groupId) {
   const key = `${groupId}:${valueName.toLowerCase()}`;
   if (cache.attrValues[key]) return cache.attrValues[key];
 
-  const data = await client.get(`product_option_values?filter[id_attribute_group]=[${groupId}]&display=full`);
+  const data = await client.get(
+    `product_option_values?filter[id_attribute_group]=[${groupId}]&display=full`,
+  );
   const values = toArray(data.product_option_values);
 
   for (const val of values) {
@@ -279,7 +298,8 @@ export async function findOrCreateAttrValue(valueName, groupId) {
 
   const responseText = await postXml("product_option_values", xml);
   const id = extractIdFromXml(responseText, "product_option_value");
-  if (!id) throw new Error(`Impossible de créer la valeur attribut: ${valueName}`);
+  if (!id)
+    throw new Error(`Impossible de créer la valeur attribut: ${valueName}`);
 
   cache.attrValues[key] = id;
   return id;
@@ -308,13 +328,18 @@ export function getCombinationId(reference, attrName) {
 export async function findOrCreateCustomer(email, nom, pwd, dateAdd) {
   if (cache.customers[email]) return cache.customers[email];
 
-  const data = await client.get(`customers?filter[email]=[${email}]&display=full`);
+  const data = await client.get(
+    `customers?filter[email]=[${email}]&display=full`,
+  );
   const customers = toArray(data.customers);
 
   for (const cust of customers) {
     if (String(cust.email).toLowerCase() === email.toLowerCase()) {
-      cache.customers[email] = parseInt(cust.id, 10);
-      return cache.customers[email];
+      const id = parseInt(cust.id, 10);
+      cache.customers[email] = id;
+      // La secure_key du client existant est fournie par display=full
+      cache.customerKeys[email] = String(cust.secure_key || "");
+      return id;
     }
   }
 
@@ -348,11 +373,23 @@ export async function findOrCreateCustomer(email, nom, pwd, dateAdd) {
 </customer></prestashop>`;
 
   const responseText = await postXml("customers", xml);
-  const id = extractIdFromXml(responseText, "customer");
+  // Parser la réponse pour extraire l'ID ET la secure_key
+  // La secure_key doit être la même dans le panier pour que la commande soit acceptée
+  const parsed = xmlParser.parse(responseText);
+  const customerData = parsed?.prestashop?.customer;
+  const id = parseInt(customerData?.id, 10) || null;
+  const secureKey = String(customerData?.secure_key || "");
+
   if (!id) throw new Error(`Impossible de créer le client: ${email}`);
 
   cache.customers[email] = id;
+  cache.customerKeys[email] = secureKey;
   return id;
+}
+
+// Retourne la secure_key d'un client (utilisée pour la création du panier/commande)
+export function getCustomerSecureKey(email) {
+  return cache.customerKeys[email] || null;
 }
 
 // Retourne l'ID pays de Madagascar

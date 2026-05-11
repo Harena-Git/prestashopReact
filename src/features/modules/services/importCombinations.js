@@ -37,12 +37,14 @@ function toArray(raw) {
 async function updateStock(productId, combinationId, quantity) {
   const combId = combinationId || 0;
   const data = await client.get(
-    `stock_availables?filter[id_product]=[${productId}]&filter[id_product_attribute]=[${combId}]&display=full`
+    `stock_availables?filter[id_product]=[${productId}]&filter[id_product_attribute]=[${combId}]&display=full`,
   );
   const stocks = toArray(data.stock_availables);
 
   if (stocks.length === 0) {
-    console.warn(`Stock introuvable pour produit ${productId}, combinaison ${combId}`);
+    console.warn(
+      `Stock introuvable pour produit ${productId}, combinaison ${combId}`,
+    );
     return;
   }
 
@@ -58,8 +60,8 @@ async function updateStock(productId, combinationId, quantity) {
 }
 
 // Importe toutes les déclinaisons et le stock du fichier 2
+// All or Nothing : la première erreur arrête tout l'import
 export async function importCombinations(rows, log) {
-  const errors = [];
   let inserted = 0;
 
   for (let i = 0; i < rows.length; i++) {
@@ -71,7 +73,9 @@ export async function importCombinations(rows, log) {
       const productInfo = getProductInfo(reference);
 
       if (!productInfo) {
-        throw new Error(`Produit "${reference}" non trouvé — le fichier 1 doit être importé d'abord`);
+        throw new Error(
+          `Produit "${reference}" non trouvé — le fichier 1 doit être importé d'abord`,
+        );
       }
 
       const hasAttributes = row.specificité?.trim() && row.karazany?.trim();
@@ -110,11 +114,14 @@ export async function importCombinations(rows, log) {
         reference: `${reference}-${row.karazany.trim()}`,
       });
 
-      log(`  Ligne ${lineNum}: Combinaison "${reference}" + "${row.karazany}"...`);
+      log(
+        `  Ligne ${lineNum}: Combinaison "${reference}" + "${row.karazany}"...`,
+      );
       const responseText = await postXml("combinations", xml);
       const combinationId = extractIdFromXml(responseText, "combination");
 
-      if (!combinationId) throw new Error(`Aucun ID retourné pour la combinaison`);
+      if (!combinationId)
+        throw new Error(`Aucun ID retourné pour la combinaison`);
 
       // Sauvegarder pour les commandes (fichier 3)
       setCombinationId(reference, row.karazany.trim(), combinationId);
@@ -125,10 +132,13 @@ export async function importCombinations(rows, log) {
       log(`  ✓ Combinaison créée (ID ${combinationId}), stock: ${quantity}`);
       inserted++;
     } catch (err) {
-      errors.push(`Ligne ${lineNum}: ${err.message}`);
       log(`  ✗ Ligne ${lineNum}: ${err.message}`);
+      // All or Nothing : arrêt immédiat
+      const stopError = new Error(`Ligne ${lineNum}: ${err.message}`);
+      stopError.inserted = inserted;
+      throw stopError;
     }
   }
 
-  return { inserted, total: rows.length, errors };
+  return { inserted, total: rows.length };
 }

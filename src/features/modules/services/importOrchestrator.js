@@ -6,15 +6,14 @@ import { importCustomersOrders } from "./importCustomersOrders";
 import { importImages } from "./importImages";
 
 // Lance l'import complet : CSV + images ZIP (optionnel)
+// Politique All or Nothing : la première erreur dans n'importe quelle ligne arrête tout
 // files = { fichier1_products, fichier2_combinations, fichier3_transactions, images_zip }
-// onLog = fonction appelée pour chaque message de log
 export async function runImport(files, onLog) {
   const log = (msg) => {
     console.log(msg);
     onLog(msg);
   };
 
-  // Réinitialiser le cache avant chaque import
   resetCache();
 
   const results = [];
@@ -25,39 +24,37 @@ export async function runImport(files, onLog) {
     try {
       const rows = await parseCsvFile(files.fichier1_products);
       log(`  ${rows.length} ligne(s) à traiter`);
-
       const result = await importProducts(rows, log);
-      results.push({ file: "Produits", ...result });
-
-      if (result.errors.length > 0) {
-        log(`⚠️  ${result.errors.length} erreur(s) dans Fichier 1`);
-        log("⛔ Import arrêté (All or Nothing)");
-        return results;
-      }
+      results.push({
+        file: "Produits",
+        inserted: result.inserted,
+        total: result.total,
+        errors: [],
+      });
       log(
         `✅ Fichier 1 terminé: ${result.inserted}/${result.total} produits insérés`,
       );
     } catch (err) {
+      // err.inserted = nombre réel insérés avant l'erreur
       results.push({
         file: "Produits",
-        inserted: 0,
+        inserted: err.inserted ?? 0,
         total: 0,
         errors: [err.message],
       });
-      log(`❌ Fichier 1 échoué: ${err.message}`);
-      log("⛔ Import arrêté (All or Nothing)");
+      log(`❌ Fichier 1 — ${err.message}`);
+      log("⛔ All or Nothing: arrêt immédiat");
       return results;
     }
   }
 
   // === IMAGES ZIP (après produits, avant combinaisons) ===
-  // Les erreurs d'images ne bloquent pas la suite de l'import
+  // Les images ne bloquent pas la suite si elles échouent
   if (files.images_zip) {
     log("🖼️  Début import Images ZIP...");
     try {
       const result = await importImages(files.images_zip, log);
       results.push({ file: "Images", ...result });
-
       if (result.errors.length > 0) {
         log(`⚠️  ${result.errors.length} image(s) en erreur (import continué)`);
       }
@@ -72,7 +69,6 @@ export async function runImport(files, onLog) {
         errors: [err.message],
       });
       log(`❌ Images échouées: ${err.message} (import continué)`);
-      // Les images ne bloquent pas les fichiers 2 et 3
     }
   }
 
@@ -82,27 +78,25 @@ export async function runImport(files, onLog) {
     try {
       const rows = await parseCsvFile(files.fichier2_combinations);
       log(`  ${rows.length} ligne(s) à traiter`);
-
       const result = await importCombinations(rows, log);
-      results.push({ file: "Déclinaisons", ...result });
-
-      if (result.errors.length > 0) {
-        log(`⚠️  ${result.errors.length} erreur(s) dans Fichier 2`);
-        log("⛔ Import arrêté (All or Nothing)");
-        return results;
-      }
+      results.push({
+        file: "Déclinaisons",
+        inserted: result.inserted,
+        total: result.total,
+        errors: [],
+      });
       log(
         `✅ Fichier 2 terminé: ${result.inserted}/${result.total} déclinaisons insérées`,
       );
     } catch (err) {
       results.push({
         file: "Déclinaisons",
-        inserted: 0,
+        inserted: err.inserted ?? 0,
         total: 0,
         errors: [err.message],
       });
-      log(`❌ Fichier 2 échoué: ${err.message}`);
-      log("⛔ Import arrêté (All or Nothing)");
+      log(`❌ Fichier 2 — ${err.message}`);
+      log("⛔ All or Nothing: arrêt immédiat");
       return results;
     }
   }
@@ -113,24 +107,28 @@ export async function runImport(files, onLog) {
     try {
       const rows = await parseCsvFile(files.fichier3_transactions);
       log(`  ${rows.length} ligne(s) à traiter`);
-
       const result = await importCustomersOrders(rows, log);
-      results.push({ file: "Clients & Commandes", ...result });
-
-      if (result.errors.length > 0) {
-        log(`⚠️  ${result.errors.length} erreur(s) dans Fichier 3`);
-      }
+      results.push({
+        file: "Clients & Commandes",
+        inserted: result.inserted,
+        total: result.total,
+        errors: [],
+        customers: result.customers,
+        orders: result.orders,
+      });
       log(
         `✅ Fichier 3 terminé: ${result.customers} client(s), ${result.orders} commande(s)`,
       );
     } catch (err) {
       results.push({
         file: "Clients & Commandes",
-        inserted: 0,
+        inserted: err.inserted ?? 0,
         total: 0,
         errors: [err.message],
       });
-      log(`❌ Fichier 3 échoué: ${err.message}`);
+      log(`❌ Fichier 3 — ${err.message}`);
+      log("⛔ All or Nothing: arrêt immédiat");
+      return results;
     }
   }
 

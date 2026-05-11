@@ -174,12 +174,20 @@ export function buildAddressXml({
 // ===========================================================================
 // PANIER (nécessaire pour créer une commande)
 // ===========================================================================
-export function buildCartXml({ customer_id, address_id, date_add }) {
-  // Clé unique 32 caractères hex (simulé côté client)
-  const secureKey = Array.from(
-    { length: 32 },
-    () => "0123456789abcdef"[Math.floor(Math.random() * 16)],
-  ).join("");
+export function buildCartXml({
+  customer_id,
+  address_id,
+  date_add,
+  secure_key,
+}) {
+  // Utiliser la secure_key du client : PrestaShop exige que le panier et la commande
+  // aient la même clé que le client, sinon l'ordre est refusé ("Secure key does not match")
+  const secureKey =
+    secure_key ||
+    Array.from(
+      { length: 32 },
+      () => "0123456789abcdef"[Math.floor(Math.random() * 16)],
+    ).join("");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <prestashop><cart>

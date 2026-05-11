@@ -20,7 +20,15 @@ const parser = new XMLParser({
 });
 
 // avadika teny anglais le donnee brute be
+// Exceptions PrestaShop dont le singulier n'est pas simplement "-s"
+const SINGULAR_EXCEPTIONS = {
+  addresses: "address",
+  taxes: "tax",
+  order_states: "order_state",
+};
+
 export function toSingleName(moduleName) {
+  if (SINGULAR_EXCEPTIONS[moduleName]) return SINGULAR_EXCEPTIONS[moduleName];
   if (moduleName.endsWith("ies")) return `${moduleName.slice(0, -3)}y`;
   if (moduleName.endsWith("s")) return moduleName.slice(0, -1);
   return moduleName;

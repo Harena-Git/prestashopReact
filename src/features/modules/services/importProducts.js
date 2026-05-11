@@ -24,9 +24,8 @@ function toNum(str) {
 }
 
 // Importe tous les produits du fichier 1
-// Retourne { inserted, errors }
+// All or Nothing : la première erreur arrête tout l'import
 export async function importProducts(rows, log) {
-  const errors = [];
   let inserted = 0;
 
   for (let i = 0; i < rows.length; i++) {
@@ -71,18 +70,27 @@ export async function importProducts(rows, log) {
       const responseText = await postXml("products", xml);
       const productId = extractIdFromXml(responseText, "product");
 
-      if (!productId) throw new Error(`Aucun ID retourné pour le produit "${reference}"`);
+      if (!productId)
+        throw new Error(`Aucun ID retourné pour le produit "${reference}"`);
 
       // Mettre en cache pour les fichiers 2 et 3
-      setProductInfo(reference, { id: productId, price_ht: priceHt, tax_rate: taxRate, name });
+      setProductInfo(reference, {
+        id: productId,
+        price_ht: priceHt,
+        tax_rate: taxRate,
+        name,
+      });
 
       log(`  ✓ Produit "${reference}" créé avec ID ${productId}`);
       inserted++;
     } catch (err) {
-      errors.push(`Ligne ${lineNum}: ${err.message}`);
       log(`  ✗ Ligne ${lineNum}: ${err.message}`);
+      // All or Nothing : arrêt immédiat
+      const stopError = new Error(`Ligne ${lineNum}: ${err.message}`);
+      stopError.inserted = inserted;
+      throw stopError;
     }
   }
 
-  return { inserted, total: rows.length, errors };
+  return { inserted, total: rows.length };
 }

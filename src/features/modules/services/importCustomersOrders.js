@@ -1,11 +1,17 @@
 import {
   findOrCreateCustomer,
+  getCustomerSecureKey,
   getProductInfo,
   getCombinationId,
   getMadagascarCountryId,
   postXml,
 } from "./prestashopCache";
-import { buildAddressXml, buildCartXml, buildOrderXml, formatDate } from "./xmlBuilder";
+import {
+  buildAddressXml,
+  buildCartXml,
+  buildOrderXml,
+  formatDate,
+} from "./xmlBuilder";
 import { XMLParser } from "fast-xml-parser";
 
 const xmlParser = new XMLParser({ ignoreAttributes: false });
@@ -54,8 +60,8 @@ function parseOrderItems(achatStr) {
 }
 
 // Importe clients et commandes depuis le fichier 3
+// All or Nothing : la première erreur arrête tout l'import
 export async function importCustomersOrders(rows, log) {
-  const errors = [];
   let customersInserted = 0;
   let ordersInserted = 0;
 
@@ -69,7 +75,12 @@ export async function importCustomersOrders(rows, log) {
 
       // 1. Trouver/créer le client
       log(`  Ligne ${lineNum}: Client "${email}"...`);
-      const customerId = await findOrCreateCustomer(email, row.nom, row.pwd, dateAdd);
+      const customerId = await findOrCreateCustomer(
+        email,
+        row.nom,
+        row.pwd,
+        dateAdd,
+      );
       log(`  ✓ Client ID: ${customerId}`);
       customersInserted++;
 
@@ -91,8 +102,15 @@ export async function importCustomersOrders(rows, log) {
       const addressId = extractIdFromXml(addressResponse, "address");
       if (!addressId) throw new Error("Impossible de créer l'adresse");
 
-      // 3. Créer le panier (obligatoire pour la commande PrestaShop)
-      const cartXml = buildCartXml({ customer_id: customerId, address_id: addressId, date_add: dateAdd });
+      // 3. Créer le panier avec la secure_key du client
+      // (PrestaShop exige que panier et commande aient la même secure_key que le client)
+      const secureKey = getCustomerSecureKey(email);
+      const cartXml = buildCartXml({
+        customer_id: customerId,
+        address_id: addressId,
+        date_add: dateAdd,
+        secure_key: secureKey,
+      });
       const cartResponse = await postXml("carts", cartXml);
       const cartId = extractIdFromXml(cartResponse, "cart");
       if (!cartId) throw new Error("Impossible de créer le panier");
@@ -104,14 +122,13 @@ export async function importCustomersOrders(rows, log) {
       const resolvedItems = orderItems.map((item) => {
         const productInfo = getProductInfo(item.reference);
         if (!productInfo) {
-          throw new Error(`Produit "${item.reference}" non trouvé — importer les fichiers 1 et 2 d'abord`);
+          throw new Error(
+            `Produit "${item.reference}" non trouvé — importer les fichiers 1 et 2 d'abord`,
+          );
         }
-
-        const combinationId = getCombinationId(item.reference, item.attribute);
-
         return {
           product_id: productInfo.id,
-          combination_id: combinationId,
+          combination_id: getCombinationId(item.reference, item.attribute),
           name: productInfo.name,
           quantity: item.quantity,
           unit_price: productInfo.price_ht,
@@ -137,8 +154,11 @@ export async function importCustomersOrders(rows, log) {
       log(`  ✓ Commande ID: ${orderId} (${resolvedItems.length} article(s))`);
       ordersInserted++;
     } catch (err) {
-      errors.push(`Ligne ${lineNum}: ${err.message}`);
       log(`  ✗ Ligne ${lineNum}: ${err.message}`);
+      // All or Nothing : arrêt immédiat, les données insérées seront rollbackées
+      const stopError = new Error(`Ligne ${lineNum}: ${err.message}`);
+      stopError.inserted = customersInserted + ordersInserted;
+      throw stopError;
     }
   }
 
@@ -147,6 +167,5 @@ export async function importCustomersOrders(rows, log) {
     customers: customersInserted,
     orders: ordersInserted,
     total: rows.length,
-    errors,
   };
 }

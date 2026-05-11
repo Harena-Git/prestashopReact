@@ -1,25 +1,71 @@
-Interface :
-Nisy erreur vitsivitsy :
-
-- categories : Erreur DELETE categories/1 : 500
-  Code : 88
-  Message : Id(s) wasn't deleted: 1
-
-- combinations : Erreur DELETE combinations/2 : 404
-  Code : 87
-  Message : Id(s) not exists: 2
-
-- carts : Erreur DELETE carts/1 : 500
-
-Erreur dans le console :
-(il y a eu beacoup de ce type) :
-prestashop.api.js:30
- GET http://localhost:5173/api/products/19?ws_key=25Wx5346ZgrYsaaNnPYiIh2s565qH2ui 404 (Not Found)
-requestXml	@	prestashop.api.js:30
-(anonymous)	@	prestashop.api.js:131
+Une partie de l'erreur dans le console :
+"prestashopCache.js:47
+ POST http://localhost:5173/api/orders?ws_key=25Wx5346ZgrYsaaNnPYiIh2s565qH2ui 500 (Internal Server Error)
+(anonymous)	@	prestashopCache.js:47
+(anonymous)	@	importCustomersOrders.js:133
 await in (anonymous)
-deleteOneModule	@	moduleDeletion.service.js:12
-await in deleteOneModule
-(anonymous)	@	moduleDeletion.service.js:27
-(anonymous)	@	moduleDeletion.service.js:24
-(anonymous)	@	ModuleCleanupPage.jsx:51
+(anonymous)	@	importOrchestrator.js:117
+await in (anonymous)
+(anonymous)	@	DataImportPage.jsx:89
+<button>
+DataImportPage	@	DataImportPage.jsx:160
+<DataImportPage>
+AppRouter	@	AppRouter.jsx:34
+<AppRouter>
+App	@	App.jsx:6
+<App>
+(anonymous)	@	main.jsx:9
+importOrchestrator.js:13   ✗ Ligne 1: POST orders: 500 - Error processing order. Secure key does not match.
+importOrchestrator.js:13   Ligne 2: Client "rajao1970@yopmail.com"...
+importOrchestrator.js:13   ✓ Client ID: 6
+importOrchestrator.js:13   Ligne 2: Création adresse...
+importOrchestrator.js:13   Ligne 2: Création commande (état: 2)...
+prestashopCache.js:47
+ POST http://localhost:5173/api/orders?ws_key=25Wx5346ZgrYsaaNnPYiIh2s565qH2ui 500 (Internal Server Error)
+(anonymous)	@	prestashopCache.js:47
+(anonymous)	@	importCustomersOrders.js:133
+await in (anonymous)
+(anonymous)	@	importOrchestrator.js:117
+await in (anonymous)
+(anonymous)	@	DataImportPage.jsx:89
+importOrchestrator.js:13   ✗ Ligne 2: POST orders: 500 - Error processing order. Secure key does not match.
+importOrchestrator.js:13   Ligne 3: Client "rakoto@yopmail.com"...
+importOrchestrator.js:13   ✓ Client ID: 5
+importOrchestrator.js:13   Ligne 3: Création adresse...
+importOrchestrator.js:13   Ligne 3: Création commande (état: 8)...
+prestashopCache.js:47
+ POST http://localhost:5173/api/orders?ws_key=25Wx5346ZgrYsaaNnPYiIh2s565qH2ui 500 (Internal Server Error)
+importOrchestrator.js:13   ✗ Ligne 3: POST orders: 500 - Error processing order. Secure key does not match.
+importOrchestrator.js:13 ⚠️  3 erreur(s) dans Fichier 3
+importOrchestrator.js:13 ✅ Fichier 3 terminé: 3 client(s), 0 commande(s)
+﻿
+"
+
+Dans l'interface :
+" ✗ Ligne 3: POST orders: 500 - Error processing order. Secure key does not match.
+⚠️  3 erreur(s) dans Fichier 3
+✅ Fichier 3 terminé: 3 client(s), 0 commande(s)
+🔄 Rollback automatique — suppression des données insérées...
+  Modules à nettoyer : combinations, products, orders, carts, addresses, customers
+  Suppression combinations...
+  ✓ combinations: 4 enregistrement(s) supprimé(s)
+  Suppression products...
+  ✓ products: 4 enregistrement(s) supprimé(s)
+  Suppression orders...
+  ✓ orders: 0 enregistrement(s) supprimé(s)
+  Suppression carts...
+  ✓ carts: 3 enregistrement(s) supprimé(s)
+  Suppression addresses...
+  ✓ addresses: 0 enregistrement(s) supprimé(s)
+  Suppression customers...
+  ✓ customers: 2 enregistrement(s) supprimé(s)
+✅ Rollback terminé
+↺ Champs réinitialisés
+❌ Erreur lors de l'import
+Produits : 4/4 insérés
+Images : 4/4 insérés
+Déclinaisons : 6/6 insérés
+Clients & Commandes : 3/3 insérés
+Ligne 1: POST orders: 500 - Error processing order. Secure key does not match.
+Ligne 2: POST orders: 500 - Error processing order. Secure key does not match.
+Ligne 3: POST orders: 500 - Error processing order. Secure key does not match."
