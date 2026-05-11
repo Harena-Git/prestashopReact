@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { useContext } from "react";
 import MainLayout from "../layouts/MainLayout";
+import AdminLayout from "../layouts/AdminLayout";
 import ModuleCleanupPage from "../features/modules/pages/ModuleCleanupPage";
 import ModuleImportPage from "../features/modules/pages/ModuleImportPage";
 import ModuleProductList from "../features/modules/pages/ModuleProductList";
@@ -22,15 +23,18 @@ function AppRouter() {
         {/* Routes publiques sans Sidebar */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* Routes protégées avec Sidebar */}
+        {/* Routes Admin avec Admin Sidebar - PROTÉGÉES */}
+        <Route 
+          element={isAuthenticated ? <AdminLayout /> : <Navigate to="/login" replace />}
+        >
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin/modules/cleanup" element={<ModuleCleanupPage />} />
+          <Route path="/admin/modules/import" element={<ModuleImportPage />} />
+        </Route>
+
+        {/* Routes normales avec Sidebar normal */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
-          <Route 
-            path="/admin" 
-            element={isAuthenticated ? <AdminPage /> : <Navigate to="/login" replace />} 
-          />
-          <Route path="/modules/cleanup" element={<ModuleCleanupPage />} />
-          <Route path="/modules/import" element={<ModuleImportPage />} />
           <Route path="/modules/list" element={<ModuleProductList />} />
         </Route>
 

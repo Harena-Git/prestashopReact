@@ -6,21 +6,9 @@ export const SIDEBAR_PAGES = [
       showInSidebar: true,
     },
     {
-      id: "module-cleanup",
-      label: "Suppression modules",
-      path: "/modules/cleanup",
+      id: "list-products",
+      label: "Liste des produits",
+      path: "/modules/list",
       showInSidebar: true,
     },
-    {
-        id : "import-csv",
-        label: "Imporation des donnees",
-        path: "/modules/import",
-        showInSidebar: true,
-    },
-        {
-        id : "list-products",
-        label: "Liste des produits",
-        path: "/modules/list",
-        showInSidebar: true,
-    },
-  ];
+];

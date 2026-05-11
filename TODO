@@ -53,13 +53,15 @@ DEADLINE : 10/05/2025
 Jours 1 :
 Backoffice :
     - login
-        - creation de connection de donnee brute
-        - localhost:5173 ==> FronOffice
-        - localhost:5173/admin ==> Backoffice
+        - creation de connection de donnee brute (OK)
+        - localhost:5173 ==> FronOffice (OK)
+        - localhost:5173/admin ==> Backoffice (OK)
+        
     - reinitialisation (un seul boutton)
     - preparation import pour les 4 fichiers 
         - adapter l'import par rapport au fichier donner
     - liste commande (+ boutton modification d'etat)
+    - 
 
 FronOffice :
     - page d'accueil pour afficher les produits
