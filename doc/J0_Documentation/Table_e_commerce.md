@@ -899,7 +899,7 @@ ANALYZE TABLE ps_customer;
 - **Site officiel** : https://www.prestashop.com
 - **Documentation** : https://devdocs.prestashop.com
 - **Forum** : https://www.prestashop.com/forums
-- **GitHub** : https://github.com/PrestaShop/PrestaShop
+- **GitHub** : https://github.com/prestashop_new/PrestaShop
 
 ---
 

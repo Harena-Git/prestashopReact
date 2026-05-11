@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-http://localhost/prestashop/api/
+http://localhost/prestashop_new/api/
 ```
 
 ---

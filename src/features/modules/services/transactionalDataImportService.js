@@ -1,19 +1,19 @@
 /**
  * SERVICE D'IMPORT TRANSACTIONNEL (All or Nothing)
- * 
+ *
  * Orchestre le processus complet:
  * 1. CSV → Parse
  * 2. Parse → Validation
  * 3. Validation → Transformation (via mapping)
  * 4. Transformation → XML
  * 5. XML → Insertion Prestashop (Transaction atomique)
- * 
+ *
  * Si ANY erreur: ROLLBACK complet (Nothing)
  * Sinon: COMMIT all (All)
  */
 
 import Papa from "papaparse";
-import { createResource } from "../../../api/prestashop.api";
+import { createResource, PrestashopClient } from "../../../api/prestashop.api";
 import csvToXmlService from "./csvToXmlTransformationService";
 import {
   PRODUCTS_FILE_MAPPING,
@@ -30,62 +30,78 @@ class ImportContext {
   constructor(apiClient) {
     this.apiClient = apiClient;
     this.cache = {
-      categories: {},    // Cache catégories
-      taxGroups: {},     // Cache groupes taxe
+      categories: {}, // Cache catégories
+      taxGroups: {}, // Cache groupes taxe
       attributeGroups: {}, // Cache groupes attributs
-      attributes: {},    // Cache attributs
-      products: {},      // Cache produits
-      customers: {},     // Cache clients
-      orderStates: {},   // Cache états commandes
+      attributes: {}, // Cache attributs
+      products: {}, // Cache produits
+      customers: {}, // Cache clients
+      orderStates: {}, // Cache états commandes
     };
     this.insertedRecords = []; // Trace des insertions pour rollback
   }
 
   /**
-   * Chercher/créer un groupe de taxe par taux
-   * Exemple: "11.65%" → retourner l'ID du groupe
+   * Chercher un groupe de taxe par taux
+   * Exemple: "20%" → ID du tax_rule_group MG (ex: 1 pour "MG Standard Rate (20%)")
+   *
+   * Logique correcte PrestaShop :
+   *  1. Le taux est dans la table `taxes` (pas dans `tax_rule_groups`)
+   *  2. `tax_rules` fait le lien entre une taxe et un groupe pour un pays donné
+   *  3. On cherche les taxes avec le bon taux, puis on trouve le groupe MG (country_id=133)
    */
   async getTaxGroupIdByRate(rateStr) {
-    // Extraire le taux numérique
-    const rate = parseFloat(rateStr.replace("%", ""));
+    // Extraire le taux numérique (supporte virgule + %)
+    const rate = parseFloat(rateStr.replace(",", ".").replace("%", ""));
 
-    // Chercher en cache
+    // Cache
     if (this.cache.taxGroups[rate]) {
       return this.cache.taxGroups[rate];
     }
 
     try {
-      // Appeler l'API Prestashop
-      // GET /api/tax_rules_groups?filter[rate]=11.65
-      const response = await this.apiClient.get(
-        `tax_rules_groups?filter[rate]=${rate}`
+      // ÉTAPE 1 : Chercher les taxes avec ce taux
+      // PrestaShop stocke le taux avec 3 décimales : "20.000"
+      const rateFormatted = rate.toFixed(3);
+      const taxesResponse = await this.apiClient.get(
+        `taxes?filter[rate]=${rateFormatted}`,
       );
+      const taxes = taxesResponse.taxes || [];
 
-      if (response.tax_rules_groups && response.tax_rules_groups.length > 0) {
-        const groupId = response.tax_rules_groups[0].id;
-        this.cache.taxGroups[rate] = groupId;
-        return groupId;
+      // ÉTAPE 2 : Pour chaque taxe trouvée, chercher la règle pour Madagascar (id_country=133)
+      for (const tax of taxes) {
+        const rulesResponse = await this.apiClient.get(
+          `tax_rules?filter[id_tax]=${tax.id}&filter[id_country]=133`,
+        );
+        const rules = rulesResponse.tax_rules || [];
+
+        if (rules.length > 0) {
+          const groupId = parseInt(rules[0].id_tax_rules_group, 10);
+          this.cache.taxGroups[rate] = groupId;
+          return groupId;
+        }
       }
 
-      // Si pas trouvé, créer un groupe
-      // POST /api/tax_rules_groups
-      const createResponse = await this.apiClient.post("tax_rules_groups", {
-        tax_rules_group: {
-          name: `Taxe ${rate}%`,
+      // ÉTAPE 3 : Aucun groupe trouvé → créer un nouveau tax_rule_group
+      // (rare : signifie qu'aucune taxe MG avec ce taux n'existe)
+      const createResponse = await this.apiClient.post("tax_rule_groups", {
+        tax_rule_group: {
+          name: `Taxe MG ${rate}%`,
+          active: 1,
         },
       });
 
-      const newGroupId = createResponse.tax_rules_group.id;
+      const newGroupId = parseInt(createResponse.tax_rule_group.id, 10);
       this.cache.taxGroups[rate] = newGroupId;
       this.insertedRecords.push({
-        type: "tax_rules_group",
+        type: "tax_rule_group",
         id: newGroupId,
       });
 
       return newGroupId;
     } catch (err) {
       throw new Error(
-        `Erreur recherche/création groupe taxe ${rate}%: ${err.message}`
+        `Erreur recherche/création groupe taxe ${rate}%: ${err.message}`,
       );
     }
   }
@@ -104,7 +120,7 @@ class ImportContext {
     try {
       // GET /api/categories?filter[name]=Akanjo
       const response = await this.apiClient.get(
-        `categories?filter[name]=${encodeURIComponent(name)}`
+        `categories?filter[name]=${encodeURIComponent(name)}`,
       );
 
       if (response.categories && response.categories.length > 0) {
@@ -133,7 +149,7 @@ class ImportContext {
       return newCatId;
     } catch (err) {
       throw new Error(
-        `Erreur recherche/création catégorie "${name}": ${err.message}`
+        `Erreur recherche/création catégorie "${name}": ${err.message}`,
       );
     }
   }
@@ -151,7 +167,7 @@ class ImportContext {
     try {
       // GET /api/products?filter[reference]=T_01
       const response = await this.apiClient.get(
-        `products?filter[reference]=${ref}`
+        `products?filter[reference]=${ref}`,
       );
 
       if (response.products && response.products.length > 0) {
@@ -162,9 +178,7 @@ class ImportContext {
 
       return null; // Pas trouvé
     } catch (err) {
-      throw new Error(
-        `Erreur recherche produit "${ref}": ${err.message}`
-      );
+      throw new Error(`Erreur recherche produit "${ref}": ${err.message}`);
     }
   }
 
@@ -181,7 +195,7 @@ class ImportContext {
     try {
       // GET /api/product_options?filter[name]=taille
       const response = await this.apiClient.get(
-        `product_options?filter[name]=${encodeURIComponent(name)}`
+        `product_options?filter[name]=${encodeURIComponent(name)}`,
       );
 
       if (response.product_options && response.product_options.length > 0) {
@@ -209,7 +223,7 @@ class ImportContext {
       return newGroupId;
     } catch (err) {
       throw new Error(
-        `Erreur recherche/création groupe attribut "${name}": ${err.message}`
+        `Erreur recherche/création groupe attribut "${name}": ${err.message}`,
       );
     }
   }
@@ -228,7 +242,7 @@ class ImportContext {
     try {
       // GET /api/product_option_values?filter[name]=ngoza
       const response = await this.apiClient.get(
-        `product_option_values?filter[name]=${encodeURIComponent(value)}`
+        `product_option_values?filter[name]=${encodeURIComponent(value)}`,
       );
 
       if (
@@ -248,7 +262,7 @@ class ImportContext {
             name: value,
             id_attribute_group: attributeGroupId,
           },
-        }
+        },
       );
 
       const newAttrId = createResponse.product_option_value.id;
@@ -261,7 +275,7 @@ class ImportContext {
       return newAttrId;
     } catch (err) {
       throw new Error(
-        `Erreur recherche/création attribut "${value}": ${err.message}`
+        `Erreur recherche/création attribut "${value}": ${err.message}`,
       );
     }
   }
@@ -279,7 +293,7 @@ class ImportContext {
     try {
       // GET /api/customers?filter[email]=rakoto@yopmail.com
       const response = await this.apiClient.get(
-        `customers?filter[email]=${encodeURIComponent(emailLower)}`
+        `customers?filter[email]=${encodeURIComponent(emailLower)}`,
       );
 
       if (response.customers && response.customers.length > 0) {
@@ -291,7 +305,7 @@ class ImportContext {
       return null; // Pas trouvé
     } catch (err) {
       throw new Error(
-        `Erreur recherche client "${emailLower}": ${err.message}`
+        `Erreur recherche client "${emailLower}": ${err.message}`,
       );
     }
   }
@@ -300,7 +314,7 @@ class ImportContext {
    * Chercher ID état de commande par label texte
    */
   async getOrderStateIdByLabel(label) {
-    const mapping = ORDERS_FILE_MAPPING.columns.etat.stateMapping;
+    const mapping = TRANSACTIONS_FILE_MAPPING.columns.etat.stateMapping;
 
     if (mapping[label]) {
       return mapping[label];
@@ -308,7 +322,7 @@ class ImportContext {
 
     throw new Error(
       `État de commande "${label}" non mappé. ` +
-      `États supportés: ${Object.keys(mapping).join(", ")}`
+        `États supportés: ${Object.keys(mapping).join(", ")}`,
     );
   }
 
@@ -363,10 +377,10 @@ class TransactionalDataImportService {
 
   /**
    * MAIN : Importer un fichier CSV complet
-   * 
+   *
    * Cas spécial:
    * - fichier3_transactions: UNE LIGNE CSV = 2 ressources (customer + order)
-   * 
+   *
    * Processus:
    * 1. Parser CSV
    * 2. Créer contexte
@@ -401,7 +415,8 @@ class TransactionalDataImportService {
 
       // ÉTAPE 3 : Créer contexte pour transformations async
       this.log(`Étape 3: Initialisation contexte...`);
-      context = new ImportContext(null); // TODO: Injecter API client
+      const apiClient = new PrestashopClient();
+      context = new ImportContext(apiClient); // Client API pour les transformations
       this.log(`✓ Contexte créé`);
 
       // ÉTAPE 4 : Transformer données CSV → XML
@@ -409,7 +424,7 @@ class TransactionalDataImportService {
       const transformResult = await csvToXmlService.transformCsvData(
         csvData,
         mapping,
-        context
+        context,
       );
 
       // Vérifier s'il y a des erreurs
@@ -419,40 +434,48 @@ class TransactionalDataImportService {
 
       if (totalErrors > 0) {
         this.log(`✗ ${totalErrors} erreur(s) détectée(s)`);
-        this.log(`  → Validation errors: ${transformResult.validationErrors.length}`);
-        this.log(`  → Transformation errors: ${transformResult.transformationErrors.length}`);
+        this.log(
+          `  → Validation errors: ${transformResult.validationErrors.length}`,
+        );
+        this.log(
+          `  → Transformation errors: ${transformResult.transformationErrors.length}`,
+        );
 
         // ALL or NOTHING : s'il y a des erreurs → NOTHING
         throw new Error(
           `${totalErrors} erreur(s) de transformation. ` +
-          `Import annulé (All or Nothing).`
+            `Import annulé (All or Nothing).`,
         );
       }
 
       this.log(
-        `✓ ${transformResult.stats.valid}/${transformResult.stats.total} lignes transformées`
+        `✓ ${transformResult.stats.valid}/${transformResult.stats.total} lignes transformées`,
       );
 
       // ÉTAPE 5 : Rapport pré-insertion
       this.log(`Étape 5: Rapport pré-insertion...`);
-      this.log(`  - Prêt à insérer: ${transformResult.xmlDataList.length} enregistrements`);
-      this.log(`  - Nouvelles ressources créées: ${JSON.stringify(context.getInsertedRecordsReport())}`);
+      this.log(
+        `  - Prêt à insérer: ${transformResult.xmlDataList.length} enregistrements`,
+      );
+      this.log(
+        `  - Nouvelles ressources créées: ${JSON.stringify(context.getInsertedRecordsReport())}`,
+      );
 
       // ÉTAPE 6 : Insertion transactionnelle
       this.log(`Étape 6: Insertion des données...`);
       const insertResult = await this.insertDataTransactional(
         transformResult.xmlDataList,
-        mapping.resourceName
+        mapping.resourceName,
       );
 
       this.log(`✓ ${insertResult.successCount} enregistrements insérés`);
 
       if (insertResult.errors.length > 0) {
         this.log(
-          `✗ ${insertResult.errors.length} erreur(s) lors de l'insertion`
+          `✗ ${insertResult.errors.length} erreur(s) lors de l'insertion`,
         );
         throw new Error(
-          `Erreurs insertion: ${insertResult.errors.map(e => e.error).join("; ")}`
+          `Erreurs insertion: ${insertResult.errors.map((e) => e.error).join("; ")}`,
         );
       }
 
@@ -471,7 +494,6 @@ class TransactionalDataImportService {
         },
         log: this.importLog,
       };
-
     } catch (err) {
       // ERREUR : Rollback Everything (Nothing)
       this.log(`════════════════════════════════════════════`);
@@ -491,11 +513,11 @@ class TransactionalDataImportService {
 
   /**
    * CAS SPÉCIAL : Importer fichier 3 (transactions)
-   * 
+   *
    * Une ligne CSV génère 2 ressources:
    * 1. Customer (email, nom, pwd, adresse)
    * 2. Order (date, achat, etat)
-   * 
+   *
    * Flux:
    * 1. Parser CSV fichier 3
    * 2. Transformer CUSTOMERS (colonnes: email, nom, pwd, adresse)
@@ -520,7 +542,8 @@ class TransactionalDataImportService {
 
       // ÉTAPE 2 : Créer contexte
       this.log(`Étape 2: Initialisation contexte...`);
-      context = new ImportContext(null);
+      const apiClient = new PrestashopClient();
+      context = new ImportContext(apiClient);
       this.log(`✓ Contexte créé`);
 
       // ÉTAPE 3A : Transformer CUSTOMERS
@@ -529,23 +552,23 @@ class TransactionalDataImportService {
         ...TRANSACTIONS_FILE_MAPPING,
         columns: Object.fromEntries(
           Object.entries(TRANSACTIONS_FILE_MAPPING.columns).filter(
-            ([_, config]) => config.resourceType === "customer"
-          )
+            ([_, config]) => config.resourceType === "customer",
+          ),
         ),
       };
       const customersResult = await csvToXmlService.transformCsvData(
         csvData,
         customerMapping,
-        context
+        context,
       );
 
-      let totalErrors = 
+      let totalErrors =
         customersResult.validationErrors.length +
         customersResult.transformationErrors.length;
 
       if (totalErrors > 0) {
         throw new Error(
-          `${totalErrors} erreur(s) dans transformation CUSTOMERS`
+          `${totalErrors} erreur(s) dans transformation CUSTOMERS`,
         );
       }
 
@@ -557,24 +580,22 @@ class TransactionalDataImportService {
         ...TRANSACTIONS_FILE_MAPPING,
         columns: Object.fromEntries(
           Object.entries(TRANSACTIONS_FILE_MAPPING.columns).filter(
-            ([_, config]) => config.resourceType === "order"
-          )
+            ([_, config]) => config.resourceType === "order",
+          ),
         ),
       };
       const ordersResult = await csvToXmlService.transformCsvData(
         csvData,
         orderMapping,
-        context
+        context,
       );
 
-      totalErrors = 
+      totalErrors =
         ordersResult.validationErrors.length +
         ordersResult.transformationErrors.length;
 
       if (totalErrors > 0) {
-        throw new Error(
-          `${totalErrors} erreur(s) dans transformation ORDERS`
-        );
+        throw new Error(`${totalErrors} erreur(s) dans transformation ORDERS`);
       }
 
       this.log(`✓ ${ordersResult.stats.valid} orders transformées`);
@@ -583,12 +604,12 @@ class TransactionalDataImportService {
       this.log(`Étape 4: Insertion des CUSTOMERS...`);
       const customersInsertResult = await this.insertDataTransactional(
         customersResult.xmlDataList,
-        "customers"
+        "customers",
       );
 
       if (customersInsertResult.errors.length > 0) {
         throw new Error(
-          `Erreurs insertion CUSTOMERS: ${customersInsertResult.errors.map(e => e.error).join("; ")}`
+          `Erreurs insertion CUSTOMERS: ${customersInsertResult.errors.map((e) => e.error).join("; ")}`,
         );
       }
 
@@ -598,12 +619,12 @@ class TransactionalDataImportService {
       this.log(`Étape 5: Insertion des ORDERS...`);
       const ordersInsertResult = await this.insertDataTransactional(
         ordersResult.xmlDataList,
-        "orders"
+        "orders",
       );
 
       if (ordersInsertResult.errors.length > 0) {
         throw new Error(
-          `Erreurs insertion ORDERS: ${ordersInsertResult.errors.map(e => e.error).join("; ")}`
+          `Erreurs insertion ORDERS: ${ordersInsertResult.errors.map((e) => e.error).join("; ")}`,
         );
       }
 
@@ -612,8 +633,12 @@ class TransactionalDataImportService {
       // FIN : Succès
       this.log(`════════════════════════════════════════════`);
       this.log(`✓ IMPORT RÉUSSI !`);
-      this.log(`  - Customers: ${customersInsertResult.successCount}/${csvData.length}`);
-      this.log(`  - Orders: ${ordersInsertResult.successCount}/${csvData.length}`);
+      this.log(
+        `  - Customers: ${customersInsertResult.successCount}/${csvData.length}`,
+      );
+      this.log(
+        `  - Orders: ${ordersInsertResult.successCount}/${csvData.length}`,
+      );
       this.log(`════════════════════════════════════════════`);
 
       return {
@@ -622,7 +647,9 @@ class TransactionalDataImportService {
         stats: {
           total: csvData.length,
           valid: customersResult.stats.valid + ordersResult.stats.valid,
-          inserted: customersInsertResult.successCount + ordersInsertResult.successCount,
+          inserted:
+            customersInsertResult.successCount +
+            ordersInsertResult.successCount,
         },
         details: {
           customers: customersInsertResult.successCount,
@@ -630,7 +657,6 @@ class TransactionalDataImportService {
         },
         log: this.importLog,
       };
-
     } catch (err) {
       // ERREUR : Rollback Everything (Nothing)
       this.log(`════════════════════════════════════════════`);
@@ -668,7 +694,7 @@ class TransactionalDataImportService {
 
   /**
    * Sélectionner le mapping selon le type de fichier
-   * 
+   *
    * Note: Fichier 3 contient à la fois customers ET orders
    * Le service traitera les 2 ressources à partir d'un seul fichier CSV
    */
@@ -682,7 +708,7 @@ class TransactionalDataImportService {
     if (!mappings[fileType]) {
       throw new Error(
         `Type de fichier inconnu: "${fileType}". ` +
-        `Types supportés: ${Object.keys(mappings).join(", ")}`
+          `Types supportés: ${Object.keys(mappings).join(", ")}`,
       );
     }
 
@@ -704,7 +730,9 @@ class TransactionalDataImportService {
     // (En réalité, c'est une simulation logique au niveau applicatif)
     const transactionData = [];
 
-    this.log(`  📝 Préparation des insertions (${xmlDataList.length} items)...`);
+    this.log(
+      `  📝 Préparation des insertions (${xmlDataList.length} items)...`,
+    );
 
     for (const item of xmlDataList) {
       transactionData.push({
@@ -728,10 +756,7 @@ class TransactionalDataImportService {
         result.insertedIds.push(recordId);
         result.successCount++;
 
-        this.log(
-          `  ✓ Ligne ${data.rowIndex}: Inséré avec ID ${recordId}`
-        );
-
+        this.log(`  ✓ Ligne ${data.rowIndex}: Inséré avec ID ${recordId}`);
       } catch (err) {
         // Une erreur → avorter tout
         result.errors.push({
@@ -739,18 +764,14 @@ class TransactionalDataImportService {
           error: err.message,
         });
 
-        this.log(
-          `  ✗ Ligne ${data.rowIndex}: ${err.message}`
-        );
+        this.log(`  ✗ Ligne ${data.rowIndex}: ${err.message}`);
       }
     }
 
     // Vérifier s'il y a eu des erreurs
     if (result.errors.length > 0) {
       // ALL or NOTHING : s'il y a une erreur, on annule tout
-      this.log(
-        `\n  ⚠️ ERREURS DÉTECTÉES : ${result.errors.length} erreur(s)`
-      );
+      this.log(`\n  ⚠️ ERREURS DÉTECTÉES : ${result.errors.length} erreur(s)`);
       this.log(`  → Policy ALL or NOTHING activée`);
       this.log(`  → AUCUN données n'a été insérée`);
 

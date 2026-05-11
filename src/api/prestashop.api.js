@@ -3,7 +3,7 @@ import { XMLParser } from "fast-xml-parser";
 // Charger les variables d'environnement
 // const API_KEY = import.meta.env.VITE_API_KEY;
 // const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const API_KEY = "5SYPY9N926AJC1FR75YVNBFXVAPJFFBC";
+const API_KEY = "25Wx5346ZgrYsaaNnPYiIh2s565qH2ui";
 const BASE_URL = "/api/";
 
 // Validation des variables d'environnement
@@ -13,7 +13,6 @@ if (!API_KEY) {
 if (!BASE_URL) {
   console.warn("VITE_API_BASE_URL n'est pas definie dans .env");
 }
-
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -56,24 +55,24 @@ async function safeReadText(response) {
 export async function fetchModuleIds(moduleName) {
   // 1. Appel API : Maka ny data avy any amin'ny PrestaShop (On lance la requête)
   const response = await requestXml(
-    `${BASE_URL}${moduleName}?ws_key=${API_KEY}`
+    `${BASE_URL}${moduleName}?ws_key=${API_KEY}`,
   );
 
   // 2. Vérification : Raha misy erreur ny API dia avoaka ny antony (Si la requête échoue)
   if (!response.ok) {
     const details = await safeReadText(response);
     throw new Error(
-      `Erreur GET ${moduleName}: ${response.status} ${details}`.trim()
+      `Erreur GET ${moduleName}: ${response.status} ${details}`.trim(),
     );
   }
 
   // 3. Mamaky ny text XML : Alaina ny contenu (On récupère le texte brut de la réponse)
   const xmlPayload = await response.text();
-  
+
   // 4. Avadika ho JSON (Objet JS) ilay XML mba ho mora ampiasaina (On parse le XML)
   const parsedPayload = parser.parse(xmlPayload);
 
-  // 5. Mitady ilay liste anaty JSON. 
+  // 5. Mitady ilay liste anaty JSON.
   // Ny "?." (optional chaining) dia misoroka erreur raha tsy misy ilay data (Sécurité)
   const collectionRoot = parsedPayload?.prestashop?.[moduleName];
 
@@ -99,13 +98,15 @@ export async function fetchModuleIds(moduleName) {
   }
 
   // 9. Fanivanana ny IDs (Extraction et filtrage des numéros ID)
-  return items
-    // .map : Maka ny attribut "@_id" isaky ny element ary avadika ho chiffre (Number)
-    .map((item) => Number(item?.["@_id"]))
-    
-    // .filter : Manivana mba hitazona izay tena chiffre ihany. 
-    // !isNaN midika hoe "Tsy is Not a Number" = tena chiffre marina ilay izy.
-    .filter((id) => !isNaN(id)); 
+  return (
+    items
+      // .map : Maka ny attribut "@_id" isaky ny element ary avadika ho chiffre (Number)
+      .map((item) => Number(item?.["@_id"]))
+
+      // .filter : Manivana mba hitazona izay tena chiffre ihany.
+      // !isNaN midika hoe "Tsy is Not a Number" = tena chiffre marina ilay izy.
+      .filter((id) => !isNaN(id))
+  );
 }
 
 {
@@ -171,7 +172,7 @@ export async function createResource(resourceName, xmlData) {
  */
 export async function fetchModuleRecord(moduleName, id) {
   const response = await requestXml(
-    `${BASE_URL}${moduleName}/${id}?ws_key=${API_KEY}`
+    `${BASE_URL}${moduleName}/${id}?ws_key=${API_KEY}`,
   );
 
   // Si la requête échoue
@@ -183,7 +184,7 @@ export async function fetchModuleRecord(moduleName, id) {
     // Pour les autres erreurs, on lève une exception pour informer l'utilisateur.
     const details = await safeReadText(response);
     throw new Error(
-      `Erreur GET ${moduleName}/${id}: ${response.status} ${details}`.trim()
+      `Erreur GET ${moduleName}/${id}: ${response.status} ${details}`.trim(),
     );
   }
 
@@ -221,4 +222,53 @@ export async function updateResource(resourceName, xmlData) {
   }
 
   return await response.text();
+}
+
+// =================================== Client API prestashop =============================================== */
+/**
+ * Client API Prestashop simple
+ * Enveloppe les appels fetch pour les méthodes get/post
+ */
+export class PrestashopClient {
+  constructor(apiKey = "25Wx5346ZgrYsaaNnPYiIh2s565qH2ui", baseUrl = "/api/") {
+    this.apiKey = apiKey;
+    this.baseUrl = baseUrl;
+  }
+
+  async get(endpoint) {
+    const sep = endpoint.includes("?") ? "&" : "?";
+    // output_format=JSON obligatoire : PrestaShop retourne du XML avec Accept header seul
+    // display=full : retourne les champs complets (sans ça, seuls les IDs sont renvoyés)
+    const url = `${this.baseUrl}${endpoint}${sep}ws_key=${this.apiKey}&output_format=JSON&display=full`;
+    const response = await fetch(url, {
+      headers: { Accept: "application/json" },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`GET ${endpoint}: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    // PrestaShop retourne [] (tableau vide) quand aucun résultat — normaliser en objet vide
+    return Array.isArray(data) ? {} : data;
+  }
+
+  async post(endpoint, data) {
+    const sep = endpoint.includes("?") ? "&" : "?";
+    const url = `${this.baseUrl}${endpoint}${sep}ws_key=${this.apiKey}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`POST ${endpoint}: ${response.status}`);
+    }
+
+    return await response.json();
+  }
 }

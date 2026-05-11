@@ -1,416 +1,416 @@
 <prestashop>
 <api shopName="StoreH">
 <!-- Tables: ps_address (adresses), ps_customer (clients), ps_manufacturer (marques), ps_supplier (fournisseurs) -->
-<addresses xlink:href="http://localhost/prestashop/api/addresses" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/addresses" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Customer, Brand and Customer addresses</description>
-<schema xlink:href="http://localhost/prestashop/api/addresses?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/addresses?schema=synopsis" type="synopsis"/>
+<addresses xlink:href="http://localhost/prestashop_new/api/addresses" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/addresses" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Customer, Brand and Customer addresses</description>
+<schema xlink:href="http://localhost/prestashop_new/api/addresses?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/addresses?schema=synopsis" type="synopsis"/>
 </addresses>
 <!-- Tables: ps_attachment (pieces jointes), ps_attachment_lang (traductions pieces jointes), ps_product_attachment (liaisons produit-piece jointe) -->
-<attachments xlink:href="http://localhost/prestashop/api/attachments" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/attachments" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product Attachments</description>
+<attachments xlink:href="http://localhost/prestashop_new/api/attachments" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/attachments" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product Attachments</description>
 </attachments>
 <!-- Tables: ps_carrier (transporteurs), ps_carrier_lang (traductions transporteurs), ps_carrier_shop (liaisons boutiques), ps_carrier_zone (zones livraison), ps_carrier_group (groupes clients autorises) -->
-<carriers xlink:href="http://localhost/prestashop/api/carriers" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/carriers" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Carriers</description>
-<schema xlink:href="http://localhost/prestashop/api/carriers?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/carriers?schema=synopsis" type="synopsis"/>
+<carriers xlink:href="http://localhost/prestashop_new/api/carriers" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/carriers" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Carriers</description>
+<schema xlink:href="http://localhost/prestashop_new/api/carriers?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/carriers?schema=synopsis" type="synopsis"/>
 </carriers>
 <!-- Tables: ps_cart_rule (regles panier), ps_cart_rule_lang (traductions regles), ps_cart_rule_shop (liaisons boutiques), ps_cart_rule_carrier/country/group/combination (conditions), ps_cart_rule_product_rule* (regles produit) -->
-<cart_rules xlink:href="http://localhost/prestashop/api/cart_rules" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/cart_rules" get="true" put="true" post="true" patch="true" delete="true" head="true"> Cart rules management</description>
-<schema xlink:href="http://localhost/prestashop/api/cart_rules?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/cart_rules?schema=synopsis" type="synopsis"/>
+<cart_rules xlink:href="http://localhost/prestashop_new/api/cart_rules" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/cart_rules" get="true" put="true" post="true" patch="true" delete="true" head="true"> Cart rules management</description>
+<schema xlink:href="http://localhost/prestashop_new/api/cart_rules?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/cart_rules?schema=synopsis" type="synopsis"/>
 </cart_rules>
 <!-- Tables: ps_cart (paniers), ps_cart_product (produits dans panier), ps_cart_cart_rule (regles appliquees au panier) -->
-<carts xlink:href="http://localhost/prestashop/api/carts" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/carts" get="true" put="true" post="true" patch="true" delete="true" head="true"> Customer's carts</description>
-<schema xlink:href="http://localhost/prestashop/api/carts?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/carts?schema=synopsis" type="synopsis"/>
+<carts xlink:href="http://localhost/prestashop_new/api/carts" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/carts" get="true" put="true" post="true" patch="true" delete="true" head="true"> Customer's carts</description>
+<schema xlink:href="http://localhost/prestashop_new/api/carts?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/carts?schema=synopsis" type="synopsis"/>
 </carts>
 <!-- Tables: ps_category (categories), ps_category_lang (traductions categories), ps_category_shop (liaisons boutiques), ps_category_product (liaisons categories-produits), ps_category_group (droits groupes) -->
-<categories xlink:href="http://localhost/prestashop/api/categories" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/categories" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product categories</description>
-<schema xlink:href="http://localhost/prestashop/api/categories?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/categories?schema=synopsis" type="synopsis"/>
+<categories xlink:href="http://localhost/prestashop_new/api/categories" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/categories" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product categories</description>
+<schema xlink:href="http://localhost/prestashop_new/api/categories?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/categories?schema=synopsis" type="synopsis"/>
 </categories>
 <!-- Tables: ps_product_attribute (declinaisons), ps_product_attribute_lang (traductions declinaisons), ps_product_attribute_shop (liaisons boutiques), ps_product_attribute_combination (liaisons attributs), ps_product_attribute_image (liaisons images) -->
-<combinations xlink:href="http://localhost/prestashop/api/combinations" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/combinations" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product combinations</description>
-<schema xlink:href="http://localhost/prestashop/api/combinations?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/combinations?schema=synopsis" type="synopsis"/>
+<combinations xlink:href="http://localhost/prestashop_new/api/combinations" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/combinations" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product combinations</description>
+<schema xlink:href="http://localhost/prestashop_new/api/combinations?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/combinations?schema=synopsis" type="synopsis"/>
 </combinations>
 <!-- Tables: ps_configuration (configuration boutique) -->
-<configurations xlink:href="http://localhost/prestashop/api/configurations" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/configurations" get="true" put="true" post="true" patch="true" delete="true" head="true"> Shop configuration</description>
-<schema xlink:href="http://localhost/prestashop/api/configurations?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/configurations?schema=synopsis" type="synopsis"/>
+<configurations xlink:href="http://localhost/prestashop_new/api/configurations" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/configurations" get="true" put="true" post="true" patch="true" delete="true" head="true"> Shop configuration</description>
+<schema xlink:href="http://localhost/prestashop_new/api/configurations?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/configurations?schema=synopsis" type="synopsis"/>
 </configurations>
 <!-- Tables: ps_contact (contacts), ps_contact_lang (traductions contacts), ps_contact_shop (liaisons boutiques) -->
-<contacts xlink:href="http://localhost/prestashop/api/contacts" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/contacts" get="true" put="true" post="true" patch="true" delete="true" head="true"> Shop contacts</description>
-<schema xlink:href="http://localhost/prestashop/api/contacts?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/contacts?schema=synopsis" type="synopsis"/>
+<contacts xlink:href="http://localhost/prestashop_new/api/contacts" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/contacts" get="true" put="true" post="true" patch="true" delete="true" head="true"> Shop contacts</description>
+<schema xlink:href="http://localhost/prestashop_new/api/contacts?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/contacts?schema=synopsis" type="synopsis"/>
 </contacts>
 <!-- Tables: ps_cms (pages CMS), ps_cms_lang (traductions CMS), ps_cms_shop (liaisons boutiques), ps_cms_category (categories CMS), ps_cms_category_lang (traductions categories CMS), ps_cms_category_shop (liaisons categories CMS-boutiques) -->
-<content_management_system xlink:href="http://localhost/prestashop/api/content_management_system" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/content_management_system" get="true" put="true" post="true" patch="true" delete="true" head="true"> Content management system</description>
-<schema xlink:href="http://localhost/prestashop/api/content_management_system?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/content_management_system?schema=synopsis" type="synopsis"/>
+<content_management_system xlink:href="http://localhost/prestashop_new/api/content_management_system" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/content_management_system" get="true" put="true" post="true" patch="true" delete="true" head="true"> Content management system</description>
+<schema xlink:href="http://localhost/prestashop_new/api/content_management_system?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/content_management_system?schema=synopsis" type="synopsis"/>
 </content_management_system>
 <!-- Tables: ps_country (pays), ps_country_lang (traductions pays), ps_country_shop (liaisons boutiques) -->
-<countries xlink:href="http://localhost/prestashop/api/countries" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/countries" get="true" put="true" post="true" patch="true" delete="true" head="true"> The countries</description>
-<schema xlink:href="http://localhost/prestashop/api/countries?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/countries?schema=synopsis" type="synopsis"/>
+<countries xlink:href="http://localhost/prestashop_new/api/countries" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/countries" get="true" put="true" post="true" patch="true" delete="true" head="true"> The countries</description>
+<schema xlink:href="http://localhost/prestashop_new/api/countries?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/countries?schema=synopsis" type="synopsis"/>
 </countries>
 <!-- Tables: ps_currency (devises), ps_currency_lang (traductions devises), ps_currency_shop (liaisons boutiques) -->
-<currencies xlink:href="http://localhost/prestashop/api/currencies" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/currencies" get="true" put="true" post="true" patch="true" delete="true" head="true"> The currencies</description>
-<schema xlink:href="http://localhost/prestashop/api/currencies?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/currencies?schema=synopsis" type="synopsis"/>
+<currencies xlink:href="http://localhost/prestashop_new/api/currencies" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/currencies" get="true" put="true" post="true" patch="true" delete="true" head="true"> The currencies</description>
+<schema xlink:href="http://localhost/prestashop_new/api/currencies?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/currencies?schema=synopsis" type="synopsis"/>
 </currencies>
 <!-- Tables: ps_customer_message (messages service client), ps_customer_message_sync_imap (synchronisation IMAP) -->
-<customer_messages xlink:href="http://localhost/prestashop/api/customer_messages" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/customer_messages" get="true" put="true" post="true" patch="true" delete="true" head="true"> Customer services messages</description>
-<schema xlink:href="http://localhost/prestashop/api/customer_messages?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/customer_messages?schema=synopsis" type="synopsis"/>
+<customer_messages xlink:href="http://localhost/prestashop_new/api/customer_messages" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/customer_messages" get="true" put="true" post="true" patch="true" delete="true" head="true"> Customer services messages</description>
+<schema xlink:href="http://localhost/prestashop_new/api/customer_messages?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/customer_messages?schema=synopsis" type="synopsis"/>
 </customer_messages>
 <!-- Tables: ps_customer_thread (fils de discussion client) -->
-<customer_threads xlink:href="http://localhost/prestashop/api/customer_threads" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/customer_threads" get="true" put="true" post="true" patch="true" delete="true" head="true"> Customer services threads</description>
-<schema xlink:href="http://localhost/prestashop/api/customer_threads?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/customer_threads?schema=synopsis" type="synopsis"/>
+<customer_threads xlink:href="http://localhost/prestashop_new/api/customer_threads" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/customer_threads" get="true" put="true" post="true" patch="true" delete="true" head="true"> Customer services threads</description>
+<schema xlink:href="http://localhost/prestashop_new/api/customer_threads?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/customer_threads?schema=synopsis" type="synopsis"/>
 </customer_threads>
 <!-- Tables: ps_customer (clients), ps_customer_group (liaisons clients-groupes) -->
-<customers xlink:href="http://localhost/prestashop/api/customers" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/customers" get="true" put="true" post="true" patch="true" delete="true" head="true"> The e-shop's customers</description>
-<schema xlink:href="http://localhost/prestashop/api/customers?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/customers?schema=synopsis" type="synopsis"/>
+<customers xlink:href="http://localhost/prestashop_new/api/customers" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/customers" get="true" put="true" post="true" patch="true" delete="true" head="true"> The e-shop's customers</description>
+<schema xlink:href="http://localhost/prestashop_new/api/customers?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/customers?schema=synopsis" type="synopsis"/>
 </customers>
 <!-- Tables: ps_customization (personnalisations), ps_customized_data (donnees personnalisees) -->
-<customizations xlink:href="http://localhost/prestashop/api/customizations" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/customizations" get="true" put="true" post="true" patch="true" delete="true" head="true"> Customization values</description>
-<schema xlink:href="http://localhost/prestashop/api/customizations?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/customizations?schema=synopsis" type="synopsis"/>
+<customizations xlink:href="http://localhost/prestashop_new/api/customizations" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/customizations" get="true" put="true" post="true" patch="true" delete="true" head="true"> Customization values</description>
+<schema xlink:href="http://localhost/prestashop_new/api/customizations?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/customizations?schema=synopsis" type="synopsis"/>
 </customizations>
 <!-- Tables: ps_delivery (regles de livraison) -->
-<deliveries xlink:href="http://localhost/prestashop/api/deliveries" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/deliveries" get="true" put="true" post="true" patch="true" delete="true" head="true"> Product delivery</description>
-<schema xlink:href="http://localhost/prestashop/api/deliveries?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/deliveries?schema=synopsis" type="synopsis"/>
+<deliveries xlink:href="http://localhost/prestashop_new/api/deliveries" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/deliveries" get="true" put="true" post="true" patch="true" delete="true" head="true"> Product delivery</description>
+<schema xlink:href="http://localhost/prestashop_new/api/deliveries?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/deliveries?schema=synopsis" type="synopsis"/>
 </deliveries>
 <!-- Tables: ps_employee (employes), ps_employee_shop (liaisons employes-boutiques), ps_employee_session (sessions employes) -->
-<employees xlink:href="http://localhost/prestashop/api/employees" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/employees" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Employees</description>
-<schema xlink:href="http://localhost/prestashop/api/employees?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/employees?schema=synopsis" type="synopsis"/>
+<employees xlink:href="http://localhost/prestashop_new/api/employees" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/employees" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Employees</description>
+<schema xlink:href="http://localhost/prestashop_new/api/employees?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/employees?schema=synopsis" type="synopsis"/>
 </employees>
 <!-- Tables: ps_group (groupes clients), ps_group_lang (traductions groupes), ps_group_shop (liaisons boutiques), ps_group_reduction (reductions par groupe) -->
-<groups xlink:href="http://localhost/prestashop/api/groups" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/groups" get="true" put="true" post="true" patch="true" delete="true" head="true"> The customer's groups</description>
-<schema xlink:href="http://localhost/prestashop/api/groups?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/groups?schema=synopsis" type="synopsis"/>
+<groups xlink:href="http://localhost/prestashop_new/api/groups" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/groups" get="true" put="true" post="true" patch="true" delete="true" head="true"> The customer's groups</description>
+<schema xlink:href="http://localhost/prestashop_new/api/groups?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/groups?schema=synopsis" type="synopsis"/>
 </groups>
 <!-- Tables: ps_guest (visiteurs anonymes) -->
-<guests xlink:href="http://localhost/prestashop/api/guests" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/guests" get="true" put="true" post="true" patch="true" delete="true" head="true"> The guests</description>
-<schema xlink:href="http://localhost/prestashop/api/guests?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/guests?schema=synopsis" type="synopsis"/>
+<guests xlink:href="http://localhost/prestashop_new/api/guests" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/guests" get="true" put="true" post="true" patch="true" delete="true" head="true"> The guests</description>
+<schema xlink:href="http://localhost/prestashop_new/api/guests?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/guests?schema=synopsis" type="synopsis"/>
 </guests>
 <!-- Tables: ps_image_type (types d'images) -->
-<image_types xlink:href="http://localhost/prestashop/api/image_types" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/image_types" get="true" put="true" post="true" patch="true" delete="true" head="true"> The image types</description>
-<schema xlink:href="http://localhost/prestashop/api/image_types?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/image_types?schema=synopsis" type="synopsis"/>
+<image_types xlink:href="http://localhost/prestashop_new/api/image_types" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/image_types" get="true" put="true" post="true" patch="true" delete="true" head="true"> The image types</description>
+<schema xlink:href="http://localhost/prestashop_new/api/image_types?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/image_types?schema=synopsis" type="synopsis"/>
 </image_types>
 <!-- Tables: ps_image (images), ps_image_lang (traductions images), ps_image_shop (liaisons images-boutiques) -->
-<images xlink:href="http://localhost/prestashop/api/images" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/images" get="true" put="true" post="true" patch="true" delete="true" head="true"> The images</description>
+<images xlink:href="http://localhost/prestashop_new/api/images" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/images" get="true" put="true" post="true" patch="true" delete="true" head="true"> The images</description>
 </images>
 <!-- Tables: ps_configuration (configuration module Klaviyo) -->
-<klaviyo xlink:href="http://localhost/prestashop/api/klaviyo" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/klaviyo" get="true" put="true" post="true" patch="true" delete="true" head="true"> Klaviyo custom endpoints</description>
+<klaviyo xlink:href="http://localhost/prestashop_new/api/klaviyo" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/klaviyo" get="true" put="true" post="true" patch="true" delete="true" head="true"> Klaviyo custom endpoints</description>
 </klaviyo>
 <!-- Tables: ps_lang (langues), ps_lang_shop (liaisons langues-boutiques) -->
-<languages xlink:href="http://localhost/prestashop/api/languages" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/languages" get="true" put="true" post="true" patch="true" delete="true" head="true"> Shop languages</description>
-<schema xlink:href="http://localhost/prestashop/api/languages?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/languages?schema=synopsis" type="synopsis"/>
+<languages xlink:href="http://localhost/prestashop_new/api/languages" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/languages" get="true" put="true" post="true" patch="true" delete="true" head="true"> Shop languages</description>
+<schema xlink:href="http://localhost/prestashop_new/api/languages?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/languages?schema=synopsis" type="synopsis"/>
 </languages>
 <!-- Tables: ps_manufacturer (marques), ps_manufacturer_lang (traductions marques), ps_manufacturer_shop (liaisons boutiques) -->
-<manufacturers xlink:href="http://localhost/prestashop/api/manufacturers" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/manufacturers" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product brands</description>
-<schema xlink:href="http://localhost/prestashop/api/manufacturers?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/manufacturers?schema=synopsis" type="synopsis"/>
+<manufacturers xlink:href="http://localhost/prestashop_new/api/manufacturers" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/manufacturers" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product brands</description>
+<schema xlink:href="http://localhost/prestashop_new/api/manufacturers?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/manufacturers?schema=synopsis" type="synopsis"/>
 </manufacturers>
 <!-- Tables: ps_message (messages commandes), ps_message_readed (etat lecture messages) -->
-<messages xlink:href="http://localhost/prestashop/api/messages" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/messages" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Messages</description>
-<schema xlink:href="http://localhost/prestashop/api/messages?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/messages?schema=synopsis" type="synopsis"/>
+<messages xlink:href="http://localhost/prestashop_new/api/messages" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/messages" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Messages</description>
+<schema xlink:href="http://localhost/prestashop_new/api/messages?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/messages?schema=synopsis" type="synopsis"/>
 </messages>
 <!-- Tables: ps_order_carrier (transporteurs de commandes) -->
-<order_carriers xlink:href="http://localhost/prestashop/api/order_carriers" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/order_carriers" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Order carriers</description>
-<schema xlink:href="http://localhost/prestashop/api/order_carriers?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/order_carriers?schema=synopsis" type="synopsis"/>
+<order_carriers xlink:href="http://localhost/prestashop_new/api/order_carriers" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/order_carriers" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Order carriers</description>
+<schema xlink:href="http://localhost/prestashop_new/api/order_carriers?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/order_carriers?schema=synopsis" type="synopsis"/>
 </order_carriers>
 <!-- Tables: ps_order_cart_rule (regles panier appliquees a la commande) -->
-<order_cart_rules xlink:href="http://localhost/prestashop/api/order_cart_rules" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/order_cart_rules" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Order cart rules</description>
-<schema xlink:href="http://localhost/prestashop/api/order_cart_rules?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/order_cart_rules?schema=synopsis" type="synopsis"/>
+<order_cart_rules xlink:href="http://localhost/prestashop_new/api/order_cart_rules" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/order_cart_rules" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Order cart rules</description>
+<schema xlink:href="http://localhost/prestashop_new/api/order_cart_rules?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/order_cart_rules?schema=synopsis" type="synopsis"/>
 </order_cart_rules>
 <!-- Tables: ps_order_detail (details lignes commande), ps_order_detail_tax (taxes des lignes commande) -->
-<order_details xlink:href="http://localhost/prestashop/api/order_details" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/order_details" get="true" put="true" post="true" patch="true" delete="true" head="true"> Details of an order</description>
-<schema xlink:href="http://localhost/prestashop/api/order_details?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/order_details?schema=synopsis" type="synopsis"/>
+<order_details xlink:href="http://localhost/prestashop_new/api/order_details" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/order_details" get="true" put="true" post="true" patch="true" delete="true" head="true"> Details of an order</description>
+<schema xlink:href="http://localhost/prestashop_new/api/order_details?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/order_details?schema=synopsis" type="synopsis"/>
 </order_details>
 <!-- Tables: ps_order_history (historique etats commande) -->
-<order_histories xlink:href="http://localhost/prestashop/api/order_histories" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/order_histories" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Order histories</description>
-<schema xlink:href="http://localhost/prestashop/api/order_histories?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/order_histories?schema=synopsis" type="synopsis"/>
+<order_histories xlink:href="http://localhost/prestashop_new/api/order_histories" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/order_histories" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Order histories</description>
+<schema xlink:href="http://localhost/prestashop_new/api/order_histories?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/order_histories?schema=synopsis" type="synopsis"/>
 </order_histories>
 <!-- Tables: ps_order_invoice (factures commande), ps_order_invoice_tax (taxes facture), ps_order_invoice_payment (liaison facture-paiement) -->
-<order_invoices xlink:href="http://localhost/prestashop/api/order_invoices" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/order_invoices" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Order invoices</description>
-<schema xlink:href="http://localhost/prestashop/api/order_invoices?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/order_invoices?schema=synopsis" type="synopsis"/>
+<order_invoices xlink:href="http://localhost/prestashop_new/api/order_invoices" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/order_invoices" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Order invoices</description>
+<schema xlink:href="http://localhost/prestashop_new/api/order_invoices?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/order_invoices?schema=synopsis" type="synopsis"/>
 </order_invoices>
 <!-- Tables: ps_order_payment (paiements commande) -->
-<order_payments xlink:href="http://localhost/prestashop/api/order_payments" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/order_payments" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Order payments</description>
-<schema xlink:href="http://localhost/prestashop/api/order_payments?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/order_payments?schema=synopsis" type="synopsis"/>
+<order_payments xlink:href="http://localhost/prestashop_new/api/order_payments" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/order_payments" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Order payments</description>
+<schema xlink:href="http://localhost/prestashop_new/api/order_payments?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/order_payments?schema=synopsis" type="synopsis"/>
 </order_payments>
 <!-- Tables: ps_order_slip (avoirs), ps_order_slip_detail (details avoir) -->
-<order_slip xlink:href="http://localhost/prestashop/api/order_slip" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/order_slip" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Order slips</description>
-<schema xlink:href="http://localhost/prestashop/api/order_slip?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/order_slip?schema=synopsis" type="synopsis"/>
+<order_slip xlink:href="http://localhost/prestashop_new/api/order_slip" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/order_slip" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Order slips</description>
+<schema xlink:href="http://localhost/prestashop_new/api/order_slip?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/order_slip?schema=synopsis" type="synopsis"/>
 </order_slip>
 <!-- Tables: ps_order_state (etats commande), ps_order_state_lang (traductions etats commande) -->
-<order_states xlink:href="http://localhost/prestashop/api/order_states" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/order_states" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Order statuses</description>
-<schema xlink:href="http://localhost/prestashop/api/order_states?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/order_states?schema=synopsis" type="synopsis"/>
+<order_states xlink:href="http://localhost/prestashop_new/api/order_states" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/order_states" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Order statuses</description>
+<schema xlink:href="http://localhost/prestashop_new/api/order_states?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/order_states?schema=synopsis" type="synopsis"/>
 </order_states>
 <!-- Tables: ps_orders (commandes) -->
-<orders xlink:href="http://localhost/prestashop/api/orders" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/orders" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Customers orders</description>
-<schema xlink:href="http://localhost/prestashop/api/orders?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/orders?schema=synopsis" type="synopsis"/>
+<orders xlink:href="http://localhost/prestashop_new/api/orders" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/orders" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Customers orders</description>
+<schema xlink:href="http://localhost/prestashop_new/api/orders?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/orders?schema=synopsis" type="synopsis"/>
 </orders>
 <!-- Tables: ps_range_price (tranches de prix transport) -->
-<price_ranges xlink:href="http://localhost/prestashop/api/price_ranges" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/price_ranges" get="true" put="true" post="true" patch="true" delete="true" head="true"> Price ranges</description>
-<schema xlink:href="http://localhost/prestashop/api/price_ranges?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/price_ranges?schema=synopsis" type="synopsis"/>
+<price_ranges xlink:href="http://localhost/prestashop_new/api/price_ranges" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/price_ranges" get="true" put="true" post="true" patch="true" delete="true" head="true"> Price ranges</description>
+<schema xlink:href="http://localhost/prestashop_new/api/price_ranges?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/price_ranges?schema=synopsis" type="synopsis"/>
 </price_ranges>
 <!-- Tables: ps_customization_field (champs personnalisation), ps_customization_field_lang (traductions champs personnalisation) -->
-<product_customization_fields xlink:href="http://localhost/prestashop/api/product_customization_fields" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/product_customization_fields" get="true" put="true" post="true" patch="true" delete="true" head="true"> Customization Field</description>
-<schema xlink:href="http://localhost/prestashop/api/product_customization_fields?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/product_customization_fields?schema=synopsis" type="synopsis"/>
+<product_customization_fields xlink:href="http://localhost/prestashop_new/api/product_customization_fields" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/product_customization_fields" get="true" put="true" post="true" patch="true" delete="true" head="true"> Customization Field</description>
+<schema xlink:href="http://localhost/prestashop_new/api/product_customization_fields?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/product_customization_fields?schema=synopsis" type="synopsis"/>
 </product_customization_fields>
 <!-- Tables: ps_feature_value (valeurs caracteristiques), ps_feature_value_lang (traductions valeurs caracteristiques) -->
-<product_feature_values xlink:href="http://localhost/prestashop/api/product_feature_values" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/product_feature_values" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product feature values</description>
-<schema xlink:href="http://localhost/prestashop/api/product_feature_values?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/product_feature_values?schema=synopsis" type="synopsis"/>
+<product_feature_values xlink:href="http://localhost/prestashop_new/api/product_feature_values" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/product_feature_values" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product feature values</description>
+<schema xlink:href="http://localhost/prestashop_new/api/product_feature_values?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/product_feature_values?schema=synopsis" type="synopsis"/>
 </product_feature_values>
 <!-- Tables: ps_feature (caracteristiques), ps_feature_lang (traductions caracteristiques), ps_feature_shop (liaisons boutiques), ps_feature_product (liaisons produit-caracteristique) -->
-<product_features xlink:href="http://localhost/prestashop/api/product_features" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/product_features" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product features</description>
-<schema xlink:href="http://localhost/prestashop/api/product_features?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/product_features?schema=synopsis" type="synopsis"/>
+<product_features xlink:href="http://localhost/prestashop_new/api/product_features" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/product_features" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product features</description>
+<schema xlink:href="http://localhost/prestashop_new/api/product_features?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/product_features?schema=synopsis" type="synopsis"/>
 </product_features>
 <!-- Tables: ps_attribute (valeurs options), ps_attribute_lang (traductions valeurs options), ps_attribute_shop (liaisons boutiques) -->
-<product_option_values xlink:href="http://localhost/prestashop/api/product_option_values" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/product_option_values" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product options value</description>
-<schema xlink:href="http://localhost/prestashop/api/product_option_values?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/product_option_values?schema=synopsis" type="synopsis"/>
+<product_option_values xlink:href="http://localhost/prestashop_new/api/product_option_values" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/product_option_values" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product options value</description>
+<schema xlink:href="http://localhost/prestashop_new/api/product_option_values?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/product_option_values?schema=synopsis" type="synopsis"/>
 </product_option_values>
 <!-- Tables: ps_attribute_group (groupes options), ps_attribute_group_lang (traductions groupes options), ps_attribute_group_shop (liaisons boutiques) -->
-<product_options xlink:href="http://localhost/prestashop/api/product_options" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/product_options" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product options</description>
-<schema xlink:href="http://localhost/prestashop/api/product_options?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/product_options?schema=synopsis" type="synopsis"/>
+<product_options xlink:href="http://localhost/prestashop_new/api/product_options" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/product_options" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product options</description>
+<schema xlink:href="http://localhost/prestashop_new/api/product_options?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/product_options?schema=synopsis" type="synopsis"/>
 </product_options>
 <!-- Tables: ps_product_supplier (liaisons produits-fournisseurs) -->
-<product_suppliers xlink:href="http://localhost/prestashop/api/product_suppliers" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/product_suppliers" get="true" put="true" post="true" patch="true" delete="true" head="true"> Product Suppliers</description>
-<schema xlink:href="http://localhost/prestashop/api/product_suppliers?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/product_suppliers?schema=synopsis" type="synopsis"/>
+<product_suppliers xlink:href="http://localhost/prestashop_new/api/product_suppliers" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/product_suppliers" get="true" put="true" post="true" patch="true" delete="true" head="true"> Product Suppliers</description>
+<schema xlink:href="http://localhost/prestashop_new/api/product_suppliers?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/product_suppliers?schema=synopsis" type="synopsis"/>
 </product_suppliers>
 <!-- Tables: ps_product (produits), ps_product_lang (traductions produits), ps_product_shop (liaisons produits-boutiques), ps_category_product (liaisons categories), ps_product_download (fichiers telechargeables) -->
-<products xlink:href="http://localhost/prestashop/api/products" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/products" get="true" put="true" post="true" patch="true" delete="true" head="true"> The products</description>
-<schema xlink:href="http://localhost/prestashop/api/products?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/products?schema=synopsis" type="synopsis"/>
+<products xlink:href="http://localhost/prestashop_new/api/products" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/products" get="true" put="true" post="true" patch="true" delete="true" head="true"> The products</description>
+<schema xlink:href="http://localhost/prestashop_new/api/products?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/products?schema=synopsis" type="synopsis"/>
 </products>
 <!-- Tables: ps_search_word (mots indexes), ps_search_index (index recherche), ps_search_engine (moteurs recherche), ps_statssearch (statistiques recherche) -->
-<search xlink:href="http://localhost/prestashop/api/search" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/search" get="true" put="true" post="true" patch="true" delete="true" head="true"> Search</description>
+<search xlink:href="http://localhost/prestashop_new/api/search" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/search" get="true" put="true" post="true" patch="true" delete="true" head="true"> Search</description>
 </search>
 <!-- Tables: ps_shop_group (groupes de boutiques) -->
-<shop_groups xlink:href="http://localhost/prestashop/api/shop_groups" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/shop_groups" get="true" put="true" post="true" patch="true" delete="true" head="true"> Shop groups from multi-shop feature</description>
-<schema xlink:href="http://localhost/prestashop/api/shop_groups?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/shop_groups?schema=synopsis" type="synopsis"/>
+<shop_groups xlink:href="http://localhost/prestashop_new/api/shop_groups" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/shop_groups" get="true" put="true" post="true" patch="true" delete="true" head="true"> Shop groups from multi-shop feature</description>
+<schema xlink:href="http://localhost/prestashop_new/api/shop_groups?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/shop_groups?schema=synopsis" type="synopsis"/>
 </shop_groups>
 <!-- Tables: ps_shop_url (URLs boutiques) -->
-<shop_urls xlink:href="http://localhost/prestashop/api/shop_urls" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/shop_urls" get="true" put="true" post="true" patch="true" delete="true" head="true"> Shop URLs from multi-shop feature</description>
-<schema xlink:href="http://localhost/prestashop/api/shop_urls?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/shop_urls?schema=synopsis" type="synopsis"/>
+<shop_urls xlink:href="http://localhost/prestashop_new/api/shop_urls" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/shop_urls" get="true" put="true" post="true" patch="true" delete="true" head="true"> Shop URLs from multi-shop feature</description>
+<schema xlink:href="http://localhost/prestashop_new/api/shop_urls?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/shop_urls?schema=synopsis" type="synopsis"/>
 </shop_urls>
 <!-- Tables: ps_shop (boutiques) -->
-<shops xlink:href="http://localhost/prestashop/api/shops" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/shops" get="true" put="true" post="true" patch="true" delete="true" head="true"> Shops from multi-shop feature</description>
-<schema xlink:href="http://localhost/prestashop/api/shops?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/shops?schema=synopsis" type="synopsis"/>
+<shops xlink:href="http://localhost/prestashop_new/api/shops" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/shops" get="true" put="true" post="true" patch="true" delete="true" head="true"> Shops from multi-shop feature</description>
+<schema xlink:href="http://localhost/prestashop_new/api/shops?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/shops?schema=synopsis" type="synopsis"/>
 </shops>
 <!-- Tables: ps_specific_price_rule (regles prix specifiques), ps_specific_price_rule_condition_group (groupes conditions), ps_specific_price_rule_condition (conditions regles) -->
-<specific_price_rules xlink:href="http://localhost/prestashop/api/specific_price_rules" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/specific_price_rules" get="true" put="true" post="true" patch="true" delete="true" head="true"> Specific price management</description>
-<schema xlink:href="http://localhost/prestashop/api/specific_price_rules?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/specific_price_rules?schema=synopsis" type="synopsis"/>
+<specific_price_rules xlink:href="http://localhost/prestashop_new/api/specific_price_rules" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/specific_price_rules" get="true" put="true" post="true" patch="true" delete="true" head="true"> Specific price management</description>
+<schema xlink:href="http://localhost/prestashop_new/api/specific_price_rules?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/specific_price_rules?schema=synopsis" type="synopsis"/>
 </specific_price_rules>
 <!-- Tables: ps_specific_price (prix specifiques), ps_specific_price_priority (priorites prix specifiques) -->
-<specific_prices xlink:href="http://localhost/prestashop/api/specific_prices" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/specific_prices" get="true" put="true" post="true" patch="true" delete="true" head="true"> Specific price management</description>
-<schema xlink:href="http://localhost/prestashop/api/specific_prices?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/specific_prices?schema=synopsis" type="synopsis"/>
+<specific_prices xlink:href="http://localhost/prestashop_new/api/specific_prices" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/specific_prices" get="true" put="true" post="true" patch="true" delete="true" head="true"> Specific price management</description>
+<schema xlink:href="http://localhost/prestashop_new/api/specific_prices?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/specific_prices?schema=synopsis" type="synopsis"/>
 </specific_prices>
 <!-- Tables: ps_state (etats / regions administratives) -->
-<states xlink:href="http://localhost/prestashop/api/states" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/states" get="true" put="true" post="true" patch="true" delete="true" head="true"> The available states of countries</description>
-<schema xlink:href="http://localhost/prestashop/api/states?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/states?schema=synopsis" type="synopsis"/>
+<states xlink:href="http://localhost/prestashop_new/api/states" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/states" get="true" put="true" post="true" patch="true" delete="true" head="true"> The available states of countries</description>
+<schema xlink:href="http://localhost/prestashop_new/api/states?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/states?schema=synopsis" type="synopsis"/>
 </states>
 <!-- Tables: ps_stock_available (stock disponible par produit/declinaison) -->
-<stock_availables xlink:href="http://localhost/prestashop/api/stock_availables" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/stock_availables" get="true" put="true" post="true" patch="true" delete="true" head="true"> Available quantities</description>
-<schema xlink:href="http://localhost/prestashop/api/stock_availables?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/stock_availables?schema=synopsis" type="synopsis"/>
+<stock_availables xlink:href="http://localhost/prestashop_new/api/stock_availables" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/stock_availables" get="true" put="true" post="true" patch="true" delete="true" head="true"> Available quantities</description>
+<schema xlink:href="http://localhost/prestashop_new/api/stock_availables?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/stock_availables?schema=synopsis" type="synopsis"/>
 </stock_availables>
 <!-- Tables: ps_stock_mvt_reason (motifs mouvements stock), ps_stock_mvt_reason_lang (traductions motifs) -->
-<stock_movement_reasons xlink:href="http://localhost/prestashop/api/stock_movement_reasons" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/stock_movement_reasons" get="true" put="true" post="true" patch="true" delete="true" head="true"> Stock movement reason</description>
-<schema xlink:href="http://localhost/prestashop/api/stock_movement_reasons?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/stock_movement_reasons?schema=synopsis" type="synopsis"/>
+<stock_movement_reasons xlink:href="http://localhost/prestashop_new/api/stock_movement_reasons" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/stock_movement_reasons" get="true" put="true" post="true" patch="true" delete="true" head="true"> Stock movement reason</description>
+<schema xlink:href="http://localhost/prestashop_new/api/stock_movement_reasons?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/stock_movement_reasons?schema=synopsis" type="synopsis"/>
 </stock_movement_reasons>
 <!-- Tables: ps_stock_mvt (mouvements de stock) -->
-<stock_movements xlink:href="http://localhost/prestashop/api/stock_movements" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/stock_movements" get="true" put="true" post="true" patch="true" delete="true" head="true"> Stock movements</description>
-<schema xlink:href="http://localhost/prestashop/api/stock_movements?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/stock_movements?schema=synopsis" type="synopsis"/>
+<stock_movements xlink:href="http://localhost/prestashop_new/api/stock_movements" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/stock_movements" get="true" put="true" post="true" patch="true" delete="true" head="true"> Stock movements</description>
+<schema xlink:href="http://localhost/prestashop_new/api/stock_movements?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/stock_movements?schema=synopsis" type="synopsis"/>
 </stock_movements>
 <!-- Tables: ps_stock (stock physique en entrepot) -->
-<stocks xlink:href="http://localhost/prestashop/api/stocks" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/stocks" get="true" put="true" post="true" patch="true" delete="true" head="true"> Stocks</description>
-<schema xlink:href="http://localhost/prestashop/api/stocks?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/stocks?schema=synopsis" type="synopsis"/>
+<stocks xlink:href="http://localhost/prestashop_new/api/stocks" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/stocks" get="true" put="true" post="true" patch="true" delete="true" head="true"> Stocks</description>
+<schema xlink:href="http://localhost/prestashop_new/api/stocks?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/stocks?schema=synopsis" type="synopsis"/>
 </stocks>
 <!-- Tables: ps_store (magasins), ps_store_lang (traductions magasins), ps_store_shop (liaisons magasins-boutiques) -->
-<stores xlink:href="http://localhost/prestashop/api/stores" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/stores" get="true" put="true" post="true" patch="true" delete="true" head="true"> The stores</description>
-<schema xlink:href="http://localhost/prestashop/api/stores?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/stores?schema=synopsis" type="synopsis"/>
+<stores xlink:href="http://localhost/prestashop_new/api/stores" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/stores" get="true" put="true" post="true" patch="true" delete="true" head="true"> The stores</description>
+<schema xlink:href="http://localhost/prestashop_new/api/stores?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/stores?schema=synopsis" type="synopsis"/>
 </stores>
 <!-- Tables: ps_supplier (fournisseurs), ps_supplier_lang (traductions fournisseurs), ps_supplier_shop (liaisons fournisseurs-boutiques) -->
-<suppliers xlink:href="http://localhost/prestashop/api/suppliers" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/suppliers" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product suppliers</description>
-<schema xlink:href="http://localhost/prestashop/api/suppliers?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/suppliers?schema=synopsis" type="synopsis"/>
+<suppliers xlink:href="http://localhost/prestashop_new/api/suppliers" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/suppliers" get="true" put="true" post="true" patch="true" delete="true" head="true"> The product suppliers</description>
+<schema xlink:href="http://localhost/prestashop_new/api/suppliers?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/suppliers?schema=synopsis" type="synopsis"/>
 </suppliers>
 <!-- Tables: ps_supply_order_detail (details commande fournisseur), ps_supply_order (commande fournisseur), ps_product (produits) -->
-<supply_order_details xlink:href="http://localhost/prestashop/api/supply_order_details" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/supply_order_details" get="true" put="true" post="true" patch="true" delete="true" head="true"> Supply Order Details</description>
-<schema xlink:href="http://localhost/prestashop/api/supply_order_details?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/supply_order_details?schema=synopsis" type="synopsis"/>
+<supply_order_details xlink:href="http://localhost/prestashop_new/api/supply_order_details" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/supply_order_details" get="true" put="true" post="true" patch="true" delete="true" head="true"> Supply Order Details</description>
+<schema xlink:href="http://localhost/prestashop_new/api/supply_order_details?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/supply_order_details?schema=synopsis" type="synopsis"/>
 </supply_order_details>
 <!-- Tables: ps_supply_order_history (historique commandes fournisseur), ps_supply_order (commande fournisseur), ps_supply_order_state (etat commande fournisseur) -->
-<supply_order_histories xlink:href="http://localhost/prestashop/api/supply_order_histories" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/supply_order_histories" get="true" put="true" post="true" patch="true" delete="true" head="true"> Supply Order Histories</description>
-<schema xlink:href="http://localhost/prestashop/api/supply_order_histories?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/supply_order_histories?schema=synopsis" type="synopsis"/>
+<supply_order_histories xlink:href="http://localhost/prestashop_new/api/supply_order_histories" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/supply_order_histories" get="true" put="true" post="true" patch="true" delete="true" head="true"> Supply Order Histories</description>
+<schema xlink:href="http://localhost/prestashop_new/api/supply_order_histories?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/supply_order_histories?schema=synopsis" type="synopsis"/>
 </supply_order_histories>
 <!-- Tables: ps_supply_order_receipt_history (historique receptions commande fournisseur), ps_supply_order_detail (lignes recues) -->
-<supply_order_receipt_histories xlink:href="http://localhost/prestashop/api/supply_order_receipt_histories" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/supply_order_receipt_histories" get="true" put="true" post="true" patch="true" delete="true" head="true"> Supply Order Receipt Histories</description>
-<schema xlink:href="http://localhost/prestashop/api/supply_order_receipt_histories?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/supply_order_receipt_histories?schema=synopsis" type="synopsis"/>
+<supply_order_receipt_histories xlink:href="http://localhost/prestashop_new/api/supply_order_receipt_histories" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/supply_order_receipt_histories" get="true" put="true" post="true" patch="true" delete="true" head="true"> Supply Order Receipt Histories</description>
+<schema xlink:href="http://localhost/prestashop_new/api/supply_order_receipt_histories?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/supply_order_receipt_histories?schema=synopsis" type="synopsis"/>
 </supply_order_receipt_histories>
 <!-- Tables: ps_supply_order_state (etats commandes fournisseur), ps_supply_order_state_lang (traductions etats) -->
-<supply_order_states xlink:href="http://localhost/prestashop/api/supply_order_states" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/supply_order_states" get="true" put="true" post="true" patch="true" delete="true" head="true"> Supply Order Statuses</description>
-<schema xlink:href="http://localhost/prestashop/api/supply_order_states?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/supply_order_states?schema=synopsis" type="synopsis"/>
+<supply_order_states xlink:href="http://localhost/prestashop_new/api/supply_order_states" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/supply_order_states" get="true" put="true" post="true" patch="true" delete="true" head="true"> Supply Order Statuses</description>
+<schema xlink:href="http://localhost/prestashop_new/api/supply_order_states?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/supply_order_states?schema=synopsis" type="synopsis"/>
 </supply_order_states>
 <!-- Tables: ps_supply_order (commandes fournisseur) -->
-<supply_orders xlink:href="http://localhost/prestashop/api/supply_orders" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/supply_orders" get="true" put="true" post="true" patch="true" delete="true" head="true"> Supply Orders</description>
-<schema xlink:href="http://localhost/prestashop/api/supply_orders?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/supply_orders?schema=synopsis" type="synopsis"/>
+<supply_orders xlink:href="http://localhost/prestashop_new/api/supply_orders" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/supply_orders" get="true" put="true" post="true" patch="true" delete="true" head="true"> Supply Orders</description>
+<schema xlink:href="http://localhost/prestashop_new/api/supply_orders?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/supply_orders?schema=synopsis" type="synopsis"/>
 </supply_orders>
 <!-- Tables: ps_tag (tags), ps_product_tag (liaisons produits-tags), ps_tag_count (compteurs tags) -->
-<tags xlink:href="http://localhost/prestashop/api/tags" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/tags" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Products tags</description>
-<schema xlink:href="http://localhost/prestashop/api/tags?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/tags?schema=synopsis" type="synopsis"/>
+<tags xlink:href="http://localhost/prestashop_new/api/tags" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/tags" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Products tags</description>
+<schema xlink:href="http://localhost/prestashop_new/api/tags?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/tags?schema=synopsis" type="synopsis"/>
 </tags>
 <!-- Tables: ps_tax_rules_group (groupes regles taxes), ps_tax_rules_group_shop (liaisons boutiques) -->
-<tax_rule_groups xlink:href="http://localhost/prestashop/api/tax_rule_groups" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/tax_rule_groups" get="true" put="true" post="true" patch="true" delete="true" head="true"> Tax rule groups</description>
-<schema xlink:href="http://localhost/prestashop/api/tax_rule_groups?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/tax_rule_groups?schema=synopsis" type="synopsis"/>
+<tax_rule_groups xlink:href="http://localhost/prestashop_new/api/tax_rule_groups" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/tax_rule_groups" get="true" put="true" post="true" patch="true" delete="true" head="true"> Tax rule groups</description>
+<schema xlink:href="http://localhost/prestashop_new/api/tax_rule_groups?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/tax_rule_groups?schema=synopsis" type="synopsis"/>
 </tax_rule_groups>
 <!-- Tables: ps_tax_rule (regles taxes) -->
-<tax_rules xlink:href="http://localhost/prestashop/api/tax_rules" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/tax_rules" get="true" put="true" post="true" patch="true" delete="true" head="true"> Tax rules entity</description>
-<schema xlink:href="http://localhost/prestashop/api/tax_rules?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/tax_rules?schema=synopsis" type="synopsis"/>
+<tax_rules xlink:href="http://localhost/prestashop_new/api/tax_rules" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/tax_rules" get="true" put="true" post="true" patch="true" delete="true" head="true"> Tax rules entity</description>
+<schema xlink:href="http://localhost/prestashop_new/api/tax_rules?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/tax_rules?schema=synopsis" type="synopsis"/>
 </tax_rules>
 <!-- Tables: ps_tax (taxes), ps_tax_lang (traductions taxes) -->
-<taxes xlink:href="http://localhost/prestashop/api/taxes" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/taxes" get="true" put="true" post="true" patch="true" delete="true" head="true"> The tax rate</description>
-<schema xlink:href="http://localhost/prestashop/api/taxes?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/taxes?schema=synopsis" type="synopsis"/>
+<taxes xlink:href="http://localhost/prestashop_new/api/taxes" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/taxes" get="true" put="true" post="true" patch="true" delete="true" head="true"> The tax rate</description>
+<schema xlink:href="http://localhost/prestashop_new/api/taxes?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/taxes?schema=synopsis" type="synopsis"/>
 </taxes>
 <!-- Tables: ps_configuration_lang (traductions configuration) -->
-<translated_configurations xlink:href="http://localhost/prestashop/api/translated_configurations" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/translated_configurations" get="true" put="true" post="true" patch="true" delete="true" head="true"> Shop configuration</description>
-<schema xlink:href="http://localhost/prestashop/api/translated_configurations?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/translated_configurations?schema=synopsis" type="synopsis"/>
+<translated_configurations xlink:href="http://localhost/prestashop_new/api/translated_configurations" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/translated_configurations" get="true" put="true" post="true" patch="true" delete="true" head="true"> Shop configuration</description>
+<schema xlink:href="http://localhost/prestashop_new/api/translated_configurations?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/translated_configurations?schema=synopsis" type="synopsis"/>
 </translated_configurations>
 <!-- Tables: ps_warehouse_product_location (emplacements produits en entrepot) -->
-<warehouse_product_locations xlink:href="http://localhost/prestashop/api/warehouse_product_locations" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/warehouse_product_locations" get="true" put="true" post="true" patch="true" delete="true" head="true"> Location of products in warehouses</description>
-<schema xlink:href="http://localhost/prestashop/api/warehouse_product_locations?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/warehouse_product_locations?schema=synopsis" type="synopsis"/>
+<warehouse_product_locations xlink:href="http://localhost/prestashop_new/api/warehouse_product_locations" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/warehouse_product_locations" get="true" put="true" post="true" patch="true" delete="true" head="true"> Location of products in warehouses</description>
+<schema xlink:href="http://localhost/prestashop_new/api/warehouse_product_locations?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/warehouse_product_locations?schema=synopsis" type="synopsis"/>
 </warehouse_product_locations>
 <!-- Tables: ps_warehouse (entrepots), ps_warehouse_shop (liaisons entrepots-boutiques), ps_warehouse_carrier (liaisons entrepots-transporteurs) -->
-<warehouses xlink:href="http://localhost/prestashop/api/warehouses" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/warehouses" get="true" put="true" post="true" patch="true" delete="true" head="true"> Warehouses</description>
-<schema xlink:href="http://localhost/prestashop/api/warehouses?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/warehouses?schema=synopsis" type="synopsis"/>
+<warehouses xlink:href="http://localhost/prestashop_new/api/warehouses" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/warehouses" get="true" put="true" post="true" patch="true" delete="true" head="true"> Warehouses</description>
+<schema xlink:href="http://localhost/prestashop_new/api/warehouses?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/warehouses?schema=synopsis" type="synopsis"/>
 </warehouses>
 <!-- Tables: ps_range_weight (tranches de poids transport) -->
-<weight_ranges xlink:href="http://localhost/prestashop/api/weight_ranges" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/weight_ranges" get="true" put="true" post="true" patch="true" delete="true" head="true"> Weight ranges</description>
-<schema xlink:href="http://localhost/prestashop/api/weight_ranges?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/weight_ranges?schema=synopsis" type="synopsis"/>
+<weight_ranges xlink:href="http://localhost/prestashop_new/api/weight_ranges" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/weight_ranges" get="true" put="true" post="true" patch="true" delete="true" head="true"> Weight ranges</description>
+<schema xlink:href="http://localhost/prestashop_new/api/weight_ranges?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/weight_ranges?schema=synopsis" type="synopsis"/>
 </weight_ranges>
 <!-- Tables: ps_zone (zones geographiques), ps_zone_shop (liaisons zones-boutiques) -->
-<zones xlink:href="http://localhost/prestashop/api/zones" get="true" put="true" post="true" patch="true" delete="true" head="true">
-<description xlink:href="http://localhost/prestashop/api/zones" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Countries zones</description>
-<schema xlink:href="http://localhost/prestashop/api/zones?schema=blank" type="blank"/>
-<schema xlink:href="http://localhost/prestashop/api/zones?schema=synopsis" type="synopsis"/>
+<zones xlink:href="http://localhost/prestashop_new/api/zones" get="true" put="true" post="true" patch="true" delete="true" head="true">
+<description xlink:href="http://localhost/prestashop_new/api/zones" get="true" put="true" post="true" patch="true" delete="true" head="true"> The Countries zones</description>
+<schema xlink:href="http://localhost/prestashop_new/api/zones?schema=blank" type="blank"/>
+<schema xlink:href="http://localhost/prestashop_new/api/zones?schema=synopsis" type="synopsis"/>
 </zones>
 </api>
 </prestashop>

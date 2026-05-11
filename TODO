@@ -11,7 +11,7 @@ Jours 0 ==> 06/05/2026
     - liste des tables (donnees brutes) (OK)
     - selectionner les modules a supprimer (donnees) (OK)
     - get modulesSelectionner.nom et 
-      http://localhost/prestashop/api/nom (appel de fonction de
+      http://localhost/prestashop_new/api/nom (appel de fonction de
     reinitialisation) (OK)
     - tester (OK)
   Done ==> 07/05/2026
