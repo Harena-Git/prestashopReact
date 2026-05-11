@@ -9,6 +9,7 @@ import HomePage from "../features/modules/pages/HomePage";
 import LoginPage from "../features/modules/pages/LoginPage";
 import AdminPage from "../features/modules/pages/AdminPage";
 import { AuthContext } from "../contexts/AuthContext";
+import DataImportPage from "../features/modules/pages/DataImportPage";
 
 function NotFoundPage() {
   return <h1>404 - Page introuvable</h1>;
@@ -30,6 +31,7 @@ function AppRouter() {
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/admin/modules/cleanup" element={<ModuleCleanupPage />} />
           <Route path="/admin/modules/import" element={<ModuleImportPage />} />
+          <Route path="/admin/modules/data-import" element={<DataImportPage />} />
         </Route>
 
         {/* Routes normales avec Sidebar normal */}

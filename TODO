@@ -61,7 +61,6 @@ Backoffice :
     - preparation import pour les 4 fichiers 
         - adapter l'import par rapport au fichier donner
     - liste commande (+ boutton modification d'etat)
-    - 
 
 FronOffice :
     - page d'accueil pour afficher les produits

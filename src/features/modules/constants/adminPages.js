@@ -11,4 +11,10 @@ export const ADMIN_PAGES = [
       path: "/admin/modules/import",
       showInSidebar: true,
     },
+    {
+      id: "data-import",
+      label: "Importation de données",
+      path: "/admin/modules/data-import",
+      showInSidebar: true,
+    },
 ];
