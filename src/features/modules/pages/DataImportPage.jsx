@@ -1,238 +1,115 @@
 /**
- * PAGE D'IMPORT DE DONNÉES PRESTASHOP
- * 
- * Permet d'importer les 3 fichiers CSV métier:
- * - Fichier 1 : Produits
- * - Fichier 2 : Déclinaisons & Stock
- * - Fichier 3 : Clients & Commandes
- * 
- * Flux: Upload → Mapping → Validation → Insertion (All or Nothing)
+ * PAGE IMPORT DE DONNÉES PRESTASHOP
+ * Route: /admin/modules/data-import
+ *
+ * Flux: CSV → Mapping → XML → API PrestaShop
+ * Fichier 1: Produits | Fichier 2: Déclinaisons & Stock | Fichier 3: Clients & Commandes
+ * Politique: All or Nothing par fichier (si erreur → arrêt immédiat)
  */
 
 import { useState } from "react";
-import transactionalDataImportService from "../services/transactionalDataImportService";
+import { runImport } from "../services/importOrchestrator";
 import "./DataImportPage.css";
 
 function DataImportPage() {
-  // État des fichiers (3 fichiers: produits, déclinaisons, transactions)
   const [files, setFiles] = useState({
     fichier1_products: null,
     fichier2_combinations: null,
     fichier3_transactions: null,
   });
-
-  // État du chargement
   const [importing, setImporting] = useState(false);
-  const [importLog, setImportLog] = useState([]);
+  const [logs, setLogs] = useState([]);
   const [results, setResults] = useState(null);
-  const [activeTab, setActiveTab] = useState("fichier1_products");
 
-  /**
-   * Gérer la sélection de fichier
-   */
-  const handleFileSelect = (fileType, file) => {
-    setFiles((prev) => ({
-      ...prev,
-      [fileType]: file,
-    }));
-  };
+  const addLog = (msg) => setLogs((prev) => [...prev, msg]);
 
-  /**
-   * Valider les fichiers sélectionnés
-   */
-  const validateFilesSelected = () => {
-    const selectedFiles = Object.entries(files).filter(
-      ([_, file]) => file !== null
-    );
+  const handleFile = (key, file) =>
+    setFiles((prev) => ({ ...prev, [key]: file }));
 
-    if (selectedFiles.length === 0) {
-      return {
-        valid: false,
-        message: "Veuillez sélectionner au moins un fichier.",
-      };
-    }
+  const hasFiles = Object.values(files).some(Boolean);
 
-    return { valid: true };
-  };
-
-  /**
-   * MAIN : Lancer l'import
-   */
-  const handleImportAll = async () => {
-    const validation = validateFilesSelected();
-    if (!validation.valid) {
-      alert(validation.message);
-      return;
-    }
+  const handleImport = async () => {
+    if (!hasFiles) return;
 
     setImporting(true);
-    setImportLog([]);
+    setLogs([]);
     setResults(null);
 
-    const allResults = [];
-    let hasErrors = false;
-
     try {
-      // Importer chaque fichier dans l'ordre
-      for (const [fileType, file] of Object.entries(files)) {
-        if (!file) continue;
-
-        console.log(`\n📂 Importation: ${fileType}`);
-        setImportLog((prev) => [
-          ...prev,
-          `📂 Début importation: ${fileType}...`,
-        ]);
-
-        // ÉTAPE : Import transactionnel
-        const importResult = await transactionalDataImportService.importDataFile(
-          file,
-          fileType
-        );
-
-        // Mettre à jour le log
-        setImportLog((prev) => [
-          ...prev,
-          ...importResult.log,
-        ]);
-
-        allResults.push(importResult);
-
-        // Vérifier s'il y a eu erreur
-        if (!importResult.success) {
-          hasErrors = true;
-          console.error(`❌ Erreur ${fileType}: ${importResult.error}`);
-
-          // ALL or NOTHING: s'il y a une erreur, arrêter
-          break;
-        }
-      }
-
-      // Résultat final
-      setResults({
-        success: !hasErrors,
-        allResults,
-        summary: {
-          totalFiles: allResults.length,
-          successfulFiles: allResults.filter((r) => r.success).length,
-          failedFiles: allResults.filter((r) => !r.success).length,
-        },
-      });
-
+      const allResults = await runImport(files, addLog);
+      const hasErrors = allResults.some((r) => r.errors?.length > 0);
+      setResults({ success: !hasErrors, allResults });
     } catch (err) {
-      console.error("Erreur import général:", err);
-      setImportLog((prev) => [
-        ...prev,
-        `❌ ERREUR: ${err.message}`,
-      ]);
-      setResults({
-        success: false,
-        error: err.message,
-      });
+      addLog(`❌ Erreur générale: ${err.message}`);
+      setResults({ success: false, error: err.message });
     } finally {
       setImporting(false);
     }
   };
 
-  /**
-   * Afficher un fichier d'import
-   */
-  const FileUploadSection = ({ fileType, label, description }) => (
-    <div className="file-upload-section">
-      <h3>{label}</h3>
-      <p className="description">{description}</p>
-
-      <div className="file-input-wrapper">
-        <input
-          type="file"
-          accept=".csv"
-          onChange={(e) => handleFileSelect(fileType, e.target.files[0])}
-          disabled={importing}
-          id={`file-${fileType}`}
-        />
-        <label htmlFor={`file-${fileType}`} className="file-label">
-          {files[fileType] ? (
-            <>
-              ✓ Sélectionné: <strong>{files[fileType].name}</strong>
-            </>
-          ) : (
-            "Choisir un fichier CSV..."
-          )}
-        </label>
-      </div>
-
-      {files[fileType] && (
-        <button
-          onClick={() => handleFileSelect(fileType, null)}
-          className="btn-remove"
-          disabled={importing}
-        >
-          Retirer le fichier
-        </button>
-      )}
-    </div>
-  );
-
   return (
     <div className="data-import-page">
       <div className="header">
-        <h1>🗂️ Import de Données Prestashop</h1>
+        <h1>🗂️ Import de Données PrestaShop</h1>
         <p>
-          Importez vos 3 fichiers CSV en respectant l'ordre:
-          <br />
-          <strong>1.</strong> Fichier 1 (Produits) →
-          <strong>2.</strong> Fichier 2 (Déclinaisons & Stock) →
-          <strong>3.</strong> Fichier 3 (Clients & Commandes)
+          Importez dans l'ordre : <strong>1. Produits</strong> →{" "}
+          <strong>2. Déclinaisons & Stock</strong> →{" "}
+          <strong>3. Clients & Commandes</strong>
         </p>
       </div>
 
       <div className="import-container">
-        {/* Section fichiers */}
+        {/* Sélection des fichiers */}
         <div className="files-section">
-          <FileUploadSection
-            fileType="fichier1_products"
-            label="📦 Fichier 1 : Produits"
-            description="Colonnes: date_availability_produit, nom, reference, prix_ttc, Taxe, categorie, prix_achat"
+          <FileInput
+            label="📦 Fichier 1 — Produits"
+            hint="Colonnes: date_availability_produit, nom, reference, prix_ttc, Taxe, categorie, prix_achat"
+            file={files.fichier1_products}
+            onChange={(f) => handleFile("fichier1_products", f)}
+            disabled={importing}
           />
-
-          <FileUploadSection
-            fileType="fichier2_combinations"
-            label="🔀 Fichier 2 : Déclinaisons & Stock"
-            description="Colonnes: reference, specificité, karazany, stock_initial, prix_vente_ttc"
+          <FileInput
+            label="🔀 Fichier 2 — Déclinaisons & Stock"
+            hint="Colonnes: reference, specificité, karazany, stock_initial, prix_vente_ttc"
+            file={files.fichier2_combinations}
+            onChange={(f) => handleFile("fichier2_combinations", f)}
+            disabled={importing}
           />
-
-          <FileUploadSection
-            fileType="fichier3_transactions"
-            label="👥📋 Fichier 3 : Clients & Commandes"
-            description="Colonnes: date, nom, email, pwd, adresse, achat, etat"
+          <FileInput
+            label="👥 Fichier 3 — Clients & Commandes"
+            hint="Colonnes: date, nom, email, pwd, adresse, achat, etat"
+            file={files.fichier3_transactions}
+            onChange={(f) => handleFile("fichier3_transactions", f)}
+            disabled={importing}
           />
         </div>
 
-        {/* Bouton d'import */}
+        {/* Bouton lancer */}
         <div className="import-controls">
           <button
-            onClick={handleImportAll}
-            disabled={importing || Object.values(files).every((f) => !f)}
+            onClick={handleImport}
+            disabled={importing || !hasFiles}
             className={`btn-import ${importing ? "loading" : ""}`}
           >
-            {importing ? "Importation en cours..." : "🚀 Lancer l'import"}
+            {importing ? "⏳ Import en cours..." : "🚀 Lancer l'import"}
           </button>
         </div>
 
-        {/* Log en direct */}
-        {importLog.length > 0 && (
+        {/* Journal en temps réel */}
+        {logs.length > 0 && (
           <div className="log-section">
-            <h3>📜 Journaux d'import</h3>
+            <h3>📜 Journal d'import</h3>
             <div className="log-viewer">
-              {importLog.map((entry, idx) => (
+              {logs.map((entry, idx) => (
                 <div
                   key={idx}
                   className={`log-entry ${
-                    entry.includes("✓")
+                    entry.includes("✓") || entry.includes("✅")
                       ? "success"
-                      : entry.includes("✗")
+                      : entry.includes("✗") || entry.includes("❌")
                         ? "error"
-                        : entry.includes("📝")
-                          ? "info"
+                        : entry.includes("⚠️")
+                          ? "warn"
                           : ""
                   }`}
                 >
@@ -243,49 +120,83 @@ function DataImportPage() {
           </div>
         )}
 
-        {/* Résultats */}
-        {results && (
-          <div className={`results-section ${results.success ? "success" : "error"}`}>
-            <h3>
-              {results.success
-                ? "✅ Import réussi !"
-                : "❌ Erreur lors de l'import"}
-            </h3>
-
-            {results.success && results.summary && (
-              <div className="summary">
-                <p>
-                  <strong>{results.summary.successfulFiles}/{results.summary.totalFiles}</strong> fichier(s)
-                  importé(s) avec succès.
-                </p>
-                {results.allResults.map((fileResult, idx) => (
-                  <div key={idx} className="file-result">
-                    <strong>{fileResult.fileType}</strong>:{" "}
-                    {fileResult.stats.inserted}/{fileResult.stats.total}
-                    enregistrements
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {!results.success && results.error && (
-              <p className="error-message">{results.error}</p>
-            )}
-          </div>
-        )}
+        {/* Résultats finaux */}
+        {results && <ResultsPanel results={results} />}
       </div>
 
-      {/* Info: All or Nothing */}
       <div className="info-box">
-        <h4>⚠️ Policy All or Nothing</h4>
+        <h4>⚠️ Politique All or Nothing</h4>
         <p>
-          Si une erreur est détectée dans l'import:
-          <br />
-          <strong>❌ RIEN</strong> ne sera inséré dans la base de données.
-          <br />
-          Vous devrez corriger les fichiers et réessayer.
+          Si une erreur est détectée dans un fichier, l'import s'arrête
+          immédiatement. Les fichiers suivants ne seront pas traités. Corrigez
+          les erreurs et relancez.
         </p>
       </div>
+    </div>
+  );
+}
+
+// Composant upload fichier
+function FileInput({ label, hint, file, onChange, disabled }) {
+  const inputId = `file-${label}`;
+  return (
+    <div className="file-upload-section">
+      <h3>{label}</h3>
+      <p className="description">{hint}</p>
+      <div className="file-input-wrapper">
+        <input
+          type="file"
+          accept=".csv"
+          id={inputId}
+          disabled={disabled}
+          onChange={(e) => onChange(e.target.files[0] || null)}
+        />
+        <label htmlFor={inputId} className="file-label">
+          {file ? (
+            <>
+              ✓ Sélectionné : <strong>{file.name}</strong>
+            </>
+          ) : (
+            "Choisir un fichier CSV..."
+          )}
+        </label>
+      </div>
+      {file && (
+        <button
+          onClick={() => onChange(null)}
+          className="btn-remove"
+          disabled={disabled}
+        >
+          Retirer
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Composant affichage résultats
+function ResultsPanel({ results }) {
+  const cls = results.success ? "success" : "error";
+  return (
+    <div className={`results-section ${cls}`}>
+      <h3>
+        {results.success ? "✅ Import réussi !" : "❌ Erreur lors de l'import"}
+      </h3>
+
+      {results.allResults?.map((r, i) => (
+        <div key={i} className="file-result">
+          <strong>{r.file}</strong> : {r.inserted}/{r.total} insérés
+          {r.errors?.length > 0 && (
+            <ul className="error-list">
+              {r.errors.map((e, j) => (
+                <li key={j}>{e}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ))}
+
+      {results.error && <p className="error-message">{results.error}</p>}
     </div>
   );
 }

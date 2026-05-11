@@ -108,4 +108,4 @@ translated_configurations
 warehouse_product_locations
 warehouses
 weight_ranges
-zones 
+zones
