@@ -16,6 +16,7 @@ function DataImportPage() {
     fichier1_products: null,
     fichier2_combinations: null,
     fichier3_transactions: null,
+    images_zip: null,
   });
   const [importing, setImporting] = useState(false);
   const [logs, setLogs] = useState([]);
@@ -82,6 +83,14 @@ function DataImportPage() {
             onChange={(f) => handleFile("fichier3_transactions", f)}
             disabled={importing}
           />
+          <FileInput
+            label="🖼️ Images (ZIP)"
+            hint="Fichier ZIP contenant les images nommées d'après les références : T_01.png, P_01.jpeg..."
+            file={files.images_zip}
+            onChange={(f) => handleFile("images_zip", f)}
+            disabled={importing}
+            accept=".zip"
+          />
         </div>
 
         {/* Bouton lancer */}
@@ -137,7 +146,7 @@ function DataImportPage() {
 }
 
 // Composant upload fichier
-function FileInput({ label, hint, file, onChange, disabled }) {
+function FileInput({ label, hint, file, onChange, disabled, accept = ".csv" }) {
   const inputId = `file-${label}`;
   return (
     <div className="file-upload-section">
@@ -146,7 +155,7 @@ function FileInput({ label, hint, file, onChange, disabled }) {
       <div className="file-input-wrapper">
         <input
           type="file"
-          accept=".csv"
+          accept={accept}
           id={inputId}
           disabled={disabled}
           onChange={(e) => onChange(e.target.files[0] || null)}

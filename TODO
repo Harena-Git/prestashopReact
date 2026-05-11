@@ -41,7 +41,7 @@ Backoffice :
     - reinitialisation (un seul boutton)
         - suivre les modules selons les imports
         - adapter l'import par rapport au fichier donner
-        - import d'image
+        - import d'image (instalation de npm jszip)
     - liste commande (+ boutton modification d'etat)
 
 FronOffice :
