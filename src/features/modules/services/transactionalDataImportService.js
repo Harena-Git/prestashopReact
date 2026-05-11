@@ -18,8 +18,7 @@ import csvToXmlService from "./csvToXmlTransformationService";
 import {
   PRODUCTS_FILE_MAPPING,
   COMBINATIONS_FILE_MAPPING,
-  CUSTOMERS_FILE_MAPPING,
-  ORDERS_FILE_MAPPING,
+  TRANSACTIONS_FILE_MAPPING,
   IMPORT_CONFIG,
 } from "../constants/dataImportConstants";
 
@@ -365,6 +364,9 @@ class TransactionalDataImportService {
   /**
    * MAIN : Importer un fichier CSV complet
    * 
+   * Cas spécial:
+   * - fichier3_transactions: UNE LIGNE CSV = 2 ressources (customer + order)
+   * 
    * Processus:
    * 1. Parser CSV
    * 2. Créer contexte
@@ -373,6 +375,12 @@ class TransactionalDataImportService {
    * 5. Insérer en transaction atomique
    */
   async importDataFile(csvFile, fileType) {
+    // CAS SPÉCIAL : Fichier 3 contient clients ET commandes
+    if (fileType === "fichier3_transactions") {
+      return await this.handleTransactionsFile(csvFile);
+    }
+
+    // CAS STANDARD : 1 ligne CSV = 1 ressource
     this.importLog = [];
     let context = null;
 
@@ -482,6 +490,165 @@ class TransactionalDataImportService {
   }
 
   /**
+   * CAS SPÉCIAL : Importer fichier 3 (transactions)
+   * 
+   * Une ligne CSV génère 2 ressources:
+   * 1. Customer (email, nom, pwd, adresse)
+   * 2. Order (date, achat, etat)
+   * 
+   * Flux:
+   * 1. Parser CSV fichier 3
+   * 2. Transformer CUSTOMERS (colonnes: email, nom, pwd, adresse)
+   * 3. Transformer ORDERS (colonnes: date, achat, etat)
+   * 4. Insérer tous les CUSTOMERS d'abord
+   * 5. Insérer tous les ORDERS ensuite (dépendent des customers)
+   */
+  async handleTransactionsFile(csvFile) {
+    this.importLog = [];
+    let context = null;
+
+    try {
+      this.log(`════════════════════════════════════════════`);
+      this.log(`DÉBUT IMPORT : fichier3_transactions`);
+      this.log(`(Clients & Commandes - 1 ligne = 2 ressources)`);
+      this.log(`════════════════════════════════════════════`);
+
+      // ÉTAPE 1 : Parser CSV
+      this.log(`Étape 1: Parsing du fichier CSV...`);
+      const csvData = await this.parseCsv(csvFile);
+      this.log(`✓ ${csvData.length} lignes parsées`);
+
+      // ÉTAPE 2 : Créer contexte
+      this.log(`Étape 2: Initialisation contexte...`);
+      context = new ImportContext(null);
+      this.log(`✓ Contexte créé`);
+
+      // ÉTAPE 3A : Transformer CUSTOMERS
+      this.log(`Étape 3A: Transformation CSV → CUSTOMERS XML...`);
+      const customerMapping = {
+        ...TRANSACTIONS_FILE_MAPPING,
+        columns: Object.fromEntries(
+          Object.entries(TRANSACTIONS_FILE_MAPPING.columns).filter(
+            ([_, config]) => config.resourceType === "customer"
+          )
+        ),
+      };
+      const customersResult = await csvToXmlService.transformCsvData(
+        csvData,
+        customerMapping,
+        context
+      );
+
+      let totalErrors = 
+        customersResult.validationErrors.length +
+        customersResult.transformationErrors.length;
+
+      if (totalErrors > 0) {
+        throw new Error(
+          `${totalErrors} erreur(s) dans transformation CUSTOMERS`
+        );
+      }
+
+      this.log(`✓ ${customersResult.stats.valid} customers transformés`);
+
+      // ÉTAPE 3B : Transformer ORDERS
+      this.log(`Étape 3B: Transformation CSV → ORDERS XML...`);
+      const orderMapping = {
+        ...TRANSACTIONS_FILE_MAPPING,
+        columns: Object.fromEntries(
+          Object.entries(TRANSACTIONS_FILE_MAPPING.columns).filter(
+            ([_, config]) => config.resourceType === "order"
+          )
+        ),
+      };
+      const ordersResult = await csvToXmlService.transformCsvData(
+        csvData,
+        orderMapping,
+        context
+      );
+
+      totalErrors = 
+        ordersResult.validationErrors.length +
+        ordersResult.transformationErrors.length;
+
+      if (totalErrors > 0) {
+        throw new Error(
+          `${totalErrors} erreur(s) dans transformation ORDERS`
+        );
+      }
+
+      this.log(`✓ ${ordersResult.stats.valid} orders transformées`);
+
+      // ÉTAPE 4 : Insertion CUSTOMERS d'abord
+      this.log(`Étape 4: Insertion des CUSTOMERS...`);
+      const customersInsertResult = await this.insertDataTransactional(
+        customersResult.xmlDataList,
+        "customers"
+      );
+
+      if (customersInsertResult.errors.length > 0) {
+        throw new Error(
+          `Erreurs insertion CUSTOMERS: ${customersInsertResult.errors.map(e => e.error).join("; ")}`
+        );
+      }
+
+      this.log(`✓ ${customersInsertResult.successCount} customers insérés`);
+
+      // ÉTAPE 5 : Insertion ORDERS ensuite
+      this.log(`Étape 5: Insertion des ORDERS...`);
+      const ordersInsertResult = await this.insertDataTransactional(
+        ordersResult.xmlDataList,
+        "orders"
+      );
+
+      if (ordersInsertResult.errors.length > 0) {
+        throw new Error(
+          `Erreurs insertion ORDERS: ${ordersInsertResult.errors.map(e => e.error).join("; ")}`
+        );
+      }
+
+      this.log(`✓ ${ordersInsertResult.successCount} orders insérées`);
+
+      // FIN : Succès
+      this.log(`════════════════════════════════════════════`);
+      this.log(`✓ IMPORT RÉUSSI !`);
+      this.log(`  - Customers: ${customersInsertResult.successCount}/${csvData.length}`);
+      this.log(`  - Orders: ${ordersInsertResult.successCount}/${csvData.length}`);
+      this.log(`════════════════════════════════════════════`);
+
+      return {
+        success: true,
+        fileType: "fichier3_transactions",
+        stats: {
+          total: csvData.length,
+          valid: customersResult.stats.valid + ordersResult.stats.valid,
+          inserted: customersInsertResult.successCount + ordersInsertResult.successCount,
+        },
+        details: {
+          customers: customersInsertResult.successCount,
+          orders: ordersInsertResult.successCount,
+        },
+        log: this.importLog,
+      };
+
+    } catch (err) {
+      // ERREUR : Rollback Everything (Nothing)
+      this.log(`════════════════════════════════════════════`);
+      this.log(`✗ ERREUR IMPORT : ${err.message}`);
+      this.log(`  → ROLLBACK : Aucune donnée n'a été insérée`);
+      this.log(`════════════════════════════════════════════`);
+
+      return {
+        success: false,
+        fileType: "fichier3_transactions",
+        error: err.message,
+        log: this.importLog,
+        context,
+      };
+    }
+  }
+
+  /**
    * Parser fichier CSV
    */
   parseCsv(file) {
@@ -501,13 +668,15 @@ class TransactionalDataImportService {
 
   /**
    * Sélectionner le mapping selon le type de fichier
+   * 
+   * Note: Fichier 3 contient à la fois customers ET orders
+   * Le service traitera les 2 ressources à partir d'un seul fichier CSV
    */
   getMapping(fileType) {
     const mappings = {
       fichier1_products: PRODUCTS_FILE_MAPPING,
       fichier2_combinations: COMBINATIONS_FILE_MAPPING,
-      fichier3_customers: CUSTOMERS_FILE_MAPPING,
-      fichier3_orders: ORDERS_FILE_MAPPING,
+      fichier3_transactions: TRANSACTIONS_FILE_MAPPING, // Clients + Commandes
     };
 
     if (!mappings[fileType]) {

@@ -56,9 +56,8 @@ Backoffice :
         - creation de connection de donnee brute (OK)
         - localhost:5173 ==> FronOffice (OK)
         - localhost:5173/admin ==> Backoffice (OK)
-        
     - reinitialisation (un seul boutton)
-    - preparation import pour les 4 fichiers 
+        - suivre les modules selons les imports
         - adapter l'import par rapport au fichier donner
     - liste commande (+ boutton modification d'etat)
 

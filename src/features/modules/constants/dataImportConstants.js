@@ -205,20 +205,27 @@ export const COMBINATIONS_FILE_MAPPING = {
 };
 
 // ============================================================
-// FICHIER 3 : CLIENTS & COMMANDES
+// FICHIER 3 : CLIENTS & COMMANDES (un seul fichier, deux ressources)
 // ============================================================
 
-// SOUS-FICHIER 3A : Données clients
-export const CUSTOMERS_FILE_MAPPING = {
-  resourceName: "customers",
+/**
+ * Fichier 3 contient CLIENTS ET COMMANDES sur les mêmes lignes
+ * Le service transforme chaque ligne en 2 ressources:
+ * 1. Customer (client)
+ * 2. Order (commande)
+ */
+export const TRANSACTIONS_FILE_MAPPING = {
+  resourceName: "transactions", // Type spécial: génère customers + orders
   
   columns: {
+    // ===== DONNÉES CLIENT =====
     email: {
       prestashopField: "email",
       transformation: (value) => value.trim().toLowerCase(),
       validation: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
       required: true,
-      uniqueKey: true, // Email unique
+      resourceType: "customer", // Appartient à la ressource customer
+      uniqueKey: true,
     },
     
     nom: {
@@ -226,14 +233,16 @@ export const CUSTOMERS_FILE_MAPPING = {
       transformation: (value) => value.trim(),
       validation: (value) => value && value.trim().length > 0,
       required: true,
+      resourceType: "customer",
     },
     
     pwd: {
       prestashopField: "passwd",
-      transformation: (value) => value, // Laisser tel quel ou hasher selon config
+      transformation: (value) => value,
       validation: (value) => value && value.trim().length > 0,
       required: true,
-      sensitive: true, // Champ sensible (ne pas logger)
+      resourceType: "customer",
+      sensitive: true,
     },
     
     adresse: {
@@ -241,19 +250,10 @@ export const CUSTOMERS_FILE_MAPPING = {
       transformation: (value) => value.trim(),
       validation: (value) => value && value.trim().length > 0,
       required: true,
+      resourceType: "customer",
     },
-  },
-  
-  multiLangFields: [],
-  excludeFields: [],
-  defaultLanguageId: 1,
-};
-
-// SOUS-FICHIER 3B : Données commandes
-export const ORDERS_FILE_MAPPING = {
-  resourceName: "orders",
-  
-  columns: {
+    
+    // ===== DONNÉES COMMANDE =====
     date: {
       prestashopField: "date_add",
       transformation: (value) => {
@@ -263,36 +263,18 @@ export const ORDERS_FILE_MAPPING = {
       },
       validation: (value) => /^\d{2}\/\d{2}\/\d{4}$/.test(value),
       required: true,
-    },
-    
-    email: {
-      prestashopField: "id_customer",
-      transformation: async (value, context) => {
-        // Chercher ID client via email (FK vers clients)
-        const customerId = await context.getCustomerIdByEmail(value);
-        if (!customerId) {
-          throw new Error(
-            `Client avec email "${value}" introuvable. ` +
-            `Assurez-vous que le client a été créé d'abord.`
-          );
-        }
-        return customerId;
-      },
-      validation: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
-      required: true,
-      async: true,
-      dependency: "clients", // Dépend des clients
+      resourceType: "order", // Appartient à la ressource order
     },
     
     etat: {
       prestashopField: "current_state",
       transformation: async (value, context) => {
         // Mapper texte état → ID état Prestashop
-        // Exemple: "paiement accepté" → 2
         return await context.getOrderStateIdByLabel(value);
       },
       validation: (value) => value && value.trim().length > 0,
       required: true,
+      resourceType: "order",
       async: true,
       stateMapping: {
         "en attente paiement à la livraison": 1,
@@ -308,13 +290,12 @@ export const ORDERS_FILE_MAPPING = {
       prestashopField: "order_details",
       transformation: async (value, context) => {
         // Parser format spécial : "[(""T_01"";3;""ngoza""),(""C_03"";1;"""")]"
-        // Retourner array d'articles
         return await context.parseOrderItems(value);
       },
-      validation: (value) => /^\[\(/.test(value), // Vérifie format de base
+      validation: (value) => /^\[\(/.test(value),
       required: true,
+      resourceType: "order",
       async: true,
-      // Format complexe → Parser spécial (voir service)
       isComplexFormat: true,
     },
   },
@@ -330,11 +311,11 @@ export const ORDERS_FILE_MAPPING = {
 
 export const IMPORT_CONFIG = {
   // Ordre d'importation des fichiers (dépendances)
+  // Fichier 3 contient à la fois customers ET orders sur les mêmes lignes
   importOrder: [
     "fichier1_products",      // Produits d'abord
     "fichier2_combinations",  // Puis déclinaisons (dépend fichier1)
-    "fichier3_customers",     // Clients
-    "fichier3_orders",        // Commandes (dépend clients et produits)
+    "fichier3_transactions",  // Clients & Commandes (un seul fichier, 2 ressources)
   ],
   
   // Configurations de validation

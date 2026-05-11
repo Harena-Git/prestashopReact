@@ -14,12 +14,11 @@ import transactionalDataImportService from "../services/transactionalDataImportS
 import "./DataImportPage.css";
 
 function DataImportPage() {
-  // État des fichiers
+  // État des fichiers (3 fichiers: produits, déclinaisons, transactions)
   const [files, setFiles] = useState({
     fichier1_products: null,
     fichier2_combinations: null,
-    fichier3_customers: null,
-    fichier3_orders: null,
+    fichier3_transactions: null,
   });
 
   // État du chargement
@@ -178,10 +177,10 @@ function DataImportPage() {
       <div className="header">
         <h1>🗂️ Import de Données Prestashop</h1>
         <p>
-          Importez vos fichiers CSV en respectant l'ordre:
+          Importez vos 3 fichiers CSV en respectant l'ordre:
           <br />
           <strong>1.</strong> Fichier 1 (Produits) →
-          <strong>2.</strong> Fichier 2 (Déclinaisons) →
+          <strong>2.</strong> Fichier 2 (Déclinaisons & Stock) →
           <strong>3.</strong> Fichier 3 (Clients & Commandes)
         </p>
       </div>
@@ -202,15 +201,9 @@ function DataImportPage() {
           />
 
           <FileUploadSection
-            fileType="fichier3_customers"
-            label="👥 Fichier 3A : Clients"
-            description="Colonnes: nom, email, pwd, adresse"
-          />
-
-          <FileUploadSection
-            fileType="fichier3_orders"
-            label="📋 Fichier 3B : Commandes"
-            description="Colonnes: date, nom, email, achat, etat"
+            fileType="fichier3_transactions"
+            label="👥📋 Fichier 3 : Clients & Commandes"
+            description="Colonnes: date, nom, email, pwd, adresse, achat, etat"
           />
         </div>
 
