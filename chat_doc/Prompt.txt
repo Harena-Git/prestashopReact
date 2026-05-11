@@ -1,0 +1,5 @@
+En partant de l'import qu'on vient de faire,
+nous allons ajouter une nouvelle champ dans cet import.
+Dans les champs d'import des donnees csv, nous allons ajouter un nouveau champ pour importer des images (plusieurs images compressées
+dans un fichier zip, exemple concret @images.zip).
+Les noms des images dans le fichier zip seront les valeurs de la colonne "reference".

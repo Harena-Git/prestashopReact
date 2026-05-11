@@ -1,234 +1,85 @@
-# ⚡ RÉSUMÉ EXÉCUTIF : Problème Import de Données
+# RÉSUMÉ — IMPORT CSV VERS PRESTASHOP
 
-## 🎯 LE PROBLÈME EN 30 SECONDES
+## Résultat de l'import (données test)
 
-Vous avez **3 fichiers CSV avec des colonnes métier** (ex: "karazany", "specificité") qui **ne correspondent PAS** à la structure Prestashop. 
-
-Il faut créer un **système de mapping** pour transformer vos données métier en structure Prestashop standard.
-
----
-
-## 📊 LES 3 FICHIERS CSV
-
-| Fichier | Contenu | Records | Colonnes Clés |
-|---------|---------|---------|---------------|
-| **fichier1.csv** | Produits de base | 4 produits | `reference`, `nom`, `prix_ttc`, `categorie`, `prix_achat` |
-| **fichier2.csv** | Déclinaisons & Stock | 6 déclinaisons | `reference`, `specificité` (groupe attribut), `karazany` (valeur), `stock_initial` |
-| **fichier3.csv** | Commandes & Clients | 3 commandes | `email`, `nom`, `adresse`, `achat` (format spécial), `etat` |
+| Fichier | Lignes | Insertions | Statut |
+|---------|--------|-----------|--------|
+| `1-Produits.csv` | 4 | 4 produits (IDs 20–23) | ✅ OK |
+| `2-Déclinaisons&Stock.csv` | 6 | 4 combinaisons + 2 stocks | ✅ OK |
+| `3-Clients&Commandes.csv` | 3 | 3 clients, 3 commandes | ✅ OK (après fix `conversion_rate`) |
 
 ---
 
-## 🗂️ LES API PRESTASHOP CONCERNÉES
+## Flux CSV → PrestaShop
 
-### **API 1 : Products** (Fichier 1 + 2)
 ```
-POST   /api/products                      → Créer produit
-PUT    /api/products/{id}                 → Mettre à jour
-POST   /api/products/{id}/combinations    → Créer déclinaison
+CSV fichier 1 ──→ importProducts       ──→ POST /api/products
+CSV fichier 2 ──→ importCombinations   ──→ POST /api/combinations + PUT /api/stock_availables
+CSV fichier 3 ──→ importCustomersOrders──→ POST /api/customers + addresses + carts + orders
 ```
 
-**Tables Prestashop :**
-- `ps_product` (données produit)
-- `ps_product_lang` (nom, description)
-- `ps_product_shop` (prix par boutique)
-- `ps_product_attribute` (combinaisons = déclinaisons)
-- `ps_stock_available` (quantité)
+## Ordre obligatoire
+
+```
+1. Produits (fichier 1)
+      ↓ cache les IDs produits
+2. Déclinaisons & Stock (fichier 2)
+      ↓ cache les IDs combinaisons
+3. Clients & Commandes (fichier 3)
+      ↓ résout les IDs produits + combinaisons pour les order_rows
+```
+
+Si le fichier 1 échoue → les fichiers 2 et 3 ne sont pas traités (All or Nothing).
 
 ---
 
-### **API 2 : Attributes** (Fichier 2)
-```
-GET    /api/product_attributes           → Lister attributs
-POST   /api/product_attributes           → Créer attribut
-```
+## Transformations appliquées
 
-**Tables Prestashop :**
-- `ps_attribute_group` (Taille, Couleur, etc.)
-- `ps_attribute` (ngoza, kely, mainty, fotsy)
-- `ps_attribute_lang` (traductions)
-- `ps_product_attribute_combination` (liaisons produit-attribut)
-
----
-
-### **API 3 : Categories** (Fichier 1)
-```
-GET    /api/categories                   → Lister catégories
-POST   /api/categories                   → Créer catégorie
-```
-
-**Tables Prestashop :**
-- `ps_category` (catégories)
-- `ps_category_lang` (noms)
-- `ps_category_product` (liaisons)
+| Colonne CSV | Valeur exemple | Transformation | Résultat |
+|-------------|---------------|----------------|---------|
+| `date_availability_produit` | `01/12/2025` | DD/MM/YYYY → YYYY-MM-DD | `2025-12-01 00:00:00` |
+| `prix_ttc` | `12,5` | virgule → point, TTC → HT | `11.193...` |
+| `Taxe` | `11,65%` | lookup via `/api/taxes` → `id_tax_rules_group` | `5` |
+| `categorie` | `Akanjo` | findOrCreate `/api/categories` | `3` |
+| `specificité` | `taille` | findOrCreate `/api/product_options` | `10` |
+| `karazany` | `ngoza` | findOrCreate `/api/product_option_values` | `15` |
+| `prix_vente_ttc` | `15` | delta HT vs produit de base | `+1.61...` |
+| `achat` | `[("T_01";3;"ngoza")]` | regex parser | `[{ref, qty, attr}]` |
+| `etat` | `paiement accepté` | mapping statique | `2` |
 
 ---
 
-### **API 4 : Customers** (Fichier 3)
-```
-GET    /api/customers?email=...          → Chercher par email
-POST   /api/customers                    → Créer client
-PUT    /api/customers/{id}               → Mettre à jour
-```
+## Erreur rencontrée et corrigée
 
-**Tables Prestashop :**
-- `ps_customer` (données client)
-- `ps_address` (adresses)
-- `ps_customer_group` (groupe client)
+**`conversion_rate` required (code 41)** lors du POST `/api/orders`.
+
+Cause : PrestaShop exige ce champ pour toutes les commandes, même avec une seule devise.
+Fix : ajout de `<conversion_rate>1.000000</conversion_rate>` dans `buildOrderXml()`.
 
 ---
 
-### **API 5 : Orders** (Fichier 3)
-```
-POST   /api/orders                       → Créer commande
-POST   /api/orders/{id}/order_detail     → Ajouter lignes
-```
+## Script de nettoyage (si besoin de ré-importer)
 
-**Tables Prestashop :**
-- `ps_orders` (en-tête commande)
-- `ps_order_detail` (lignes produits)
-- `ps_order_state_lang` (états)
+```sql
+-- Combinaisons
+DELETE FROM ps_product_attribute_combination WHERE id_product_attribute IN (40,41,42,43);
+DELETE FROM ps_product_attribute_shop         WHERE id_product_attribute IN (40,41,42,43);
+DELETE FROM ps_stock_available                WHERE id_product_attribute IN (40,41,42,43);
+DELETE FROM ps_product_attribute              WHERE id_product_attribute IN (40,41,42,43);
 
----
+-- Produits
+DELETE FROM ps_category_product WHERE id_product IN (20,21,22,23);
+DELETE FROM ps_stock_available  WHERE id_product IN (20,21,22,23) AND id_product_attribute = 0;
+DELETE FROM ps_product_shop     WHERE id_product IN (20,21,22,23);
+DELETE FROM ps_product_lang     WHERE id_product IN (20,21,22,23);
+DELETE FROM ps_product          WHERE id_product IN (20,21,22,23);
 
-## 🔴 LES DÉCALAGES COLONNE / TABLE
-
-### Exemple 1 : Fichier 1 → Produit
-
-```
-CSV Column          →  Prestashop Table.Column       → Type
-──────────────────────────────────────────────────────────
-reference          →  ps_product.reference           STRING
-nom                →  ps_product_lang.name           STRING
-date_availability  →  ps_product.date_add            DATETIME
-prix_ttc           →  ps_product_shop.price          DECIMAL
-Taxe (%)           →  ps_product.id_tax_rules_group  FK
-prix_achat         →  ps_product.wholesale_price     DECIMAL
-categorie (nom)    →  ps_category_lang.name + liaison FK
+-- Clients / adresses / paniers (IDs 3 et 4)
+DELETE FROM ps_cart_product WHERE id_cart IN (SELECT id_cart FROM ps_cart WHERE id_customer IN (3,4));
+DELETE FROM ps_cart     WHERE id_customer IN (3,4);
+DELETE FROM ps_address  WHERE id_customer IN (3,4);
+DELETE FROM ps_customer WHERE id_customer IN (3,4);
 ```
 
-**Problème :**
-- `categorie` en CSV = **NOM** ("Akanjo")
-- Prestashop = **ID** (foreign key)
-- Il faut : **Chercher l'ID par le nom** ou **créer la catégorie**
-
----
-
-### Exemple 2 : Fichier 2 → Déclinaison
-
-```
-CSV Column      →  Prestashop           → Processus
-────────────────────────────────────────────────────────────────
-reference       →  ps_product.id        Chercher ID produit
-specificité     →  ps_attribute_group   Créer si absent (Taille, Couleur)
-karazany        →  ps_attribute         Créer si absent (ngoza, kely)
-stock_initial   →  ps_stock_available   Insérer stock par déclinaison
-prix_vente_ttc  →  ps_product_attribute_shop.price   Si ≠ prix base
-```
-
-**Processus complexe :**
-```
-1. Chercher produit via reference
-   SELECT id_product FROM ps_product WHERE reference = 'T_01'
-   
-2. Créer groupe attribut "Taille"
-   INSERT INTO ps_attribute_group...
-   
-3. Créer attribut "ngoza"
-   INSERT INTO ps_attribute...
-   
-4. Créer combinaison (produit + attributs)
-   INSERT INTO ps_product_attribute...
-   
-5. Créer stock pour cette combinaison
-   INSERT INTO ps_stock_available...
-```
-
----
-
-### Exemple 3 : Fichier 3 → Commande
-
-```
-CSV Format                  →  Prestashop          → Transformation
-──────────────────────────────────────────────────────────────────
-"[(""T_01"";3;""ngoza"")]" →  ps_order_detail     Parser + 1 row/article
-"paiement accepté"         →  ps_orders.current_state  TEXT → state_id
-rakoto@yopmail.com         →  ps_customer.email   Créer si absent
-```
-
-**Parser le format achat :**
-```javascript
-// CSV Input: "[(""T_01"";3;""ngoza""),(""C_03"";1;"""")]"
-
-// Regex: /\("([^"]+)";"(\d+)";"([^"]*)"\)/g
-// Groups: [reference, quantity, attribute]
-
-// Output array:
-[
-  { reference: 'T_01', quantity: 3, attribute: 'ngoza' },
-  { reference: 'C_03', quantity: 1, attribute: '' }
-]
-```
-
----
-
-## ✅ SOLUTION PROPOSÉE
-
-### **4 Phases d'Import**
-
-| Phase | Étape | Entrée | Sortie |
-|-------|-------|--------|--------|
-| **1** | Validation | 3 CSV | Rapport conformité |
-| **2** | Import Produits | fichier1 + 2 | ✅ Produits + Attributs + Stock |
-| **3** | Import Clients | fichier3 (clients) | ✅ Customers + Addresses |
-| **4** | Import Commandes | fichier3 (commandes) | ✅ Orders + Order Details |
-
-### **Implémentation : Approche Hybride Recommandée**
-
-```
-ÉTAPE A : Valider via API REST Prestashop
-├─ Vérifier intégrité données
-├─ Détecter doublons
-└─ Collecter les IDs existants
-
-ÉTAPE B : Insérer via SQL Transactionnel
-├─ Performance optimale
-├─ Batch insert
-└─ Rollback si erreur
-
-ÉTAPE C : Ré-valider Post-Import
-├─ Vérifier tous les IDs
-├─ Recalculer stocks
-└─ Ré-indexer cache
-```
-
----
-
-## 🚀 PROCHAINES ÉTAPES (Si demandé)
-
-1. **Créer service d'import Node.js/React**
-   - Parser CSV
-   - Valider contre Prestashop API
-   - Générer SQL transactionnel
-
-2. **Implémenter le mapping**
-   - Référencer documents `ANALYSE_IMPORT_DONNEES.md` et `MAPPING_DETAILLE_IMPORT.md`
-   - Créer tables de mapping temporaires
-
-3. **Exécuter import**
-   - Phase par phase
-   - Avec rollback test
-
-4. **Tests post-import**
-   - Vérifier intégrité
-   - Synchroniser stocks
-   - Valider commandes
-
----
-
-## 📚 DOCUMENTS DE RÉFÉRENCE
-
-- **`ANALYSE_IMPORT_DONNEES.md`** : Analyse complète + mapping détaillé + SQL exemples
-- **`MAPPING_DETAILLE_IMPORT.md`** : Tableau mapping + parsers + checklist
-- **Fichiers API XML** : `Les_AIP.xml` (endpoints Prestashop)
-- **Structure DB** : `create.sql` (tables SQL)
-
+> Les groupes d'attributs (`taille`, `couleur`) et leurs valeurs ne sont pas supprimés
+> car ils pourraient déjà exister. Vérifier leurs IDs avant de les supprimer.

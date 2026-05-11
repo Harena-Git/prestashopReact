@@ -1,7 +1,7 @@
 Pour creer une nouvelle fonctionnalite, il faut :
 - API (Raha mila API)
 - Creation du page "src/features/customers/pages/"
-- Routage 
+- Routage
 - Creer un compononent (si on utilise formulaire,boutton ...)
 - Service (Logique metier)
 
@@ -10,7 +10,7 @@ Jours 0 ==> 06/05/2026
     - appel API (OK)
     - liste des tables (donnees brutes) (OK)
     - selectionner les modules a supprimer (donnees) (OK)
-    - get modulesSelectionner.nom et 
+    - get modulesSelectionner.nom et
       http://localhost/prestashop_new/api/nom (appel de fonction de
     reinitialisation) (OK)
     - tester (OK)
@@ -25,28 +25,10 @@ Jours 0 ==> 06/05/2026
 DEADLINE : 09/05/2025
 
 - creation des donnees csv a importer
-- completion des moyens d'import des fichiers 
+- completion des moyens d'import des fichiers
   dans le fichiers "moduleRegistry.js", ajouter tout les modules
   a fin d'importer pleins de fichier.
 - maitrise du code (Au Nom de Jesus)
-
-Utilisateur clique "🗑️ Supprimer"
-    ↓
-handleDeleteProduct() s'exécute
-    ↓
-Confirmation : "Êtes-vous sûr ?"
-    ↓ (Si OUI)
-setIsDeleting(true) ← Désactiver UI
-    ↓
-await deleteModuleRecord("products", 123)
-    ↓
-API PrestaShop supprime le produit
-    ↓
-setProducts(filter) ← Enlever de la liste
-    ↓
-Message de succès en vert
-    ↓
-Après 3s → Message disparaît
 
 DEADLINE : 10/05/2025
 
@@ -59,6 +41,7 @@ Backoffice :
     - reinitialisation (un seul boutton)
         - suivre les modules selons les imports
         - adapter l'import par rapport au fichier donner
+        - import d'image
     - liste commande (+ boutton modification d'etat)
 
 FronOffice :
