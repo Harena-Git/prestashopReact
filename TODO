@@ -30,4 +30,37 @@ DEADLINE : 09/05/2025
   a fin d'importer pleins de fichier.
 - maitrise du code (Au Nom de Jesus)
 
+Utilisateur clique "🗑️ Supprimer"
+    ↓
+handleDeleteProduct() s'exécute
+    ↓
+Confirmation : "Êtes-vous sûr ?"
+    ↓ (Si OUI)
+setIsDeleting(true) ← Désactiver UI
+    ↓
+await deleteModuleRecord("products", 123)
+    ↓
+API PrestaShop supprime le produit
+    ↓
+setProducts(filter) ← Enlever de la liste
+    ↓
+Message de succès en vert
+    ↓
+Après 3s → Message disparaît
+
 DEADLINE : 10/05/2025
+
+Jours 1 :
+Backoffice :
+    - login
+    - reinitialisation (un seul boutton)
+    - preparation import pour les 4 fichiers
+    - liste commande (+ boutton modification d'etat)
+
+FronOffice :
+    - page d'accueil pour afficher les produits
+        i- avec fiche produit
+    - faire marcher le workflow d'achat
+        i- panier
+        ii- validation commande de livraison
+    - etat des commandes
