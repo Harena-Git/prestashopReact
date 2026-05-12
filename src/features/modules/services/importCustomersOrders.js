@@ -109,7 +109,6 @@ export async function importCustomersOrders(rows, log) {
         customer_id: customerId,
         address_id: addressId,
         date_add: dateAdd,
-        secure_key: secureKey,
       });
       const cartResponse = await postXml("carts", cartXml);
       const cartId = extractIdFromXml(cartResponse, "cart");

@@ -1,33 +1,32 @@
-Il y a eu erreur lors de l'import :
 Interface :
 "📦 Début import Fichier 1 — Produits...
   4 ligne(s) à traiter
   Ligne 1: Catégorie "Akanjo"...
   Ligne 1: Taxe "11,65%"...
   Ligne 1: Création produit "T_01"...
-  ✓ Produit "T_01" créé avec ID 32
+  ✓ Produit "T_01" créé avec ID 36
   Ligne 2: Catégorie "Akanjo"...
   Ligne 2: Taxe "11,65%"...
   Ligne 2: Création produit "P_01"...
-  ✓ Produit "P_01" créé avec ID 33
+  ✓ Produit "P_01" créé avec ID 37
   Ligne 3: Catégorie "Accessoire"...
   Ligne 3: Taxe "5,60%"...
   Ligne 3: Création produit "C_03"...
-  ✓ Produit "C_03" créé avec ID 34
+  ✓ Produit "C_03" créé avec ID 38
   Ligne 4: Catégorie "Accessoire"...
   Ligne 4: Taxe "5,60%"...
   Ligne 4: Création produit "M_02"...
-  ✓ Produit "M_02" créé avec ID 35
+  ✓ Produit "M_02" créé avec ID 39
 ✅ Fichier 1 terminé: 4/4 produits insérés
 🖼️  Début import Images ZIP...
   4 image(s) trouvée(s) dans le ZIP
-  Image "M_02.jpeg" → produit "M_02" (ID 35)...
+  Image "M_02.jpeg" → produit "M_02" (ID 39)...
   ✓ Image "M_02.jpeg" importée
-  Image "P_01.png" → produit "P_01" (ID 33)...
+  Image "P_01.png" → produit "P_01" (ID 37)...
   ✓ Image "P_01.png" importée
-  Image "T_01.png" → produit "T_01" (ID 32)...
+  Image "T_01.png" → produit "T_01" (ID 36)...
   ✓ Image "T_01.png" importée
-  Image "C_03.png" → produit "C_03" (ID 34)...
+  Image "C_03.png" → produit "C_03" (ID 38)...
   ✓ Image "C_03.png" importée
 ✅ Images terminé: 4/4 image(s) importée(s)
 🔀 Début import Fichier 2 — Déclinaisons & Stock...
@@ -35,19 +34,19 @@ Interface :
   Ligne 1: Groupe attribut "taille"...
   Ligne 1: Valeur attribut "ngoza"...
   Ligne 1: Combinaison "T_01" + "ngoza"...
-  ✓ Combinaison créée (ID 52), stock: 13
+  ✓ Combinaison créée (ID 56), stock: 13
   Ligne 2: Groupe attribut "taille"...
   Ligne 2: Valeur attribut "kely"...
   Ligne 2: Combinaison "T_01" + "kely"...
-  ✓ Combinaison créée (ID 53), stock: 10
+  ✓ Combinaison créée (ID 57), stock: 10
   Ligne 3: Groupe attribut "couleur"...
   Ligne 3: Valeur attribut "mainty"...
   Ligne 3: Combinaison "P_01" + "mainty"...
-  ✓ Combinaison créée (ID 54), stock: 5
+  ✓ Combinaison créée (ID 58), stock: 5
   Ligne 4: Groupe attribut "couleur"...
   Ligne 4: Valeur attribut "fotsy"...
   Ligne 4: Combinaison "P_01" + "fotsy"...
-  ✓ Combinaison créée (ID 55), stock: 3
+  ✓ Combinaison créée (ID 59), stock: 3
   Ligne 5: Stock produit "C_03" → 10
   ✓ Stock mis à jour pour "C_03"
   Ligne 6: Stock produit "M_02" → 11
@@ -56,11 +55,27 @@ Interface :
 👥 Début import Fichier 3 — Clients & Commandes...
   3 ligne(s) à traiter
   Ligne 1: Client "rakoto@yopmail.com"...
-  ✓ Client ID: 8
+  ✓ Client ID: 9
   Ligne 1: Création adresse...
   Ligne 1: Création commande (état: 9)...
-  ✗ Ligne 1: POST orders: 500 -
-❌ Fichier 3 — Ligne 1: POST orders: 500 -
+  ✗ Ligne 1: POST orders: 400 - <?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+<errors>
+<error>
+<code><![CDATA[85]]></code>
+<message><![CDATA[Validation error: "La propriété Order-&gt;secure_key n'est pas valide."]]></message>
+</error>
+</errors>
+</prestashop>
+❌ Fichier 3 — Ligne 1: POST orders: 400 - <?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+<errors>
+<error>
+<code><![CDATA[85]]></code>
+<message><![CDATA[Validation error: "La propriété Order-&gt;secure_key n'est pas valide."]]></message>
+</error>
+</errors>
+</prestashop>
 ⛔ All or Nothing: arrêt immédiat
 🔄 Rollback automatique — suppression des données insérées...
   Modules à nettoyer : combinations, products, orders, carts, addresses, customers
@@ -83,17 +98,93 @@ Produits : 4/4 insérés
 Images : 4/4 insérés
 Déclinaisons : 6/6 insérés
 Clients & Commandes : 1/0 insérés
-Ligne 1: POST orders: 500 -"
+Ligne 1: POST orders: 400 - <?xml version="1.0" encoding="UTF-8"?> <prestashop xmlns:xlink="http://www.w3.org/1999/xlink"> <errors> <error> <code><![CDATA[85]]></code> <message><![CDATA[Validation error: "La propriété Order-&gt;secure_key n'est pas valide."]]></message> </error> </errors> </prestashop>"
 
 Console :
-"prestashopCache.js:49
- POST http://localhost:5173/api/orders?ws_key=25Wx5346ZgrYsaaNnPYiIh2s565qH2ui 500 (Internal Server Error)
-(anonymous)	@	prestashopCache.js:49
-(anonymous)	@	importCustomersOrders.js:150
+"POST http://localhost:5173/api/orders?ws_key=25Wx5346ZgrYsaaNnPYiIh2s565qH2ui 400 (Bad Request)
+(anonymous) @ prestashopCache.js:49
+(anonymous) @ importCustomersOrders.js:150
 await in (anonymous)
-(anonymous)	@	importOrchestrator.js:110
+(anonymous) @ importOrchestrator.js:110
 await in (anonymous)
-(anonymous)	@	DataImportPage.jsx:89
-importOrchestrator.js:13   ✗ Ligne 1: POST orders: 500 -
-importOrchestrator.js:13 ❌ Fichier 3 — Ligne 1: POST orders: 500 -
-importOrchestrator.js:13"
+(anonymous) @ DataImportPage.jsx:89
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(anonymous) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+(anonymous) @ react-jsx-dev-runtime.development.js:335
+DataImportPage @ DataImportPage.jsx:160
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopConcurrentByScheduler @ react-dom-client.development.js:17635
+renderRootConcurrent @ react-dom-client.development.js:17617
+performWorkOnRoot @ react-dom-client.development.js:16503
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<DataImportPage>
+(anonymous) @ react-jsx-dev-runtime.development.js:335
+AppRouter @ AppRouter.jsx:34
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(anonymous) @ react-dom-client.development.js:18991
+<AppRouter>
+(anonymous) @ react-jsx-dev-runtime.development.js:335
+App @ App.jsx:6
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<App>
+(anonymous) @ react-jsx-dev-runtime.development.js:335
+(anonymous) @ main.jsx:9
+importOrchestrator.js:13   ✗ Ligne 1: POST orders: 400 - <?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+<errors>
+<error>
+<code><![CDATA[85]]></code>
+<message><![CDATA[Validation error: "La propriété Order-&gt;secure_key n'est pas valide."]]></message>
+</error>
+</errors>
+</prestashop>
+
+importOrchestrator.js:13 ❌ Fichier 3 — Ligne 1: POST orders: 400 - <?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+<errors>
+<error>
+<code><![CDATA[85]]></code>
+<message><![CDATA[Validation error: "La propriété Order-&gt;secure_key n'est pas valide."]]></message>
+</error>
+</errors>
+</prestashop>
+
+importOrchestrator.js:13 ⛔ All or Nothing: arrêt immédiat
+"

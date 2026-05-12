@@ -252,6 +252,7 @@ export function buildOrderXml({
   <id_customer>${customer_id}</id_customer>
   <id_carrier>0</id_carrier>
   <current_state>${state_id}</current_state>
+  <secure_key>${secure_key}</secure_key>
   <conversion_rate>1.000000</conversion_rate>
   <module>ps_checkpayment</module>
   <invoice_number>0</invoice_number>

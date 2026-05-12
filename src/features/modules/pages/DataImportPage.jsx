@@ -27,9 +27,12 @@ const EMPTY_FILES = {
  * @param {Array} insertedResults - Résultats avec inserted > 0
  * @param {Function} log - Fonction de log
  */
+
+// =======================Rollback=======================
+
 async function runRollback(insertedResults, log) {
   log("");
-  log("🔄 Rollback automatique — suppression des données insérées...");
+  log(" Rollback automatique — suppression des données insérées...");
 
   // Construire la liste unique des modules à supprimer (ordre FK respecté)
   const modulesToDelete = [];
@@ -43,11 +46,11 @@ async function runRollback(insertedResults, log) {
   }
 
   if (modulesToDelete.length === 0) {
-    log("  Aucun module à nettoyer");
+    log("  Tsa misy module voafafa lekaaa");
     return;
   }
 
-  log(`  Modules à nettoyer : ${modulesToDelete.join(", ")}`);
+  log(`  Module ho diovina : ${modulesToDelete.join(", ")}`);
 
   // Suppression séquentielle (respecte les FK)
   for (const moduleName of modulesToDelete) {
@@ -61,9 +64,11 @@ async function runRollback(insertedResults, log) {
     }
   }
 
-  log("✅ Rollback terminé");
+  log(" Rollback terminé");
   log("");
 }
+
+// =======================Import=======================
 
 function DataImportPage() {
   const [files, setFiles] = useState({ ...EMPTY_FILES });
@@ -113,7 +118,7 @@ function DataImportPage() {
   return (
     <div className="data-import-page">
       <div className="header">
-        <h1>🗂️ Import de Données PrestaShop</h1>
+        <h1> Import de Données PrestaShop</h1>
         <p>
           Importez dans l'ordre : <strong>1. Produits</strong> →{" "}
           <strong>2. Déclinaisons & Stock</strong> →{" "}
@@ -125,28 +130,28 @@ function DataImportPage() {
         {/* Sélection des fichiers */}
         <div className="files-section">
           <FileInput
-            label="📦 Fichier 1 — Produits"
+            label=" Fichier 1 — Produits"
             hint="Colonnes: date_availability_produit, nom, reference, prix_ttc, Taxe, categorie, prix_achat"
             file={files.fichier1_products}
             onChange={(f) => handleFile("fichier1_products", f)}
             disabled={importing}
           />
           <FileInput
-            label="🔀 Fichier 2 — Déclinaisons & Stock"
+            label=" Fichier 2 — Déclinaisons & Stock"
             hint="Colonnes: reference, specificité, karazany, stock_initial, prix_vente_ttc"
             file={files.fichier2_combinations}
             onChange={(f) => handleFile("fichier2_combinations", f)}
             disabled={importing}
           />
           <FileInput
-            label="👥 Fichier 3 — Clients & Commandes"
+            label=" Fichier 3 — Clients & Commandes"
             hint="Colonnes: date, nom, email, pwd, adresse, achat, etat"
             file={files.fichier3_transactions}
             onChange={(f) => handleFile("fichier3_transactions", f)}
             disabled={importing}
           />
           <FileInput
-            label="🖼️ Images (ZIP)"
+            label=" Images (ZIP)"
             hint="Fichier ZIP contenant les images nommées d'après les références : T_01.png, P_01.jpeg..."
             file={files.images_zip}
             onChange={(f) => handleFile("images_zip", f)}
@@ -162,14 +167,14 @@ function DataImportPage() {
             disabled={importing || !hasFiles}
             className={`btn-import ${importing ? "loading" : ""}`}
           >
-            {importing ? "⏳ Import en cours..." : "🚀 Lancer l'import"}
+            {importing ? " Import en cours..." : " Alefa le import"}
           </button>
         </div>
 
         {/* Journal en temps réel */}
         {logs.length > 0 && (
           <div className="log-section">
-            <h3>📜 Journal d'import</h3>
+            <h3> Journal d'import</h3>
             <div className="log-viewer">
               {logs.map((entry, idx) => (
                 <div
@@ -179,7 +184,7 @@ function DataImportPage() {
                       ? "success"
                       : entry.includes("✗") || entry.includes("❌")
                         ? "error"
-                        : entry.includes("⚠️")
+                        : entry.includes("XD")
                           ? "warn"
                           : ""
                   }`}
@@ -245,13 +250,15 @@ function FileInput({ label, hint, file, onChange, disabled, accept = ".csv" }) {
   );
 }
 
+// =======================affichage résultats=======================
+
 // Composant affichage résultats
 function ResultsPanel({ results }) {
   const cls = results.success ? "success" : "error";
   return (
     <div className={`results-section ${cls}`}>
       <h3>
-        {results.success ? "✅ Import réussi !" : "❌ Erreur lors de l'import"}
+        {results.success ? " Import réussi !" : "❌ Erreur lors de l'import"}
       </h3>
 
       {results.allResults?.map((r, i) => (

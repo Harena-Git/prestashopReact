@@ -5,6 +5,7 @@ import { importCombinations } from "./importCombinations";
 import { importCustomersOrders } from "./importCustomersOrders";
 import { importImages } from "./importImages";
 
+// Séquencement + politique All or Nothing
 // Lance l'import complet : CSV + images ZIP (optionnel)
 // Politique All or Nothing : la première erreur dans n'importe quelle ligne arrête tout
 // files = { fichier1_products, fichier2_combinations, fichier3_transactions, images_zip }
@@ -20,7 +21,7 @@ export async function runImport(files, onLog) {
 
   // === FICHIER 1 : PRODUITS ===
   if (files.fichier1_products) {
-    log("📦 Début import Fichier 1 — Produits...");
+    log(" Début import Fichier 1 — Produits...");
     try {
       const rows = await parseCsvFile(files.fichier1_products);
       log(`  ${rows.length} ligne(s) à traiter`);
@@ -51,7 +52,7 @@ export async function runImport(files, onLog) {
   // === IMAGES ZIP (après produits, avant combinaisons) ===
   // Les images ne bloquent pas la suite si elles échouent
   if (files.images_zip) {
-    log("🖼️  Début import Images ZIP...");
+    log("  Début import Images ZIP...");
     try {
       const result = await importImages(files.images_zip, log);
       results.push({ file: "Images", ...result });
@@ -74,7 +75,7 @@ export async function runImport(files, onLog) {
 
   // === FICHIER 2 : DÉCLINAISONS & STOCK ===
   if (files.fichier2_combinations) {
-    log("🔀 Début import Fichier 2 — Déclinaisons & Stock...");
+    log(" Début import Fichier 2 — Déclinaisons & Stock...");
     try {
       const rows = await parseCsvFile(files.fichier2_combinations);
       log(`  ${rows.length} ligne(s) à traiter`);
@@ -103,7 +104,7 @@ export async function runImport(files, onLog) {
 
   // === FICHIER 3 : CLIENTS & COMMANDES ===
   if (files.fichier3_transactions) {
-    log("👥 Début import Fichier 3 — Clients & Commandes...");
+    log(" Début import Fichier 3 — Clients & Commandes...");
     try {
       const rows = await parseCsvFile(files.fichier3_transactions);
       log(`  ${rows.length} ligne(s) à traiter`);
