@@ -1,20 +1,89 @@
-Console navigateur :
-prestashop.api.js:221 Détails erreur PrestaShop: <?xml version="1.0" encoding="UTF-8"?>
+Erreur de chargement des clients Error: Erreur GET clients: 400 <?xml version="1.0" encoding="UTF-8"?>
 <prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
 <errors>
 <error>
-<code><![CDATA[41]]></code>
-<message><![CDATA[parameter "id_address_delivery" required]]></message>
+<code><![CDATA[27]]></code>
+<message><![CDATA[Resource of type "clients" does not exists. Did you mean: "guests"? The full list is: "addresses", "attachments", "carriers", "cart_rules", "carts", "categories", "combinations", "configurations", "contacts", "content_management_system", "countries", "currencies", "customer_messages", "customer_threads", "customers", "customizations", "deliveries", "employees", "groups", "guests", "image_types", "images", "klaviyo", "languages", "manufacturers", "messages", "order_carriers", "order_cart_rules", "order_details", "order_histories", "order_invoices", "order_payments", "order_slip", "order_states", "orders", "price_ranges", "product_customization_fields", "product_feature_values", "product_features", "product_option_values", "product_options", "product_suppliers", "products", "search", "shop_groups", "shop_urls", "shops", "specific_price_rules", "specific_prices", "states", "stock_availables", "stock_movement_reasons", "stock_movements", "stocks", "stores", "suppliers", "supply_order_details", "supply_order_histories", "supply_order_receipt_histories", "supply_order_states", "supply_orders", "tags", "tax_rule_groups", "tax_rules", "taxes", "translated_configurations", "warehouse_product_locations", "warehouses", "weight_ranges", "zones"]]></message>
 </error>
 </errors>
 </prestashop>
-ListCommande.jsx:66 Erreur mise à jour statut commande Error: Erreur lors de la mise à jour dans orders
-    at updateResource (prestashop.api.js:222:11)
-    at async handleChangeStatus (ListCommande.jsx:55:7)
-(anonymous)	@	ListCommande.jsx:66
-await in (anonymous)		
-(anonymous)	@	ListCommande.jsx:125
-<button>		
-(anonymous)	@	ListCommande.jsx:124
-ListCommande	@	ListCommande.jsx:109
-
+    at fetchModuleIds (prestashop.api.js:72:11)
+    at async listClientsService (clientService.js:9:21)
+    at async loadClients (ListLoginClients.jsx:12:22)
+(anonymous) @ ListLoginClients.jsx:15
+await in (anonymous)
+(anonymous) @ ListLoginClients.jsx:21
+react_stack_bottom_frame @ react-dom-client.development.js:25989
+runWithFiberInDEV @ react-dom-client.development.js:871
+commitHookEffectListMount @ react-dom-client.development.js:13249
+commitHookPassiveMountEffects @ react-dom-client.development.js:13336
+reconnectPassiveEffects @ react-dom-client.development.js:15832
+doubleInvokeEffectsOnFiber @ react-dom-client.development.js:18703
+runWithFiberInDEV @ react-dom-client.development.js:871
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18667
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
+commitDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18712
+flushPassiveEffects @ react-dom-client.development.js:18439
+(anonymous) @ react-dom-client.development.js:17923
+performWorkUntilDeadline @ scheduler.development.js:45
+<ListLoginClients>
+(anonymous) @ react-jsx-dev-runtime.development.js:335
+AppRouter @ AppRouter.jsx:42
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+flushSyncWork$1 @ react-dom-client.development.js:16898
+scheduleRefresh @ react-dom-client.development.js:113
+(anonymous) @ @react-refresh:228
+performReactRefresh @ @react-refresh:217
+(anonymous) @ @react-refresh:604
+<AppRouter>
+(anonymous) @ react-jsx-dev-runtime.development.js:335
+App @ App.jsx:6
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+flushSyncWork$1 @ react-dom-client.development.js:16898
+scheduleRoot @ react-dom-client.development.js:101
+(anonymous) @ @react-refresh:208
+performReactRefresh @ @react-refresh:190
+(anonymous) @ @react-refresh:604
+<App>
+(anonymous) @ react-jsx-dev-runtime.development.js:335
+(anonymous) @ main.jsx:9

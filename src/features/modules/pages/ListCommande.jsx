@@ -9,19 +9,10 @@ import {
 
 function normaliseField(value) {
   if (value == null) return "";
-  if (Array.isArray(value)) {
-    return value.map(normaliseField).filter(Boolean).join(", ");
-  }
   if (typeof value === "object") {
-    if (typeof value["#text"] !== "undefined") return String(value["#text"]);
-    if (typeof value["@_id"] !== "undefined") return String(value["@_id"]);
-    if (typeof value["@_xlink:href"] !== "undefined") return String(value["@_xlink:href"]);
-    const nestedValue = Object.values(value)
-      .map(normaliseField)
-      .find((v) => v !== "");
-    return nestedValue || JSON.stringify(value);
+    return value["#text"] ?? value["@_id"] ?? JSON.stringify(value);
   }
-  return String(value);
+  return value;
 }
 
 function ListCommande() {

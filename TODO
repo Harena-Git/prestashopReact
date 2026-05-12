@@ -51,3 +51,14 @@ FronOffice :
         i- panier
         ii- validation commande de livraison
     - etat des commandes
+
+Combinaisom J1 + J2 (FronOffice) :
+accueil -> connection par client (memoire pour les paniers)
+option anonyme
+liste produit (rearangement des produits selon les dates)
+recherche multicritere produit (nom,catégorie,intervalle de prix)
+gestion panier
+validation commande
+etat commande
+
+Connection -> LoginClients.jsx

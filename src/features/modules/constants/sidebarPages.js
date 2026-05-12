@@ -6,9 +6,9 @@ export const SIDEBAR_PAGES = [
       showInSidebar: true,
     },
     {
-      id: "list-products",
-      label: "Liste des produits",
-      path: "/modules/list",
+      id: "list-clients",
+      label: "Client",
+      path: "/customers",
       showInSidebar: true,
     },
 ];
