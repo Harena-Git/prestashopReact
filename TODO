@@ -39,7 +39,7 @@ Backoffice :
         - localhost:5173 ==> FronOffice (OK)
         - localhost:5173/admin ==> Backoffice (OK)
     - reinitialisation (un seul boutton)
-        - suivre les modules selons les imports
+        - suivre les modules selons les imports (a verifier => categories)
         - adapter l'import par rapport au fichier donner
         - import d'image (instalation de npm jszip)
     - liste commande (+ boutton modification d'etat)
