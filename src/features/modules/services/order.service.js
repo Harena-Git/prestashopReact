@@ -2,6 +2,7 @@ import {
   fetchModuleIds,
   fetchModuleRecord,
   updateResource,
+  createResource,
 } from "../../../api/prestashop.api";
 
 const ORDER_STATE_LABELS = {
@@ -13,8 +14,14 @@ const ORDER_STATE_LABELS = {
 export const PAYMENT_DONE_STATE_ID = 2;
 export const ORDER_CANCELED_STATE_ID = 6;
 
-function buildOrderStatusXml(orderId, stateId) {
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<prestashop>\n  <order>\n    <id>${orderId}</id>\n    <current_state>${stateId}</current_state>\n  </order>\n</prestashop>`;
+function buildOrderStatusHistoryXml(orderId, stateId) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+  <order_history>
+    <id_order>${orderId}</id_order>
+    <id_order_state>${stateId}</id_order_state>
+  </order_history>
+</prestashop>`;
 }
 
 export function getOrderStateLabel(stateId) {
@@ -41,9 +48,9 @@ export async function updateOrderService(xmlData) {
 }
 
 /**
- * Met à jour l'état d'une commande.
+ * Met à jour l'état d'une commande (en ajoutant un historique).
  */
 export async function updateOrderStatusService(orderId, stateId) {
-  const xmlData = buildOrderStatusXml(orderId, stateId);
-  return updateOrderService(xmlData);
+  const xmlData = buildOrderStatusHistoryXml(orderId, stateId);
+  return createResource("order_histories", xmlData);
 }

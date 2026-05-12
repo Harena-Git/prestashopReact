@@ -1,21 +1,20 @@
-Message de l'Interface :
-react-dom-client.development.js:6099 Uncaught Error: Objects are not valid as a React child (found: object with keys {#text, @_xlink:href}). If you meant to render a collection of children, use an array instead.
-<td>		
-(anonymous)	@	ListCommande.jsx:53
-OrderListPage	@	ListCommande.jsx:50
-<OrderListPage>		
-AppRouter	@	AppRouter.jsx:36
-<AppRouter>		
-App	@	App.jsx:6
-(anonymous)	@	@react-refresh:208
-performReactRefresh	@	@react-refresh:190
-(anonymous)	@	@react-refresh:604
-<App>		
-(anonymous)	@	main.jsx:9
-ListCommande.jsx?t=1778612913260:88 An error occurred in the <td> component.
+Console navigateur :
+prestashop.api.js:221 Détails erreur PrestaShop: <?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+<errors>
+<error>
+<code><![CDATA[41]]></code>
+<message><![CDATA[parameter "id_address_delivery" required]]></message>
+</error>
+</errors>
+</prestashop>
+ListCommande.jsx:66 Erreur mise à jour statut commande Error: Erreur lors de la mise à jour dans orders
+    at updateResource (prestashop.api.js:222:11)
+    at async handleChangeStatus (ListCommande.jsx:55:7)
+(anonymous)	@	ListCommande.jsx:66
+await in (anonymous)		
+(anonymous)	@	ListCommande.jsx:125
+<button>		
+(anonymous)	@	ListCommande.jsx:124
+ListCommande	@	ListCommande.jsx:109
 
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
-
-Console :
-"

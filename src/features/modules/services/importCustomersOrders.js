@@ -31,13 +31,18 @@ function extractIdFromXml(xmlText, singular) {
 const ORDER_STATES = {
   "en attente paiement à la livraison": 9,
   "paiement accepté": 2,
+  "paiement effectué": 2,
   "payment accepted": 2,
+  "annulé": 6,
+  "canceled": 6,
   "erreur de paiement": 8,
   "payment error": 8,
+  "dans le panier": 1,
 };
 
 function getOrderStateId(etat) {
-  const key = etat.toLowerCase().trim();
+  if (!etat) return 1;
+  const key = String(etat).toLowerCase().trim();
   return ORDER_STATES[key] ?? 1; // Par défaut: en attente
 }
 
@@ -174,6 +179,20 @@ export async function importCustomersOrders(rows, log) {
       const orderResponse = await postXml("orders", orderXml);
       const orderId = extractIdFromXml(orderResponse, "order");
       if (!orderId) throw new Error("Impossible de créer la commande");
+
+      // Forcer l'application de l'état en ajoutant un historique à la commande
+      try {
+        const historyXml = `<?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+  <order_history>
+    <id_order>${orderId}</id_order>
+    <id_order_state>${stateId}</id_order_state>
+  </order_history>
+</prestashop>`;
+        await postXml("order_histories", historyXml);
+      } catch (historyErr) {
+        log(`  ! Attention: Impossible de sauvegarder l'historique d'état pour la commande ${orderId}`);
+      }
 
       log(`  ✓ Commande ID: ${orderId} (${resolvedItems.length} article(s))`);
       ordersInserted++;
