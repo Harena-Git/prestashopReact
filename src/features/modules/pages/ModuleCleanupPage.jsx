@@ -3,12 +3,16 @@ import ModuleSelectionList from "../components/ModuleSelectionList";
 import DeleteModulesButton from "../components/DeleteModulesButton";
 import { MODULE_REGISTRY } from "../constants/moduleRegistry";
 import { deleteSelectedModules } from "../services/moduleDeletion.service";
-import { areAllModulesSelected, toggleModuleSelection } from "../utils/selection";
+import {
+  areAllModulesSelected,
+  toggleModuleSelection,
+} from "../utils/selection";
 
 function ModuleCleanupPage() {
-  // 1. Maka ny anaran'ny modules rehetra ao amin'ny REGISTRY
+  // 1. Liste des modules avec leur label (depuis le REGISTRY)
   const modules = useMemo(() => Object.keys(MODULE_REGISTRY), []);
-  
+  const getLabel = (key) => MODULE_REGISTRY[key]?.label || key;
+
   // 2. State hitahirizana ireo modules nosoratana (checkbox)
   const [selectedModules, setSelectedModules] = useState([]);
 
@@ -36,7 +40,7 @@ function ModuleCleanupPage() {
   // 7. Fonction famafana ny données (Fanalana ny contenu ao anaty PrestaShop)
   const onDeleteSelected = async () => {
     const fanamafisana = window.confirm(
-      `Voulez-vous vraiment supprimer les données de ${selectedModules.length} modules ?`
+      `Voulez-vous vraiment supprimer les données de ${selectedModules.length} modules ?`,
     );
 
     if (fanamafisana === false) return; // Mijato raha "Annuler" no tsindrina
@@ -68,13 +72,14 @@ function ModuleCleanupPage() {
         setSelectedModules([]);
       } else {
         // Raha misy erreur ny sasany
-        const hafatraErreur = failed.map((f) => `${f.module}: ${f.error}`).join("\n");
+        const hafatraErreur = failed
+          .map((f) => `${f.module}: ${f.error}`)
+          .join("\n");
         alert(`Nisy erreur vitsivitsy:\n${hafatraErreur}`);
-        
+
         // Tehirizina izay tsy tafa ihany mba hamerenana azy
         setSelectedModules(failed.map((f) => f.module));
       }
-
     } catch (error) {
       alert("Nisy olana tsy nampoizina: " + error.message);
     } finally {
@@ -94,6 +99,7 @@ function ModuleCleanupPage() {
         allSelected={allSelected}
         onToggleAll={onToggleAll}
         onToggleModule={onToggleModule}
+        getLabel={getLabel}
       />
 
       {/* Bouton hamafana izay voafidy */}

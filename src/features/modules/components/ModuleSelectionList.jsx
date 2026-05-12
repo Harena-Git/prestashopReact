@@ -10,8 +10,8 @@ function ModuleSelectionList({
   allSelected,
   onToggleAll,
   onToggleModule,
+  getLabel = (key) => key, // Fonction optionnelle pour afficher un label à la place du nom API
 }) {
-  
   // Ny ampahany hita maso (HTML/JSX) izay avoakan'ity fonction ity.
   return (
     <>
@@ -26,24 +26,23 @@ function ModuleSelectionList({
             onChange={onToggleAll}
             // Tsy azo tsindriana ity checkbox ity raha mbola misy asa mandeha (loading)
             disabled={loading}
-          />
-          {" "}
+          />{" "}
           Tout selectionner
         </label>
       </div>
 
       {/* Fizarana 2: Lisitry ny modules tsirairay */}
-      <ul style={{ 
-        listStyle: "none",  // Tsy asiana teboka na isa eo alohan'ny lisitra
-        padding: 0,         // Tsy asiana sisiny anatiny
-        margin: 0,          // Tsy asiana sisiny ivelany
-        maxHeight: 420,     // Ny haavony be indrindra dia 420px
-        overflowY: "auto"   // Aseho ny "ascenseur" raha mihoatra ny haavony ny lisitra
-      }}>
-        
+      <ul
+        style={{
+          listStyle: "none", // Tsy asiana teboka na isa eo alohan'ny lisitra
+          padding: 0, // Tsy asiana sisiny anatiny
+          margin: 0, // Tsy asiana sisiny ivelany
+          maxHeight: 420, // Ny haavony be indrindra dia 420px
+          overflowY: "auto", // Aseho ny "ascenseur" raha mihoatra ny haavony ny lisitra
+        }}
+      >
         {/* Mamerina mampiseho isaky ny module ao anatin'ny lisitry ny 'modules' */}
         {modules.map((moduleName) => (
-          
           // Isaky ny module dia mamboatra an'ity singa 'li' ity
           <li key={moduleName} style={{ marginBottom: 8 }}>
             <label>
@@ -55,13 +54,11 @@ function ModuleSelectionList({
                 onChange={() => onToggleModule(moduleName)}
                 // Tsy azo tsindriana raha mbola misy asa mandeha (loading)
                 disabled={loading}
-              />
-              {" "}
-              {/* Aseho eto ny anaran'ilay module */}
-              {moduleName}
+              />{" "}
+              {/* Aseho eto ny label na ny anaran'ilay module */}
+              {getLabel(moduleName)}
             </label>
           </li>
-          
         ))}
       </ul>
     </>

@@ -17,6 +17,7 @@ PrestaShop est une plateforme e-commerce open source. Ce document explique la st
 ## 👥 GESTION DES UTILISATEURS
 
 ### `ps_customer` - Clients
+**API** : /customers
 **Contexte** : Table principale contenant tous les clients inscrits sur votre boutique.
 
 ```
@@ -35,6 +36,7 @@ Structure :
 ---
 
 ### `ps_customer_group` - Groupes de Clients
+**API** : /groups
 **Contexte** : Association des clients à des groupes pour appliquer des réductions.
 
 ```
@@ -47,6 +49,7 @@ Utilité dans l'e-commerce :
 ---
 
 ### `ps_address` - Adresses
+**API** : /addresses
 **Contexte** : Stocke toutes les adresses (livraison, facturation).
 
 ```
@@ -64,6 +67,7 @@ Champs clés :
 ---
 
 ### `ps_employee` - Employés et Administrateurs
+**API** : /employees
 **Contexte** : Gestion du personnel de la boutique.
 
 ```
@@ -78,6 +82,7 @@ Exemples de profils :
 ## 🛍️ GESTION DES PRODUITS
 
 ### `ps_product` - Produits
+**API** : /products
 **Contexte** : Référence principale de chaque produit vendu.
 
 ```
@@ -94,6 +99,7 @@ Exemple de produit : Smartphone XYZ
 ---
 
 ### `ps_product_lang` - Traductions de Produits
+**API** : /products
 **Contexte** : Descriptions dans plusieurs langues.
 
 ```
@@ -113,6 +119,7 @@ Champs :
 ---
 
 ### `ps_product_shop` - Produits par Boutique
+**API** : /products
 **Contexte** : Si vous gérez plusieurs boutiques.
 
 ```
@@ -125,6 +132,7 @@ Exemple :
 ---
 
 ### `ps_category` et `ps_category_lang` - Catégories
+**API** : /categories
 **Contexte** : Structuration du catalogue.
 
 ```
@@ -146,6 +154,7 @@ Champs :
 ---
 
 ### `ps_combination` - Variantes de Produits
+**API** : /combinations
 **Contexte** : Gestion des variantes (taille, couleur, etc).
 
 ```
@@ -164,6 +173,7 @@ Champs :
 ---
 
 ### `ps_attribute` et `ps_attribute_group` - Attributs
+**API** : /product_option_values
 **Contexte** : Définition des caractéristiques (couleur, taille, etc).
 
 ```
@@ -182,6 +192,7 @@ Groupe "Taille" contient :
 ---
 
 ### `ps_feature` et `ps_feature_value` - Caractéristiques
+**API** : /product_features
 **Contexte** : Détails purement informatifs (différent des attributs).
 
 ```
@@ -198,6 +209,7 @@ Caractéristique "Écran" → Valeur "6.7 pouces"
 ---
 
 ### `ps_image` et `ps_image_lang` - Images Produits
+**API** : /images
 **Contexte** : Gestion des images d'un produit.
 
 ```
@@ -215,6 +227,7 @@ Champs :
 ---
 
 ### `ps_manufacturer` - Marques
+**API** : /manufacturers
 **Contexte** : Association des produits à leurs marques.
 
 ```
@@ -228,6 +241,7 @@ Exemples :
 ---
 
 ### `ps_supplier` - Fournisseurs
+**API** : /suppliers
 **Contexte** : Suivi des sources d'approvisionnement.
 
 ```
@@ -241,6 +255,7 @@ Utile pour la gestion des commandes de réapprovisionnement
 ## 🛒 GESTION DES COMMANDES ET PANIER
 
 ### `ps_cart` - Paniers
+**API** : /carts
 **Contexte** : Stockage des paniers en cours.
 
 ```
@@ -259,6 +274,7 @@ Champs :
 ---
 
 ### `ps_cart_product` - Produits dans le Panier
+**API** : /carts
 **Contexte** : Détail des articles du panier.
 
 ```
@@ -273,6 +289,7 @@ Champs :
 ---
 
 ### `ps_order` - Commandes Finalisées
+**API** : /orders
 **Contexte** : Historique de toutes les commandes passées.
 
 ```
@@ -294,6 +311,7 @@ Champs :
 ---
 
 ### `ps_order_detail` - Articles de la Commande
+**API** : /order_details
 **Contexte** : Détail ligne par ligne d'une commande.
 
 ```
@@ -313,6 +331,7 @@ Champs :
 ---
 
 ### `ps_order_state` et `ps_order_state_lang` - États de Commande
+**API** : /order_states
 **Contexte** : Statuts possibles d'une commande.
 
 ```
@@ -329,6 +348,7 @@ Cycle de vie :
 ---
 
 ### `ps_order_history` - Historique d'État
+**API** : /order_histories
 **Contexte** : Trace complète des changements d'état.
 
 ```
@@ -341,6 +361,7 @@ Trace d'une commande :
 ---
 
 ### `ps_order_payment` - Paiements
+**API** : /order_payments
 **Contexte** : Enregistrement des transactions.
 
 ```
@@ -357,6 +378,7 @@ Exemple :
 ## 💳 GESTION DES PAIEMENTS ET RÈGLES
 
 ### `ps_cart_rule` - Codes Promotionnels
+**API** : /cart_rules
 **Contexte** : Gestion des réductions et codes promo.
 
 ```
@@ -378,6 +400,7 @@ Champs :
 ---
 
 ### `ps_group_reduction` - Réductions par Groupe
+**API** : /specific_price_rules
 **Contexte** : Appliquer des remises à un groupe client.
 
 ```
@@ -391,6 +414,7 @@ Exemple :
 ## 🚚 GESTION DE LA LIVRAISON
 
 ### `ps_carrier` - Transporteurs
+**API** : /carriers
 **Contexte** : Modes de livraison disponibles.
 
 ```
@@ -414,6 +438,7 @@ Exemples :
 ---
 
 ### `ps_carrier_zone` - Zones de Livraison
+**API** : /carrier_zones
 **Contexte** : Où livrer et à quel coût.
 
 ```
@@ -429,6 +454,7 @@ Chronopost :
 ---
 
 ### `ps_delivery` - Tables de Livraison
+**API** : /deliveries
 **Contexte** : Tarification par zone et poids/prix.
 
 ```
@@ -442,6 +468,7 @@ Colissimo France :
 ---
 
 ### `ps_country` et `ps_country_lang` - Pays
+**API** : /countries
 **Contexte** : Référentiel des pays de livraison.
 
 ```
@@ -456,6 +483,7 @@ Champs :
 ---
 
 ### `ps_state` - Régions/États
+**API** : /states
 **Contexte** : États/Provinces pour les pays en ayant.
 
 ```
@@ -475,6 +503,7 @@ Australie :
 ## 💰 GESTION COMMERCIALE
 
 ### `ps_currency` et `ps_currency_lang` - Devises
+**API** : /currencies
 **Contexte** : Monnaies supportées par la boutique.
 
 ```
@@ -493,6 +522,7 @@ Champs :
 ---
 
 ### `ps_tax` et `ps_tax_lang` - Taxes
+**API** : /taxes
 **Contexte** : Gestion des taux de TVA.
 
 ```
@@ -509,6 +539,7 @@ Exemple Belgique :
 ---
 
 ### `ps_tax_rule` - Règles Fiscales
+**API** : /tax_rules
 **Contexte** : Application des taxes selon produit/destination.
 
 ```
@@ -524,6 +555,7 @@ Produit "Livre" (TVA 5.5%)
 ## 📞 GESTION CLIENT
 
 ### `ps_contact` et `ps_contact_lang` - Centres de Contact
+**API** : /contacts
 **Contexte** : Sujets de support client.
 
 ```
@@ -538,6 +570,7 @@ Exemples :
 ---
 
 ### `ps_customer_message` - Messages Clients
+**API** : /customer_messages
 **Contexte** : Support/SAV par ticket.
 
 ```
@@ -552,6 +585,7 @@ Exemple :
 ---
 
 ### `ps_customer_thread` - Discussions
+**API** : /customer_threads
 **Contexte** : Fil de discussion complet entre client et support.
 
 ```
@@ -566,6 +600,7 @@ Une discussion = Multiple messages
 ## 🏪 GESTION MULTI-BOUTIQUE
 
 ### `ps_shop` - Boutiques
+**API** : /shops
 **Contexte** : Si vous gérez plusieurs boutiques.
 
 ```
@@ -586,6 +621,7 @@ Exemples :
 ## 📝 CONTENU STATIQUE
 
 ### `ps_cms` et `ps_cms_lang` - Pages Statiques
+**API** : /cms
 **Contexte** : Pages informatives (À propos, CGV, Confidentialité, etc).
 
 ```
@@ -600,6 +636,7 @@ Exemples :
 ---
 
 ### `ps_cms_category` et `ps_cms_category_lang` - Catégories CMS
+**API** : /cms_categories
 **Contexte** : Organisation des pages en catégories.
 
 ```
@@ -620,6 +657,7 @@ Hiérarchie :
 ## 📧 NEWSLETTER ET EMAIL
 
 ### `ps_emailsubscription` - Abonnements Newsletter
+**API** : /emailsubscription
 **Contexte** : Gestion des abonnements email.
 
 ```
@@ -632,6 +670,7 @@ Exemple :
 ---
 
 ### `ps_mailalert_customer_oos` - Alertes Stock
+**API** : /mailalert_customer_oos
 **Contexte** : Avertir les clients quand un produit rupturé revient en stock.
 
 ```
@@ -648,6 +687,7 @@ Scénario :
 ## 🎯 CONFIGURATION ET SYSTÈME
 
 ### `ps_configuration` et `ps_configuration_lang` - Configuration
+**API** : /configurations
 **Contexte** : Paramètres de la boutique.
 
 ```
@@ -663,6 +703,7 @@ Exemples :
 ---
 
 ### `ps_info` et `ps_info_lang` - Informations
+**API** : /infos
 **Contexte** : Contenu personnalisé par langue/boutique.
 
 ```
@@ -676,6 +717,7 @@ Exemple ps_info_lang :
 ---
 
 ### `ps_hook` et `ps_hook_module` - Système d'Extension
+**API** : /hooks
 **Contexte** : Architecture de plugins via "hooks".
 
 ```
@@ -691,6 +733,7 @@ Les modules se "branchent" sur ces hooks pour étendre les fonctionnalités
 ## 🔒 SÉCURITÉ ET ACCÈS
 
 ### `ps_access` - Permissions
+**API** : /access
 **Contexte** : Contrôle d'accès par profil.
 
 ```
@@ -711,6 +754,7 @@ Profil "Support" :
 ---
 
 ### `ps_employee_session` - Sessions Employé
+**API** : /employee_sessions
 **Contexte** : Suivi des connexions admin.
 
 ```
@@ -726,6 +770,7 @@ Champs :
 ## 📊 STATISTIQUES
 
 ### `ps_guest` - Visiteurs
+**API** : /guests
 **Contexte** : Tracking des visiteurs anonymes.
 
 ```
@@ -742,6 +787,7 @@ Informations collectées :
 ## 🎨 APPARENCE
 
 ### `ps_theme` - Thèmes
+**API** : /themes
 **Contexte** : Gestion des thèmes graphiques.
 
 ```
@@ -754,6 +800,7 @@ Exemple :
 ---
 
 ### `ps_tab` - Onglets Admin
+**API** : /tabs
 **Contexte** : Navigation du back-office.
 
 ```

@@ -1,39 +1,36 @@
-import { fetchModuleIds, deleteModuleRecord } from "../../../api/prestashop.api";
+import {
+  fetchModuleIds,
+  deleteModuleRecord,
+} from "../../../api/prestashop.api";
+import { MODULE_REGISTRY } from "../constants/moduleRegistry";
 
-// 1. Fonction hamafana module iray sy ny angon-drakitra (records) ao anatiny
+// Supprime tous les enregistrements d'un module en sautant les IDs protégés
 async function deleteOneModule(moduleName) {
-  // Maka ny ID rehetra ao amin'ilay module
   const ids = await fetchModuleIds(moduleName);
+
+  // Récupère les IDs protégés depuis le registry (ex: catégories 1 et 2)
+  const { protectedIds = [] } = MODULE_REGISTRY[moduleName] || {};
 
   let deletedCount = 0;
 
-  // Loop tsotra: fafana tsirairay ny ID hita rehetra
   for (const id of ids) {
+    // Sauter les ressources système (non supprimables par PrestaShop)
+    if (protectedIds.includes(id)) continue;
+
     await deleteModuleRecord(moduleName, id);
-    deletedCount = deletedCount + 1; // Manampy isa isaky ny misy voafafa
+    deletedCount++;
   }
 
-  // Mamerina ny anaran'ilay module sy ny isan'ny voafafa
   return { module: moduleName, deleted: deletedCount };
 }
 
-// 2. Fonction hamafana module maromaro miaraka (izay voafidy)
+// Supprime plusieurs modules en parallèle
 export async function deleteSelectedModules(selectedModules) {
-  
-  // Ampiasaina ny .map mba handefasana ny famafana ho an'ny module rehetra
   const tasks = selectedModules.map(async (moduleName) => {
     try {
-      // Manandrana hamafa ny module iray
       const info = await deleteOneModule(moduleName);
-      
-      // Raha tafavoaka tsara (Succès)
-      return { 
-        ...info, 
-        success: true 
-      };
-
+      return { ...info, success: true };
     } catch (error) {
-      // Raha nisy olana (Erreur)
       return {
         module: moduleName,
         success: false,
@@ -43,6 +40,5 @@ export async function deleteSelectedModules(selectedModules) {
     }
   });
 
-  // Miandry ny famafana rehetra ho vita vao mamerina ny valiny (Promise.all)
   return Promise.all(tasks);
 }

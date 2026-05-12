@@ -20,7 +20,15 @@ const parser = new XMLParser({
 });
 
 // avadika teny anglais le donnee brute be
+// Exceptions PrestaShop dont le singulier n'est pas simplement "-s"
+const SINGULAR_EXCEPTIONS = {
+  addresses: "address",
+  taxes: "tax",
+  order_states: "order_state",
+};
+
 export function toSingleName(moduleName) {
+  if (SINGULAR_EXCEPTIONS[moduleName]) return SINGULAR_EXCEPTIONS[moduleName];
   if (moduleName.endsWith("ies")) return `${moduleName.slice(0, -3)}y`;
   if (moduleName.endsWith("s")) return moduleName.slice(0, -1);
   return moduleName;
@@ -116,10 +124,11 @@ export async function fetchModuleIds(moduleName) {
 export async function deleteModuleRecord(moduleName, id) {
   const response = await requestXml(
     `${BASE_URL}${moduleName}/${id}?ws_key=${API_KEY}`,
-    {
-      method: "DELETE",
-    },
+    { method: "DELETE" },
   );
+
+  // 404 = déjà supprimé (suppression en cascade par PrestaShop) → OK, on ignore
+  if (response.status === 404) return;
 
   if (!response.ok) {
     const details = await safeReadText(response);
@@ -127,15 +136,7 @@ export async function deleteModuleRecord(moduleName, id) {
       `Erreur DELETE ${moduleName}/${id}: ${response.status} ${details}`.trim(),
     );
   }
-
-  const verifyResponse = await requestXml(
-    `${BASE_URL}${moduleName}/${id}?ws_key=${API_KEY}`,
-  );
-  if (verifyResponse.status !== 404) {
-    throw new Error(
-      `Suppression non confirmee pour ${moduleName}/${id} (status verification: ${verifyResponse.status})`,
-    );
-  }
+  // Pas de vérification GET : le statut 200/204 de l'API suffit
 }
 
 {
