@@ -1,43 +1,21 @@
-Pendant l'importation, dans "http://localhost:5173/admin/modules/data-import"
-Il y a eu encore erreur lors de l'import du fichier 3 : @3-Clients&Commandes.csv.
-Alors que l'import des autres fichiers se sont bien derouler, il y a eu erreur dans
-le fichie des clients.
-Le message d'erreur dans l'Interface est :
-1-"  ✗ Ligne 1: POST orders: 500 - 
-❌ Fichier 3 — Ligne 1: POST orders: 500 - 
-⛔ All or Nothing: arrêt immédiat"
-2-"❌ Erreur lors de l'import
-Produits : 4/4 insérés
-Images : 4/4 insérés
-Déclinaisons : 6/6 insérés
-Clients & Commandes : 1/0 insérés
-Ligne 1: POST orders: 500 -"
-
-Dans le Console :
-"prestashopCache.js:49 
- POST http://localhost:5173/api/orders?ws_key=25Wx5346ZgrYsaaNnPYiIh2s565qH2ui 500 (Internal Server Error)
-postXml	@	prestashopCache.js:49
-importCustomersOrders	@	importCustomersOrders.js:156
-await in importCustomersOrders		
-runImport	@	importOrchestrator.js:111
-await in runImport		
-handleImport	@	DataImportPage.jsx:94
-<button>		
-DataImportPage	@	DataImportPage.jsx:165
-<DataImportPage>		
-AppRouter	@	AppRouter.jsx:34
+Message de l'Interface :
+react-dom-client.development.js:6099 Uncaught Error: Objects are not valid as a React child (found: object with keys {#text, @_xlink:href}). If you meant to render a collection of children, use an array instead.
+<td>		
+(anonymous)	@	ListCommande.jsx:53
+OrderListPage	@	ListCommande.jsx:50
+<OrderListPage>		
+AppRouter	@	AppRouter.jsx:36
 <AppRouter>		
 App	@	App.jsx:6
+(anonymous)	@	@react-refresh:208
+performReactRefresh	@	@react-refresh:190
+(anonymous)	@	@react-refresh:604
 <App>		
 (anonymous)	@	main.jsx:9
-importOrchestrator.js:14   ✗ Ligne 1: POST orders: 500 - 
-importOrchestrator.js:14 ❌ Fichier 3 — Ligne 1: POST orders: 500 - 
-importOrchestrator.js:14 ⛔ All or Nothing: arrêt immédiat"
+ListCommande.jsx?t=1778612913260:88 An error occurred in the <td> component.
 
-NB pour information :
--les decriptions des tables sont dans le fichier @create.sql
--les listes des api version xml (de prestashop) sont dans @Les_AIP.xml
--le fichier base de configuration mapping est dans @dataImportConstants.js
--lien d'acces vers mon prestashop : "http://localhost/prestashop_new/admin1234/"
--mon login de prestashop : "faniriantsoaharena@gmail.com/ (mot de passe vide)"
--mon api key prestashop : "25Wx5346ZgrYsaaNnPYiIh2s565qH2ui"
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
+
+Console :
+"

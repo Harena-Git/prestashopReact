@@ -17,4 +17,10 @@ export const ADMIN_PAGES = [
       path: "/admin/modules/data-import",
       showInSidebar: true,
     },
+    {
+      id: "orders",
+      label: "Gestion des commandes",
+      path: "/admin/orders",
+      showInSidebar: true,
+    },
 ];
