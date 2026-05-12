@@ -1,7 +1,5 @@
-// Convertit "12,5" ou "12.5" en nombre décimal
-function parseDecimal(str) {
-  return parseFloat(String(str).replace(",", ".")) || 0;
-}
+// parseDecimal est réservé pour usage futur si nécessaire
+// Actuellement, les décimaux sont gérés directement avec toFixed()
 
 // Convertit "DD/MM/YYYY" en "YYYY-MM-DD 00:00:00"
 export function formatDate(ddmmyyyy) {
@@ -179,6 +177,12 @@ export function buildCartXml({
   address_id,
   date_add,
   secure_key,
+  carrier_id = 0,
+  currency_id = 1,
+  lang_id = 1,
+  shop_id = 1,
+  shop_group_id = 1,
+  items = [],
 }) {
   // Utiliser la secure_key du client : PrestaShop exige que le panier et la commande
   // aient la même clé que le client, sinon l'ordre est refusé ("Secure key does not match")
@@ -189,15 +193,36 @@ export function buildCartXml({
       () => "0123456789abcdef"[Math.floor(Math.random() * 16)],
     ).join("");
 
+  const rows = items
+    .map(
+      (item) => `
+      <cart_row>
+        <id_product>${item.product_id}</id_product>
+        <id_product_attribute>${item.combination_id || 0}</id_product_attribute>
+        <id_address_delivery>${address_id}</id_address_delivery>
+        <quantity>${item.quantity}</quantity>
+      </cart_row>`,
+    )
+    .join("\n");
+
+  const associations =
+    rows.length > 0
+      ? `
+  <associations>
+    <cart_rows>${rows}
+    </cart_rows>
+  </associations>`
+      : "";
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <prestashop><cart>
-  <id_shop_group>1</id_shop_group>
-  <id_shop>1</id_shop>
-  <id_carrier>0</id_carrier>
-  <id_lang>1</id_lang>
+  <id_shop_group>${shop_group_id}</id_shop_group>
+  <id_shop>${shop_id}</id_shop>
+  <id_carrier>${carrier_id}</id_carrier>
+  <id_lang>${lang_id}</id_lang>
   <id_address_delivery>${address_id}</id_address_delivery>
   <id_address_invoice>${address_id}</id_address_invoice>
-  <id_currency>1</id_currency>
+  <id_currency>${currency_id}</id_currency>
   <id_customer>${customer_id}</id_customer>
   <id_guest>0</id_guest>
   <secure_key>${secureKey}</secure_key>
@@ -206,6 +231,7 @@ export function buildCartXml({
   <allow_seperated_package>0</allow_seperated_package>
   <date_add>${date_add}</date_add>
   <date_upd>${now()}</date_upd>
+  ${associations}
 </cart></prestashop>`;
 }
 
@@ -219,12 +245,25 @@ export function buildOrderXml({
   cart_id,
   state_id,
   date_add,
+  carrier_id = 0,
+  currency_id = 1,
+  lang_id = 1,
+  shop_id = 1,
+  shop_group_id = 1,
+  module = "ps_checkpayment",
+  payment = "Import CSV",
   items,
+  secure_key,
 }) {
-  const total = items.reduce(
-    (sum, item) => sum + item.unit_price * item.quantity,
+  const totalExcl = items.reduce(
+    (sum, item) => sum + item.unit_price_ht * item.quantity,
     0,
   );
+  const totalIncl = items.reduce(
+    (sum, item) => sum + item.unit_price_ttc * item.quantity,
+    0,
+  );
+  const secureKey = secure_key || "";
 
   const rows = items
     .map(
@@ -233,11 +272,11 @@ export function buildOrderXml({
         <id_product>${item.product_id}</id_product>
         <id_product_attribute>${item.combination_id || 0}</id_product_attribute>
         <id_customization>0</id_customization>
-        <product_name>${item.name}</product_name>
+        <product_name><![CDATA[${item.name}]]></product_name>
         <product_quantity>${item.quantity}</product_quantity>
-        <product_price>${item.unit_price.toFixed(6)}</product_price>
-        <unit_price_tax_incl>${item.unit_price.toFixed(6)}</unit_price_tax_incl>
-        <unit_price_tax_excl>${item.unit_price.toFixed(6)}</unit_price_tax_excl>
+        <product_price>${item.unit_price_ht.toFixed(6)}</product_price>
+        <unit_price_tax_incl>${item.unit_price_ttc.toFixed(6)}</unit_price_tax_incl>
+        <unit_price_tax_excl>${item.unit_price_ht.toFixed(6)}</unit_price_tax_excl>
       </order_row>`,
     )
     .join("\n");
@@ -247,31 +286,33 @@ export function buildOrderXml({
   <id_address_delivery>${address_id}</id_address_delivery>
   <id_address_invoice>${address_id}</id_address_invoice>
   <id_cart>${cart_id}</id_cart>
-  <id_currency>1</id_currency>
-  <id_lang>1</id_lang>
+  <id_shop_group>${shop_group_id}</id_shop_group>
+  <id_shop>${shop_id}</id_shop>
+  <id_currency>${currency_id}</id_currency>
+  <id_lang>${lang_id}</id_lang>
   <id_customer>${customer_id}</id_customer>
-  <id_carrier>0</id_carrier>
+  <id_carrier>${carrier_id}</id_carrier>
   <current_state>${state_id}</current_state>
-  <secure_key>${secure_key}</secure_key>
+  <secure_key>${secureKey}</secure_key>
   <conversion_rate>1.000000</conversion_rate>
-  <module>ps_checkpayment</module>
+  <module>${module}</module>
   <invoice_number>0</invoice_number>
   <invoice_date>0000-00-00 00:00:00</invoice_date>
   <delivery_number>0</delivery_number>
   <delivery_date>0000-00-00 00:00:00</delivery_date>
   <valid>1</valid>
-  <payment>Import CSV</payment>
+  <payment>${payment}</payment>
   <recyclable>0</recyclable>
   <gift>0</gift>
   <total_discounts>0</total_discounts>
   <total_discounts_tax_incl>0</total_discounts_tax_incl>
   <total_discounts_tax_excl>0</total_discounts_tax_excl>
-  <total_paid>${total.toFixed(6)}</total_paid>
-  <total_paid_tax_incl>${total.toFixed(6)}</total_paid_tax_incl>
-  <total_paid_tax_excl>${total.toFixed(6)}</total_paid_tax_excl>
-  <total_paid_real>${total.toFixed(6)}</total_paid_real>
-  <total_products>${total.toFixed(6)}</total_products>
-  <total_products_wt>${total.toFixed(6)}</total_products_wt>
+  <total_paid>${totalIncl.toFixed(6)}</total_paid>
+  <total_paid_tax_incl>${totalIncl.toFixed(6)}</total_paid_tax_incl>
+  <total_paid_tax_excl>${totalExcl.toFixed(6)}</total_paid_tax_excl>
+  <total_paid_real>${totalIncl.toFixed(6)}</total_paid_real>
+  <total_products>${totalExcl.toFixed(6)}</total_products>
+  <total_products_wt>${totalIncl.toFixed(6)}</total_products_wt>
   <total_shipping>0</total_shipping>
   <total_shipping_tax_incl>0</total_shipping_tax_incl>
   <total_shipping_tax_excl>0</total_shipping_tax_excl>

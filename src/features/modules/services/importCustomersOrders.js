@@ -1,9 +1,11 @@
 import {
   findOrCreateCustomer,
-  getCustomerSecureKey,
+  ensureCustomerSecureKey,
   getProductInfo,
   getCombinationId,
-  getMadagascarCountryId,
+  getCombinationInfo,
+  getOrderDefaults,
+  getDefaultCountryId,
   postXml,
 } from "./prestashopCache";
 import {
@@ -89,12 +91,13 @@ export async function importCustomersOrders(rows, log) {
       const firstname = parts[0];
       const lastname = parts.length > 1 ? parts.slice(1).join(" ") : parts[0];
 
+      const countryId = await getDefaultCountryId();
       const addressXml = buildAddressXml({
         customer_id: customerId,
         firstname,
         lastname,
         address1: row.adresse?.trim(),
-        country_id: getMadagascarCountryId(),
+        country_id: countryId,
       });
 
       log(`  Ligne ${lineNum}: Création adresse...`);
@@ -102,22 +105,10 @@ export async function importCustomersOrders(rows, log) {
       const addressId = extractIdFromXml(addressResponse, "address");
       if (!addressId) throw new Error("Impossible de créer l'adresse");
 
-      // 3. Créer le panier avec la secure_key du client
-      // (PrestaShop exige que panier et commande aient la même secure_key que le client)
-      const secureKey = getCustomerSecureKey(email);
-      const cartXml = buildCartXml({
-        customer_id: customerId,
-        address_id: addressId,
-        date_add: dateAdd,
-      });
-      const cartResponse = await postXml("carts", cartXml);
-      const cartId = extractIdFromXml(cartResponse, "cart");
-      if (!cartId) throw new Error("Impossible de créer le panier");
-
-      // 4. Parser les articles de la commande
+      // 3. Parser les articles de la commande
       const orderItems = parseOrderItems(row.achat);
 
-      // 5. Résoudre les IDs produit/combinaison pour chaque article
+      // 4. Résoudre les IDs produit/combinaison pour chaque article
       const resolvedItems = orderItems.map((item) => {
         const productInfo = getProductInfo(item.reference);
         if (!productInfo) {
@@ -125,14 +116,40 @@ export async function importCustomersOrders(rows, log) {
             `Produit "${item.reference}" non trouvé — importer les fichiers 1 et 2 d'abord`,
           );
         }
+        const combInfo = getCombinationInfo(item.reference, item.attribute);
+        const unitPriceHt = combInfo?.price_ht ?? productInfo.price_ht;
+        const unitPriceTtc =
+          combInfo?.price_ttc ??
+          unitPriceHt * (1 + productInfo.tax_rate / 100);
         return {
           product_id: productInfo.id,
           combination_id: getCombinationId(item.reference, item.attribute),
           name: productInfo.name,
           quantity: item.quantity,
-          unit_price: productInfo.price_ht,
+          unit_price_ht: unitPriceHt,
+          unit_price_ttc: unitPriceTtc,
         };
       });
+
+      // 5. Créer le panier avec la secure_key du client
+      // (PrestaShop exige que panier et commande aient la même secure_key que le client)
+      const secureKey = await ensureCustomerSecureKey(email, customerId);
+      const orderDefaults = await getOrderDefaults();
+      const cartXml = buildCartXml({
+        customer_id: customerId,
+        address_id: addressId,
+        date_add: dateAdd,
+        secure_key: secureKey,
+        carrier_id: orderDefaults.carrierId,
+        currency_id: orderDefaults.currencyId,
+        lang_id: orderDefaults.langId,
+        shop_id: orderDefaults.shopId,
+        shop_group_id: orderDefaults.shopGroupId,
+        items: resolvedItems,
+      });
+      const cartResponse = await postXml("carts", cartXml);
+      const cartId = extractIdFromXml(cartResponse, "cart");
+      if (!cartId) throw new Error("Impossible de créer le panier");
 
       // 6. Créer la commande
       const stateId = getOrderStateId(row.etat);
@@ -142,7 +159,15 @@ export async function importCustomersOrders(rows, log) {
         cart_id: cartId,
         state_id: stateId,
         date_add: dateAdd,
+        carrier_id: orderDefaults.carrierId,
+        currency_id: orderDefaults.currencyId,
+        lang_id: orderDefaults.langId,
+        shop_id: orderDefaults.shopId,
+        shop_group_id: orderDefaults.shopGroupId,
+        module: orderDefaults.module,
+        payment: orderDefaults.payment,
         items: resolvedItems,
+        secure_key: secureKey,
       });
 
       log(`  Ligne ${lineNum}: Création commande (état: ${stateId})...`);

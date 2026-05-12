@@ -99,12 +99,13 @@ export async function importCombinations(rows, log) {
       const valueId = await findOrCreateAttrValue(row.karazany.trim(), groupId);
 
       // Calculer le delta de prix (combinaison vs produit de base)
-      let priceDelta = 0;
+      const baseTtc = productInfo.price_ht * (1 + productInfo.tax_rate / 100);
+      let combTtc = baseTtc;
       if (row.prix_vente_ttc?.trim()) {
-        const combTtc = toNum(row.prix_vente_ttc);
-        const combHt = combTtc / (1 + productInfo.tax_rate / 100);
-        priceDelta = combHt - productInfo.price_ht;
+        combTtc = toNum(row.prix_vente_ttc);
       }
+      const combHt = combTtc / (1 + productInfo.tax_rate / 100);
+      const priceDelta = combHt - productInfo.price_ht;
 
       // Créer la combinaison
       const xml = buildCombinationXml({
@@ -124,7 +125,11 @@ export async function importCombinations(rows, log) {
         throw new Error(`Aucun ID retourné pour la combinaison`);
 
       // Sauvegarder pour les commandes (fichier 3)
-      setCombinationId(reference, row.karazany.trim(), combinationId);
+      setCombinationId(reference, row.karazany.trim(), {
+        id: combinationId,
+        price_ht: combHt,
+        price_ttc: combTtc,
+      });
 
       // Mettre à jour le stock de cette combinaison
       await updateStock(productInfo.id, combinationId, quantity);

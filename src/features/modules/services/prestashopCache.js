@@ -18,6 +18,9 @@ let cache = {
   combinations: {}, // "T_01:ngoza" → id
   customers: {}, // "email@..." → id
   customerKeys: {}, // "email@..." → secure_key (obligatoire pour les commandes)
+  carriers: {}, // "default" → id
+  orderDefaults: null, // { carrierId, currencyId, langId, shopId, shopGroupId, module, payment }
+  defaultCountryId: null,
 };
 
 // Réinitialiser le cache avant un nouvel import
@@ -31,6 +34,9 @@ export function resetCache() {
     combinations: {},
     customers: {},
     customerKeys: {}, // secure_key du client — requis pour la création de commande
+    carriers: {},
+    orderDefaults: null,
+    defaultCountryId: null,
   };
 }
 
@@ -309,15 +315,26 @@ export async function findOrCreateAttrValue(valueName, groupId) {
 // COMBINAISONS
 // ===========================================================================
 
-// Sauvegarde l'ID d'une combinaison créée
-export function setCombinationId(reference, attrName, id) {
-  cache.combinations[`${reference}:${attrName}`] = id;
+// Sauvegarde les infos d'une combinaison créée
+// info = { id, price_ht, price_ttc }
+export function setCombinationId(reference, attrName, info) {
+  cache.combinations[`${reference}:${attrName}`] = info;
 }
 
 // Récupère l'ID d'une combinaison (0 si pas d'attribut)
 export function getCombinationId(reference, attrName) {
   if (!attrName) return 0;
-  return cache.combinations[`${reference}:${attrName}`] || 0;
+  const info = cache.combinations[`${reference}:${attrName}`];
+  if (!info) return 0;
+  return typeof info === "object" ? info.id : info;
+}
+
+// Récupère les infos d'une combinaison
+export function getCombinationInfo(reference, attrName) {
+  if (!attrName) return null;
+  const info = cache.combinations[`${reference}:${attrName}`];
+  if (!info) return null;
+  return typeof info === "object" ? info : { id: info };
 }
 
 // ===========================================================================
@@ -338,7 +355,13 @@ export async function findOrCreateCustomer(email, nom, pwd, dateAdd) {
       const id = parseInt(cust.id, 10);
       cache.customers[email] = id;
       // La secure_key du client existant est fournie par display=full
-      cache.customerKeys[email] = String(cust.secure_key || "");
+      let secureKey = String(cust.secure_key || "");
+      if (!secureKey) {
+        const fullData = await client.get(`customers/${id}`);
+        const fullCustomer = fullData?.customer || fullData?.customers || fullData;
+        secureKey = String(fullCustomer?.secure_key || "");
+      }
+      cache.customerKeys[email] = secureKey;
       return id;
     }
   }
@@ -378,21 +401,202 @@ export async function findOrCreateCustomer(email, nom, pwd, dateAdd) {
   const parsed = xmlParser.parse(responseText);
   const customerData = parsed?.prestashop?.customer;
   const id = parseInt(customerData?.id, 10) || null;
-  const secureKey = String(customerData?.secure_key || "");
+  let secureKey = String(customerData?.secure_key || "");
 
   if (!id) throw new Error(`Impossible de créer le client: ${email}`);
+
+  if (!secureKey) {
+    const fullData = await client.get(`customers/${id}`);
+    const fullCustomer = fullData?.customer || fullData?.customers || fullData;
+    secureKey = String(fullCustomer?.secure_key || "");
+  }
 
   cache.customers[email] = id;
   cache.customerKeys[email] = secureKey;
   return id;
 }
 
-// Retourne la secure_key d'un client (utilisée pour la création du panier/commande)
-export function getCustomerSecureKey(email) {
-  return cache.customerKeys[email] || null;
+// Assure la secure_key d'un client (utilisée pour la création du panier/commande)
+export async function ensureCustomerSecureKey(email, customerId) {
+  const cached = cache.customerKeys[email];
+  if (cached) return cached;
+
+  const id = customerId || cache.customers[email];
+  if (id) {
+    const fullData = await client.get(`customers/${id}`);
+    const fullCustomer = fullData?.customer || fullData?.customers || fullData;
+    const secureKey = String(fullCustomer?.secure_key || "");
+    if (secureKey) {
+      cache.customerKeys[email] = secureKey;
+      return secureKey;
+    }
+  }
+
+  // Dernier recours: recherche par email
+  const data = await client.get(
+    `customers?filter[email]=[${email}]&display=full`,
+  );
+  const customersByEmail = toArray(data.customers);
+  for (const cust of customersByEmail) {
+    if (String(cust.email).toLowerCase() === email.toLowerCase()) {
+      const secureKey = String(cust.secure_key || "");
+      if (secureKey) {
+        cache.customerKeys[email] = secureKey;
+        return secureKey;
+      }
+    }
+  }
+
+  throw new Error(
+    `Secure_key introuvable pour le client "${email}" — impossible de créer la commande`,
+  );
+}
+
+// ===========================================================================
+// CARRIERS
+// ===========================================================================
+
+// Retourne l'ID du premier transporteur actif (fallback: 0)
+export async function getDefaultCarrierId() {
+  if (cache.carriers.default) return cache.carriers.default;
+
+  const data = await client.get("carriers?display=full");
+  const carriers = toArray(data.carriers);
+
+  for (const carrier of carriers) {
+    const active = String(carrier.active) === "1";
+    const deleted = String(carrier.deleted) === "1";
+    if (active && !deleted) {
+      const id = parseInt(carrier.id, 10);
+      if (!Number.isNaN(id)) {
+        cache.carriers.default = id;
+        return id;
+      }
+    }
+  }
+
+  cache.carriers.default = 0;
+  return 0;
+}
+
+// Retourne l'ID de la devise par défaut (ou première active)
+export async function getDefaultCurrencyId() {
+  const data = await client.get("currencies?filter[active]=[1]&display=full");
+  const currencies = toArray(data.currencies);
+  const def = currencies.find((c) => String(c.is_default) === "1");
+  const chosen = def || currencies[0];
+  const id = parseInt(chosen?.id, 10);
+  if (!id) {
+    throw new Error("Aucune devise active trouvée pour créer la commande.");
+  }
+  return id;
+}
+
+// Retourne l'ID de la langue par défaut (ou première active)
+export async function getDefaultLanguageId() {
+  const data = await client.get("languages?filter[active]=[1]&display=full");
+  const languages = toArray(data.languages);
+  const def = languages.find((l) => String(l.is_default) === "1");
+  const chosen = def || languages[0];
+  const id = parseInt(chosen?.id, 10);
+  if (!id) {
+    throw new Error("Aucune langue active trouvée pour créer la commande.");
+  }
+  return id;
+}
+
+// Retourne l'ID du shop par défaut
+export async function getDefaultShopId() {
+  const data = await client.get("shops?display=full");
+  const shops = toArray(data.shops);
+  const activeShop = shops.find((s) => String(s.active) === "1") || shops[0];
+  const id = parseInt(activeShop?.id, 10);
+  if (!id) {
+    throw new Error("Aucun shop trouvé pour créer la commande.");
+  }
+  return id;
+}
+
+// Retourne l'ID du groupe de shop par défaut
+export async function getDefaultShopGroupId() {
+  const data = await client.get("shop_groups?display=full");
+  const groups = toArray(data.shop_groups);
+  const activeGroup =
+    groups.find((g) => String(g.active) === "1") || groups[0];
+  const id = parseInt(activeGroup?.id, 10);
+  if (!id) {
+    throw new Error("Aucun groupe de shop trouvé pour créer la commande.");
+  }
+  return id;
+}
+
+// Retourne les paramètres par défaut pour créer une commande valide
+export async function getOrderDefaults() {
+  if (cache.orderDefaults) return cache.orderDefaults;
+
+  const defaults = {
+    carrierId: 0,
+    currencyId: 0,
+    langId: 0,
+    shopId: 0,
+    shopGroupId: 0,
+    module: "",
+    payment: "",
+  };
+
+  const orderData = await client.get(
+    "orders?sort=[id_DESC]&display=full&limit=1",
+  );
+  const orders = toArray(orderData.orders);
+  if (orders.length > 0) {
+    const order = orders[0];
+    defaults.module = String(order.module || "");
+    defaults.payment = String(order.payment || "");
+    defaults.carrierId = parseInt(order.id_carrier, 10) || 0;
+    defaults.currencyId = parseInt(order.id_currency, 10) || 0;
+    defaults.langId = parseInt(order.id_lang, 10) || 0;
+    defaults.shopId = parseInt(order.id_shop, 10) || 0;
+    defaults.shopGroupId = parseInt(order.id_shop_group, 10) || 0;
+  }
+
+  if (!defaults.carrierId) defaults.carrierId = await getDefaultCarrierId();
+  if (!defaults.currencyId) defaults.currencyId = await getDefaultCurrencyId();
+  if (!defaults.langId) defaults.langId = await getDefaultLanguageId();
+  if (!defaults.shopId) defaults.shopId = await getDefaultShopId();
+  if (!defaults.shopGroupId) defaults.shopGroupId = await getDefaultShopGroupId();
+
+  if (!defaults.module) defaults.module = "ps_checkpayment";
+  if (!defaults.payment) defaults.payment = "Import CSV";
+
+  cache.orderDefaults = defaults;
+  return defaults;
 }
 
 // Retourne l'ID pays de Madagascar
+// Retourne un pays actif (préférence Madagascar si actif)
+export async function getDefaultCountryId() {
+  if (cache.defaultCountryId) return cache.defaultCountryId;
+
+  const data = await client.get("countries?filter[active]=[1]&display=full");
+  const countries = toArray(data.countries);
+  if (countries.length === 0) {
+    throw new Error("Aucun pays actif trouvé pour créer l'adresse.");
+  }
+
+  const mg = countries.find(
+    (c) => String(c.iso_code).toUpperCase() === "MG",
+  );
+  const chosen = mg || countries[0];
+  const id = parseInt(chosen?.id, 10);
+  if (!id) {
+    throw new Error("Impossible de déterminer l'ID d'un pays actif.");
+  }
+
+  cache.defaultCountryId = id;
+  return id;
+}
+
+// Ancien helper conservé pour compatibilité locale
 export function getMadagascarCountryId() {
   return COUNTRY_ID_MG;
 }
