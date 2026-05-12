@@ -4,7 +4,7 @@ import "./ProductSelectionList.css";
 /**
  * Affiche une liste de produits cliquables avec un champ de recherche.
  * Cet composant est spécifique pour les produits et n'interfère pas avec ModuleSelectionList.
- * 
+ *
  * @param {object[]} products - La liste des produits à afficher.
  * @param {function} onSelectProduct - La fonction à appeler avec l'ID du produit cliqué.
  * @param {string} title - Le titre à afficher au-dessus de la liste.
@@ -14,8 +14,8 @@ import "./ProductSelectionList.css";
 function ProductSelectionList({
   products,
   onSelectProduct,
-  onEdit = () => {},      
-  onDelete = () => {},    
+  onEdit = () => {},
+  onDelete = () => {},
   title = "Liste des Produits",
 }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,7 +26,7 @@ function ProductSelectionList({
 
   // Filtrer les produits en fonction du terme de recherche.
   const filteredProducts = validProducts.filter((product) =>
-    product.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    product.name?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Fonction appelée quand on clique sur un produit.
@@ -72,14 +72,14 @@ function ProductSelectionList({
                   onClick={(e) => handleActionClick(e, onEdit, product.id)}
                   title="Modifier ce produit"
                 >
-                  ✏️ Modifier
+                  Modifier
                 </button>
                 <button
                   className="btn-delete"
                   onClick={(e) => handleActionClick(e, onDelete, product.id)}
                   title="Supprimer ce produit"
                 >
-                  🗑️ Supprimer
+                  Supprimer
                 </button>
               </div>
             </li>
