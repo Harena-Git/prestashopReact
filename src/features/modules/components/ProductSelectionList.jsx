@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import "./ProductSelectionList.css";
+import { ClientContext } from "../../../contexts/ClientContext";
 
 /**
  * Affiche une liste de produits cliquables avec un champ de recherche.
@@ -18,6 +19,8 @@ function ProductSelectionList({
   onDelete = () => {},
   title = "Liste des Produits",
 }) {
+
+  const { addToCart } = useContext(ClientContext);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedId, setSelectedId] = useState(null);
 

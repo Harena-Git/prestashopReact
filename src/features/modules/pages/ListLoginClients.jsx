@@ -29,8 +29,8 @@ function ListLoginClients() {
   const handleClientClick = (client) => {
     // Solon'ny fampiasana localStorage tonga dia ampiasaina ity contexte ity
     defineCurrentClient(client);
-    // Redirection vers la liste des produits
-    navigate("/modules/list");
+    // Redirection vers la liste des produits du client
+    navigate("/client/products");
   };
 
   return (
