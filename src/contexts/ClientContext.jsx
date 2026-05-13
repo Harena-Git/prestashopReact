@@ -88,13 +88,21 @@ export function ClientProvider({ children }) {
        newCart = [...cart, { ...product, clientId }];
     }
 
-    // On met à jour le State et le LocalStorage
+    // On met a jour le State et le LocalStorage
     setCart(newCart);
     localStorage.setItem("cart", JSON.stringify(newCart));
     alert("Produit ajouté au panier avec succès ! / Tafiditra soa aman-tsara tao anaty harona !");
   };
 
-  // 7. Passage des valeurs aux composants enfants (Mampita ny données amin'ny composants enfants)
+  const removeFromCart = (productId) => {
+    if(!currentClient) return;
+    
+    const newCart = cart.filter(item => !(item.id === productId && item.clientId === currentClient.id));
+    setCart(newCart);
+    localStorage.setItem("cart", JSON.stringify(newCart));
+  };
+
+  // 7. Passage des valeurs aux composants enfants (Mampita ny donnees amin'ny composants enfants)
   // Tout ce qui est placé dans "value" sera accessible partout où l'on utilise ce contexte
   // Izay rehetra atao ao anatin'ity "value" ity dia ho hita na aiza na aiza mampiasa ity contexte ity
   return (
@@ -104,7 +112,8 @@ export function ClientProvider({ children }) {
         defineCurrentClient, 
         clearCurrentClient ,
         cart,
-        addToCart
+        addToCart,
+        removeFromCart
       }}
     >
       {/* "children" représente tous les composants de l'application qui seront à l'intérieur du Provider */}

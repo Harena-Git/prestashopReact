@@ -1,8 +1,11 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { ClientContext } from "../../../contexts/ClientContext";
+import { validateOrderForProduct } from "../services/frontendOrderService";
 
 export default function PanierPages() {
-  const { currentClient, cart } = useContext(ClientContext);
+  const { currentClient, cart, removeFromCart } = useContext(ClientContext);
+  const [validatingItems, setValidatingItems] = useState({});
+  const [messages, setMessages] = useState({});
 
   if (!currentClient) {
     return (
@@ -12,6 +15,27 @@ export default function PanierPages() {
       </div>
     );
   }
+
+  const handleValidateOrder = async (produit) => {
+    setValidatingItems(prev => ({ ...prev, [produit.id]: true }));
+    setMessages(prev => ({ ...prev, [produit.id]: null }));
+    
+    try {
+      const orderId = await validateOrderForProduct(currentClient, produit);
+      setMessages(prev => ({ ...prev, [produit.id]: { type: 'success', text: `Commande validée avec succès ! (ID: ${orderId})` }}));
+      // On retire du panier
+      removeFromCart(produit.id);
+    } catch (error) {
+      console.error(error);
+      setMessages(prev => ({ ...prev, [produit.id]: { type: 'error', text: `Erreur: ${error.message}` }}));
+    } finally {
+      setValidatingItems(prev => ({ ...prev, [produit.id]: false }));
+      // Faire disparaitre le message apres quelque secondes
+      setTimeout(() => {
+        setMessages(prev => ({ ...prev, [produit.id]: null }));
+      }, 5000);
+    }
+  };
 
   const clientCart = cart ? cart.filter((item) => item.clientId === currentClient.id) : [];
 
@@ -42,7 +66,36 @@ export default function PanierPages() {
                   <p style={{ margin: "5px 0" }}>
                     <strong>Prix :</strong> {produit.price ? `${Number(produit.price).toFixed(2)} €` : "Prix non disponible"}
                   </p>
+                  
+                  {messages[produit.id] && (
+                    <div style={{
+                      marginTop: "10px",
+                      padding: "8px",
+                      borderRadius: "4px",
+                      backgroundColor: messages[produit.id].type === "success" ? "#d4edda" : "#f8d7da",
+                      color: messages[produit.id].type === "success" ? "#155724" : "#721c24",
+                      fontSize: "0.9rem"
+                    }}>
+                      {messages[produit.id].text}
+                    </div>
+                  )}
+
                 </div>
+
+                <button 
+                  onClick={() => handleValidateOrder(produit)}
+                  disabled={validatingItems[produit.id]}
+                  style={{
+                    padding: "10px 15px",
+                    backgroundColor: validatingItems[produit.id] ? "#6c757d" : "#007bff",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: validatingItems[produit.id] ? "not-allowed" : "pointer"
+                  }}
+                >
+                  {validatingItems[produit.id] ? "Validation en cours..." : "Valider Commande"}
+                </button>
               </div>
             ))}
           </div>

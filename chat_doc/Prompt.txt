@@ -1,8 +1,15 @@
-1-Apres ces imports, maintenant j'aimerai adapter notre "MODULE_REGISTRY" dans moduleRegistry.js.
-La page de netoyages de donnees (dans le lien :
-"http://localhost:5173/admin/modules/cleanup"),
-J'aimerai que ce soit les modules des fichiers que nous avons importés dans les champs d'importation "http://localhost:5173/admin/modules/data-import".
-Parce que de la, nous pouvons donc tester de supprimer et importer les modules presents ici.
+Dans "http://localhost:5173/client/cart" ou il y a les listes
+des produist ajouter aux souhaits des clients (panier),
+Demande (apres analyse du projet et des 
+code reutilisable) : chaque produit dans le panier (http://localhost:5173/client/cart
+) aura un boutton "Valider Commande"
+(/orders, ps_order)
+A ajouter par defaut quand on valides une commande :
+- Transport : gratuit
+- paiement à la livraison
+(a toi de voir de quelle colonne sont le paiement du Transport
+et paiement a la livraison)
 
-
-2-Si il y juste un erreur lors de l'importation, dans "http://localhost:5173/admin/modules/data-import", on appelles automatiquement le boutton "Supprimer le module selectionné" et appliquer directement la reinitialisation sur les champs presents.
+Les actions fait dans notre page sur les produits dans le panier
+seront instantanement visible dans le cote admin (liste des commandes)
+et dans notre prestashop local.
