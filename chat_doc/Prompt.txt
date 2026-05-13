@@ -1,15 +1,12 @@
-Dans "http://localhost:5173/client/cart" ou il y a les listes
-des produist ajouter aux souhaits des clients (panier),
-Demande (apres analyse du projet et des 
-code reutilisable) : chaque produit dans le panier (http://localhost:5173/client/cart
-) aura un boutton "Valider Commande"
-(/orders, ps_order)
-A ajouter par defaut quand on valides une commande :
-- Transport : gratuit
-- paiement à la livraison
-(a toi de voir de quelle colonne sont le paiement du Transport
-et paiement a la livraison)
-
-Les actions fait dans notre page sur les produits dans le panier
-seront instantanement visible dans le cote admin (liste des commandes)
-et dans notre prestashop local.
+Pendant le netoyage des modules dans "http://localhost:5173/admin/modules/cleanup"
+Dans la selection : "Catégories"
+Quand on efface les donner de Catégories, on fait erreur :
+lors de la suppression des Catégories (/categories),
+les 2er categories possedant les id_category (1,2) ne devraient
+pas faire partie des supprimers.
+Qui veut dire, quand on reinittiales les modules, les categories
+d'ID 1 et 2 seront encore tres utiles dans le projet,
+ces 2 lignes de categorie ne feront pas donc partie des 
+supprimers, memes si on cliques pleins de fois,
+sela ne changera rien
+Adaptez le code present par ces changements.

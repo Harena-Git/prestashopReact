@@ -10,12 +10,14 @@ async function deleteOneModule(moduleName) {
 
   // Récupère les IDs protégés depuis le registry (ex: catégories 1 et 2)
   const { protectedIds = [] } = MODULE_REGISTRY[moduleName] || {};
+  const protectedIdsStrings = protectedIds.map(String);
 
   let deletedCount = 0;
 
   for (const id of ids) {
-    // Sauter les ressources système (non supprimables par PrestaShop)
-    if (protectedIds.includes(id)) continue;
+    // Sauter les ressources systÃ¨me (non supprimables par PrestaShop)
+    // On compare en chaÃ®ne de caractÃ¨res pour Ã©viter les problÃ¨mes de type diffÃ©rents
+    if (protectedIdsStrings.includes(String(id))) continue;
 
     await deleteModuleRecord(moduleName, id);
     deletedCount++;
