@@ -1,11 +1,14 @@
 import { listClientsService } from "../services/clientService";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { ClientContext } from "../../../contexts/ClientContext";
 
 function ListLoginClients() {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Mampiasa ny contexte mba hakana ilay fonction mpametraka ny client actif
+  const { defineCurrentClient } = useContext(ClientContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,8 +17,8 @@ function ListLoginClients() {
         const data = await listClientsService();
         setClients(data);
       } catch (error) {
-        console.error("Erreur de chargement des clients", error);
-        setError("Erreur lors du chargement des clients");
+        console.error("Tsa misy kilian", error);
+        setError("Diso chargement'ny kilian");
       } finally {
         setLoading(false);
       }
@@ -24,8 +27,8 @@ function ListLoginClients() {
   }, []);
 
   const handleClientClick = (client) => {
-    // "Connexion" en tant que client (on pourrait aussi le stocker dans un Context)
-    localStorage.setItem("currentClient", JSON.stringify(client));
+    // Solon'ny fampiasana localStorage tonga dia ampiasaina ity contexte ity
+    defineCurrentClient(client);
     // Redirection vers la liste des produits
     navigate("/modules/list");
   };
