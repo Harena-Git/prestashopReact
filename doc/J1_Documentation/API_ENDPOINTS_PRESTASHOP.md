@@ -4,8 +4,8 @@
 
 ```javascript
 // src/api/prestashop.api.js
-const API_KEY = "25Wx5346ZgrYsaaNnPYiIh2s565qH2ui";
-const BASE_URL = "/api/";  // proxy Vite → localhost/prestashop_new/api/
+const API_KEY = "47iMNJ5UxnXUIdDgW2e0gueSxQjrQBqJ";
+const BASE_URL = "/api/";  // proxy Vite → localhost/prestashop/api/
 ```
 
 **GET** → format JSON via `PrestashopClient.get(endpoint)`

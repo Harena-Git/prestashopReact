@@ -1,7 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
 import { PrestashopClient } from "../../../api/prestashop.api";
 
-const API_KEY = "25Wx5346ZgrYsaaNnPYiIh2s565qH2ui";
+const API_KEY = "47iMNJ5UxnXUIdDgW2e0gueSxQjrQBqJ";
 const BASE_URL = "/api/";
 const COUNTRY_ID_MG = 119; // Adapter selon l'installation PrestaShop
 

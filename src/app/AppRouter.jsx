@@ -13,13 +13,10 @@ import ListLoginClients from "../features/modules/pages/ListLoginClients";
 import ListCommande from "../features/modules/pages/ListCommande";
 import { AuthContext } from "../contexts/AuthContext";
 import DataImportPage from "../features/modules/pages/DataImportPage";
+import PanierPages from "../features/modules/pages/PanierPages";
 
 function NotFoundPage() {
   return <h1>404 - Page introuvable</h1>;
-}
-
-function Panier() {
-  return <h1>Eto no misy panier</h1>;
 }
 
 function AppRouter() {
@@ -52,7 +49,7 @@ function AppRouter() {
         <Route element={<ClientLayout />}>
           <Route path="/client" element={<Navigate to="/client/products" replace />} />
           <Route path="/client/products" element={<ModuleProductList />} />
-          <Route path="/client/cart" element={<Panier />} />
+          <Route path="/client/cart" element={<PanierPages />} />
 
         </Route>
 

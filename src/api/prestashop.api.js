@@ -3,7 +3,7 @@ import { XMLParser } from "fast-xml-parser";
 // Charger les variables d'environnement
 // const API_KEY = import.meta.env.VITE_API_KEY;
 // const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const API_KEY = "25Wx5346ZgrYsaaNnPYiIh2s565qH2ui";
+const API_KEY = "47iMNJ5UxnXUIdDgW2e0gueSxQjrQBqJ";
 const BASE_URL = "/api/";
 
 // Validation des variables d'environnement
@@ -231,7 +231,7 @@ export async function updateResource(resourceName, xmlData) {
  * Enveloppe les appels fetch pour les méthodes get/post
  */
 export class PrestashopClient {
-  constructor(apiKey = "25Wx5346ZgrYsaaNnPYiIh2s565qH2ui", baseUrl = "/api/") {
+  constructor(apiKey = "47iMNJ5UxnXUIdDgW2e0gueSxQjrQBqJ", baseUrl = "/api/") {
     this.apiKey = apiKey;
     this.baseUrl = baseUrl;
   }

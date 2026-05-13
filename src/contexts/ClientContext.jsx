@@ -16,7 +16,18 @@ export function ClientProvider({ children }) {
   const [currentClient, setCurrentClient] = useState(null);
 
   // Etat de panier
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    const storedCart = localStorage.getItem("cart");
+    if(storedCart) {
+      try {
+        return JSON.parse(storedCart);
+      } catch (error) {
+        console.error("Erreur lors de la lecture du panier dans le localStorage", error);
+        return [];
+      }
+    }
+    return [];
+  });
 
   // 4. Utilisation de useEffect (Fampiasana useEffect)
   // Au chargement du Provider, on va vérifier s'il y a déjà un client sauvegardé dans le localStorage
@@ -40,16 +51,6 @@ export function ClientProvider({ children }) {
     }
   }, []); // Le tableau vide [] signifie que ceci ne s'exécute qu'une seule fois au chargement / Ny tableau vide [] midika fa indray mandeha ihany no mandeha ity rehefa mi-charger
 
-  // recuperation du panier depuis le localStorage
-  const storedCart = localStorage.getItem("cart");
-  if(storedCart) {
-    try {
-      setCart(JSON.parse(storedCart));
-    } catch (error) {
-      console.error("Erreur lors de la lecture du panier dans le localStorage / Misy olana amin'ny famakiana ny panier ao amin'ny localStorage", error);
-    }
-  }
-
   // 5. Fonction pour définir le client actuel (Fonction mametraka ny client actuel)
   // On expose une fonction qui met à jour le state ET le localStorage en même temps
   // Mamorona fonction izay manova ny state SY ny localStorage miaraka isika
@@ -72,17 +73,19 @@ export function ClientProvider({ children }) {
       return;
     }
 
-    // On vérifie si le produit est déjà dans le panier (pour éviter les doublons ou juste augmenter la quantité)
-    const existingProduct = cart.find(item => item.id === product.id);
+    const clientId = currentClient.id;
+
+    // On vérifie si le produit est déjà dans le panier pour ce client
+    const existingProduct = cart.find(item => item.id === product.id && item.clientId === clientId);
 
     let newCart;
     if (existingProduct) {
-       // S'il existe déjà, on ne l'ajoute pas de nouveau (ou on pourrait modifier une propriété `quantité`)
+       // S'il existe déjà
        alert("Ce produit est déjà dans votre panier / Efa ao anaty harona ity entana ity");
        return; 
     } else {
-       // Sinon, on rajoute le produit aux produits existants (kopia amin'ny taloha + ny vaovao)
-       newCart = [...cart, product];
+       // Sinon, on rajoute le produit aux produits existants
+       newCart = [...cart, { ...product, clientId }];
     }
 
     // On met à jour le State et le LocalStorage

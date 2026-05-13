@@ -70,16 +70,9 @@ function ProductSelectionList({
 
               {/* Colonne droite : boutons d'action */}
               <div className="product-actions">
-                {/* <button
-                  className="btn-edit"
-                  onClick={(e) => handleActionClick(e, onEdit, product.id)}
-                  title="Ajouter le produit au panier"
-                >
-                  Ajouter au panier
-                </button> */}
                 <button
                   className="btn-edit"
-                  onClick={(e) => handleActionClick(e, onEdit, product.id)}
+                  onClick={(e) => handleActionClick(e, () => addToCart(product), product.id)}
                   title="Ajouter le produit au panier"
                 >
                   Ajouter au panier
