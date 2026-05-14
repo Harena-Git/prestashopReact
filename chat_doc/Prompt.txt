@@ -1,12 +1,8 @@
-Pendant le netoyage des modules dans "http://localhost:5173/admin/modules/cleanup"
-Dans la selection : "Catégories"
-Quand on efface les donner de Catégories, on fait erreur :
-lors de la suppression des Catégories (/categories),
-les 2er categories possedant les id_category (1,2) ne devraient
-pas faire partie des supprimers.
-Qui veut dire, quand on reinittiales les modules, les categories
-d'ID 1 et 2 seront encore tres utiles dans le projet,
-ces 2 lignes de categorie ne feront pas donc partie des 
-supprimers, memes si on cliques pleins de fois,
-sela ne changera rien
-Adaptez le code present par ces changements.
+Lors de l'import des fichiers.
+Quand on import le 3eme fichier selon :
+le fichie de type : @import-data-mai-26 - fichier3.csv
+Dans la colonne "etat" de cet import, lorsque cette colonne
+est vide, elle est automatiquement initialiser comme "dans le panier"
+Pour info, "etat" ne possedera que "dans le panier","annulé",
+"paiement accepté" logiquement.
+Peux-tu apporter les modifications necessaires pour cela ?

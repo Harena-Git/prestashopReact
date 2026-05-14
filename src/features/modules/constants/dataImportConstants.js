@@ -269,20 +269,20 @@ export const TRANSACTIONS_FILE_MAPPING = {
     etat: {
       prestashopField: "current_state",
       transformation: async (value, context) => {
+        // Si vide, initialiser à "dans le panier"
+        const etatValue = (!value || value.trim() === "") ? "dans le panier" : value;
         // Mapper texte état → ID état Prestashop
-        return await context.getOrderStateIdByLabel(value);
+        return await context.getOrderStateIdByLabel(etatValue);
       },
-      validation: (value) => value && value.trim().length > 0,
-      required: true,
+      validation: (value) => true,
+      required: false,
       resourceType: "order",
       async: true,
       stateMapping: {
-        "en attente paiement à la livraison": 1,
-        "en attente paiement": 1,
+        "dans le panier": 1, // À ajuster selon l'ID Prestashop si nécessaire
+        "annulé": 6,
         "paiement accepté": 2,
         "payment accepted": 2,
-        "erreur de paiement": 14,
-        "payment error": 14,
       },
     },
     
