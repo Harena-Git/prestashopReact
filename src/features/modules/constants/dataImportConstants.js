@@ -1,9 +1,9 @@
 /**
  * MAPPING DONNÉES PRESTASHOP
- * 
- * Ce fichier définit les transformations des colonnes CSV métier 
+ *
+ * Ce fichier définit les transformations des colonnes CSV métier
  * vers le format Prestashop XML.
- * 
+ *
  * Structure:
  * - CSV column → Prestashop field
  * - Règles de transformation (parsing, validation)
@@ -15,7 +15,7 @@
 // ============================================================
 export const PRODUCTS_FILE_MAPPING = {
   resourceName: "products",
-  
+
   // Définition des colonnes et leurs transformations
   columns: {
     date_availability_produit: {
@@ -28,7 +28,7 @@ export const PRODUCTS_FILE_MAPPING = {
       validation: (value) => /^\d{2}\/\d{2}\/\d{4}$/.test(value),
       required: true,
     },
-    
+
     nom: {
       prestashopField: "name",
       transformation: (value) => value.trim(),
@@ -37,7 +37,7 @@ export const PRODUCTS_FILE_MAPPING = {
       // Multi-langue : sera encapsulé en tant que <language>
       multiLang: true,
     },
-    
+
     reference: {
       prestashopField: "reference",
       transformation: (value) => value.trim().toUpperCase(),
@@ -46,7 +46,7 @@ export const PRODUCTS_FILE_MAPPING = {
       // Clé unique pour les jotures fichier 2 et 3
       uniqueKey: true,
     },
-    
+
     prix_ttc: {
       prestashopField: "price",
       transformation: (value) => {
@@ -56,7 +56,7 @@ export const PRODUCTS_FILE_MAPPING = {
       validation: (value) => !isNaN(parseFloat(value.replace(",", "."))),
       required: true,
     },
-    
+
     prix_achat: {
       prestashopField: "wholesale_price",
       transformation: (value) => {
@@ -66,8 +66,8 @@ export const PRODUCTS_FILE_MAPPING = {
       validation: (value) => !isNaN(parseFloat(value.replace(",", "."))),
       required: false,
     },
-    
-    Taxe: {
+
+    taxe: {
       prestashopField: "id_tax_rules_group",
       transformation: async (value, context) => {
         // Transformer taux % en ID groupe taxe Prestashop
@@ -80,7 +80,7 @@ export const PRODUCTS_FILE_MAPPING = {
       // Dépend du contexte (appel API)
       async: true,
     },
-    
+
     categorie: {
       prestashopField: "id_category_default",
       transformation: async (value, context) => {
@@ -93,13 +93,13 @@ export const PRODUCTS_FILE_MAPPING = {
       async: true,
     },
   },
-  
+
   // Champs multilingues
   multiLangFields: ["name"],
-  
+
   // Champs à exclure
   excludeFields: ["quantity"], // Stock géré via ps_stock_available
-  
+
   // ID de la langue par défaut
   defaultLanguageId: 1, // 1 = Français
 };
@@ -109,7 +109,7 @@ export const PRODUCTS_FILE_MAPPING = {
 // ============================================================
 export const COMBINATIONS_FILE_MAPPING = {
   resourceName: "combinations", // API Prestashop
-  
+
   columns: {
     reference: {
       prestashopField: "id_product",
@@ -119,7 +119,7 @@ export const COMBINATIONS_FILE_MAPPING = {
         if (!productId) {
           throw new Error(
             `Produit avec reference "${value}" introuvable. ` +
-            `Assurez-vous que le fichier 1 a été importé d'abord.`
+              `Assurez-vous que le fichier 1 a été importé d'abord.`,
           );
         }
         return productId;
@@ -129,15 +129,15 @@ export const COMBINATIONS_FILE_MAPPING = {
       async: true,
       dependency: "fichier1", // Dépend de fichier 1
     },
-    
-    specificité: {
+
+    specificite: {
       prestashopField: "id_attribute_group",
       transformation: async (value, context) => {
         // Si valeur vide → produit sans attribut
         if (!value || value.trim() === "") {
           return null;
         }
-        
+
         // Chercher/créer groupe d'attribut
         // Exemple: "taille" → ID groupe
         return await context.getOrCreateAttributeGroup(value);
@@ -146,7 +146,7 @@ export const COMBINATIONS_FILE_MAPPING = {
       required: false,
       async: true,
     },
-    
+
     karazany: {
       prestashopField: "id_attribute",
       transformation: async (value, context) => {
@@ -154,35 +154,37 @@ export const COMBINATIONS_FILE_MAPPING = {
         if (!value || value.trim() === "") {
           return null;
         }
-        
+
         // Chercher/créer attribut avec sa valeur
-        // Nécessite le groupe d'attribut (specificité)
+        // Nécessite le groupe d'attribut (specificite)
         // Exemple: "ngoza" → ID attribut
         return await context.getOrCreateAttribute(
           value,
-          context.getCurrentAttributeGroupId()
+          context.getCurrentAttributeGroupId(),
         );
       },
       validation: (value) => !value || value.trim().length > 0,
       required: false,
       async: true,
-      dependsOn: ["specificité"], // Dépend du groupe attribut
+      dependsOn: ["specificite"], // Dépend du groupe attribut
     },
-    
+
     stock_initial: {
       prestashopField: "quantity",
       transformation: (value) => {
         // Convertir en nombre entier
         const qty = parseInt(value);
         if (isNaN(qty)) {
-          throw new Error(`Quantité invalide: "${value}". Attendu: nombre entier.`);
+          throw new Error(
+            `Quantité invalide: "${value}". Attendu: nombre entier.`,
+          );
         }
         return qty;
       },
       validation: (value) => /^\d+$/.test(value),
       required: true,
     },
-    
+
     prix_vente_ttc: {
       prestashopField: "price",
       transformation: (value) => {
@@ -190,15 +192,16 @@ export const COMBINATIONS_FILE_MAPPING = {
         if (!value || value.trim() === "") {
           return null;
         }
-        
+
         // Prix spécifique à la déclinaison
         return parseFloat(value.replace(",", ".")).toFixed(2);
       },
-      validation: (value) => !value || !isNaN(parseFloat(value.replace(",", "."))),
+      validation: (value) =>
+        !value || !isNaN(parseFloat(value.replace(",", "."))),
       required: false,
     },
   },
-  
+
   multiLangFields: [],
   excludeFields: [],
   defaultLanguageId: 1,
@@ -216,7 +219,7 @@ export const COMBINATIONS_FILE_MAPPING = {
  */
 export const TRANSACTIONS_FILE_MAPPING = {
   resourceName: "transactions", // Type spécial: génère customers + orders
-  
+
   columns: {
     // ===== DONNÉES CLIENT =====
     email: {
@@ -227,7 +230,7 @@ export const TRANSACTIONS_FILE_MAPPING = {
       resourceType: "customer", // Appartient à la ressource customer
       uniqueKey: true,
     },
-    
+
     nom: {
       prestashopField: "lastname",
       transformation: (value) => value.trim(),
@@ -235,7 +238,7 @@ export const TRANSACTIONS_FILE_MAPPING = {
       required: true,
       resourceType: "customer",
     },
-    
+
     pwd: {
       prestashopField: "passwd",
       transformation: (value) => value,
@@ -244,7 +247,7 @@ export const TRANSACTIONS_FILE_MAPPING = {
       resourceType: "customer",
       sensitive: true,
     },
-    
+
     adresse: {
       prestashopField: "address_line_1",
       transformation: (value) => value.trim(),
@@ -252,7 +255,7 @@ export const TRANSACTIONS_FILE_MAPPING = {
       required: true,
       resourceType: "customer",
     },
-    
+
     // ===== DONNÉES COMMANDE =====
     date: {
       prestashopField: "date_add",
@@ -265,12 +268,13 @@ export const TRANSACTIONS_FILE_MAPPING = {
       required: true,
       resourceType: "order", // Appartient à la ressource order
     },
-    
+
     etat: {
       prestashopField: "current_state",
       transformation: async (value, context) => {
         // Si vide, initialiser à "dans le panier"
-        const etatValue = (!value || value.trim() === "") ? "dans le panier" : value;
+        const etatValue =
+          !value || value.trim() === "" ? "dans le panier" : value;
         // Mapper texte état → ID état Prestashop
         return await context.getOrderStateIdByLabel(etatValue);
       },
@@ -280,12 +284,12 @@ export const TRANSACTIONS_FILE_MAPPING = {
       async: true,
       stateMapping: {
         "dans le panier": 1, // À ajuster selon l'ID Prestashop si nécessaire
-        "annulé": 6,
+        annulé: 6,
         "paiement accepté": 2,
         "payment accepted": 2,
       },
     },
-    
+
     achat: {
       prestashopField: "order_details",
       transformation: async (value, context) => {
@@ -299,7 +303,7 @@ export const TRANSACTIONS_FILE_MAPPING = {
       isComplexFormat: true,
     },
   },
-  
+
   multiLangFields: [],
   excludeFields: [],
   defaultLanguageId: 1,
@@ -313,25 +317,25 @@ export const IMPORT_CONFIG = {
   // Ordre d'importation des fichiers (dépendances)
   // Fichier 3 contient à la fois customers ET orders sur les mêmes lignes
   importOrder: [
-    "fichier1_products",      // Produits d'abord
-    "fichier2_combinations",  // Puis déclinaisons (dépend fichier1)
-    "fichier3_transactions",  // Clients & Commandes (un seul fichier, 2 ressources)
+    "fichier1_products", // Produits d'abord
+    "fichier2_combinations", // Puis déclinaisons (dépend fichier1)
+    "fichier3_transactions", // Clients & Commandes (un seul fichier, 2 ressources)
   ],
-  
+
   // Configurations de validation
   validation: {
     throwOnFirstError: false, // Continuer même s'il y a erreur
-    maxErrorsPerFile: 100,    // Limite d'erreurs avant abandon
+    maxErrorsPerFile: 100, // Limite d'erreurs avant abandon
     validateBeforeImport: true, // Passer en revue avant d'insérer
   },
-  
+
   // Configuration API Prestashop
   prestashop: {
     defaultLanguageId: 1, // Français
-    defaultShopId: 1,     // Boutique par défaut
+    defaultShopId: 1, // Boutique par défaut
     defaultCountryId: 136, // Madagascar
   },
-  
+
   // Configuration transactionnel
   transaction: {
     // Toute erreur = rollback complet (All or Nothing)

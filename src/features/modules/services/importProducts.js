@@ -46,11 +46,11 @@ export async function importProducts(rows, log) {
       const categoryId = await findOrCreateCategory(row.categorie?.trim());
 
       // Trouver le groupe de taxe
-      log(`  Ligne ${lineNum}: Taxe "${row.Taxe}"...`);
-      const taxGroupId = await findTaxGroupId(row.Taxe);
+      log(`  Ligne ${lineNum}: Taxe "${row.taxe}"...`);
+      const taxGroupId = await findTaxGroupId(row.taxe);
 
       // Calculer le prix HT (PrestaShop stocke le prix sans taxe)
-      const taxRate = toNum(row.Taxe.replace("%", ""));
+      const taxRate = toNum(row.taxe.replace("%", ""));
       const priceTtc = toNum(row.prix_ttc);
       const priceHt = priceTtc / (1 + taxRate / 100);
       const wholesaleHt = toNum(row.prix_achat);

@@ -1,2 +1,10 @@
-Dans "dataImportConstants.js"
-    -reception des colonnes des fichier et transformation des donnees
+- le compte anonymous (id = 1)
+est totalement ignore lors de la suppression des
+donnees des cliens.
+- guest peut faire des paniers et commandes
+mais ne peuvent pas faire des imports
+
+- import csv, pas sensible a la casse, mais sensible aux accents
+dans les colonnes des fichiers csv importer.
+- manque ou surplus des images importer lors de l'importation,
+on acceptes toujours.

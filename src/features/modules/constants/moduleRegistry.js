@@ -47,6 +47,8 @@ export const MODULE_REGISTRY = {
     multiLangFields: [],
     // last_passwd_gen et secure_key sont générés automatiquement par PrestaShop
     excludeFields: ["last_passwd_gen", "secure_key"],
+    // L'ID 1 est souvent le compte administrateur ou client par défaut
+    protectedIds: [1],
   },
 
   orders: {

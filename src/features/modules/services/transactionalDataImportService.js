@@ -15,6 +15,7 @@
 import Papa from "papaparse";
 import { createResource, PrestashopClient } from "../../../api/prestashop.api";
 import csvToXmlService from "./csvToXmlTransformationService";
+import { normalizeHeader } from "./csvParser";
 import {
   PRODUCTS_FILE_MAPPING,
   COMBINATIONS_FILE_MAPPING,
@@ -297,7 +298,15 @@ class ImportContext {
       );
 
       if (response.customers && response.customers.length > 0) {
-        const customerId = response.customers[0].id;
+        const customerId = parseInt(response.customers[0].id, 10);
+
+        // Bloquer l'utilisation du client ID 1 (Anonymous Connector) pour l'import CSV
+        if (customerId === 1) {
+          throw new Error(
+            `L'utilisateur avec l'ID 1 est réservé au "connecteur anonymous" et ne peut pas être utilisé pour l'import CSV.`,
+          );
+        }
+
         this.cache.customers[emailLower] = customerId;
         return customerId;
       }
@@ -682,6 +691,7 @@ class TransactionalDataImportService {
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
+        transformHeader: (header) => normalizeHeader(header),
         complete: (results) => {
           resolve(results.data);
         },
@@ -705,14 +715,24 @@ class TransactionalDataImportService {
       fichier3_transactions: TRANSACTIONS_FILE_MAPPING, // Clients + Commandes
     };
 
-    if (!mappings[fileType]) {
+    const mapping = mappings[fileType];
+    if (!mapping) {
       throw new Error(
         `Type de fichier inconnu: "${fileType}". ` +
           `Types supportés: ${Object.keys(mappings).join(", ")}`,
       );
     }
 
-    return mappings[fileType];
+    // Retourner une copie avec des clés de colonnes normalisées (casse et accents)
+    return {
+      ...mapping,
+      columns: Object.fromEntries(
+        Object.entries(mapping.columns).map(([key, config]) => [
+          normalizeHeader(key),
+          config,
+        ]),
+      ),
+    };
   }
 
   /**

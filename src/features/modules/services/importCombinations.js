@@ -78,7 +78,7 @@ export async function importCombinations(rows, log) {
         );
       }
 
-      const hasAttributes = row.specificité?.trim() && row.karazany?.trim();
+      const hasAttributes = row.specificite?.trim() && row.karazany?.trim();
       const quantity = parseInt(row.stock_initial) || 0;
 
       if (!hasAttributes) {
@@ -91,8 +91,8 @@ export async function importCombinations(rows, log) {
       }
 
       // Trouver/créer groupe d'attribut (ex: "taille")
-      log(`  Ligne ${lineNum}: Groupe attribut "${row.specificité}"...`);
-      const groupId = await findOrCreateAttrGroup(row.specificité.trim());
+      log(`  Ligne ${lineNum}: Groupe attribut "${row.specificite}"...`);
+      const groupId = await findOrCreateAttrGroup(row.specificite.trim());
 
       // Trouver/créer valeur d'attribut (ex: "ngoza")
       log(`  Ligne ${lineNum}: Valeur attribut "${row.karazany}"...`);

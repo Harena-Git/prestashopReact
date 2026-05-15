@@ -353,12 +353,21 @@ export async function findOrCreateCustomer(email, nom, pwd, dateAdd) {
   for (const cust of customers) {
     if (String(cust.email).toLowerCase() === email.toLowerCase()) {
       const id = parseInt(cust.id, 10);
+
+      // Bloquer l'utilisation du client ID 1 (Anonymous Connector) pour l'import CSV
+      if (id === 1) {
+        throw new Error(
+          `L'utilisateur avec l'ID 1 est réservé au "connecteur anonymous" et ne peut pas être utilisé pour l'import CSV.`,
+        );
+      }
+
       cache.customers[email] = id;
       // La secure_key du client existant est fournie par display=full
       let secureKey = String(cust.secure_key || "");
       if (!secureKey) {
         const fullData = await client.get(`customers/${id}`);
-        const fullCustomer = fullData?.customer || fullData?.customers || fullData;
+        const fullCustomer =
+          fullData?.customer || fullData?.customers || fullData;
         secureKey = String(fullCustomer?.secure_key || "");
       }
       cache.customerKeys[email] = secureKey;
@@ -521,8 +530,7 @@ export async function getDefaultShopId() {
 export async function getDefaultShopGroupId() {
   const data = await client.get("shop_groups?display=full");
   const groups = toArray(data.shop_groups);
-  const activeGroup =
-    groups.find((g) => String(g.active) === "1") || groups[0];
+  const activeGroup = groups.find((g) => String(g.active) === "1") || groups[0];
   const id = parseInt(activeGroup?.id, 10);
   if (!id) {
     throw new Error("Aucun groupe de shop trouvé pour créer la commande.");
@@ -563,7 +571,8 @@ export async function getOrderDefaults() {
   if (!defaults.currencyId) defaults.currencyId = await getDefaultCurrencyId();
   if (!defaults.langId) defaults.langId = await getDefaultLanguageId();
   if (!defaults.shopId) defaults.shopId = await getDefaultShopId();
-  if (!defaults.shopGroupId) defaults.shopGroupId = await getDefaultShopGroupId();
+  if (!defaults.shopGroupId)
+    defaults.shopGroupId = await getDefaultShopGroupId();
 
   if (!defaults.module) defaults.module = "ps_checkpayment";
   if (!defaults.payment) defaults.payment = "Import CSV";
@@ -583,9 +592,7 @@ export async function getDefaultCountryId() {
     throw new Error("Aucun pays actif trouvé pour créer l'adresse.");
   }
 
-  const mg = countries.find(
-    (c) => String(c.iso_code).toUpperCase() === "MG",
-  );
+  const mg = countries.find((c) => String(c.iso_code).toUpperCase() === "MG");
   const chosen = mg || countries[0];
   const id = parseInt(chosen?.id, 10);
   if (!id) {
