@@ -3,7 +3,7 @@ import { XMLParser } from "fast-xml-parser";
 // Charger les variables d'environnement
 // const API_KEY = import.meta.env.VITE_API_KEY;
 // const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const API_KEY = "47iMNJ5UxnXUIdDgW2e0gueSxQjrQBqJ";
+const API_KEY = "3dK1We529zTiCrg7i9TZ3N5MTAcD1MAb";
 const BASE_URL = "/api/";
 
 // Validation des variables d'environnement

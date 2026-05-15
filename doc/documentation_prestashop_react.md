@@ -217,7 +217,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // A MODIFIER : Si vous ne voulez pas utiliser les variables d'environnement,
 // vous pouvez décommenter les lignes ci-dessous et commenter les lignes ci-dessus.
-// const API_KEY = "47iMNJ5UxnXUIdDgW2e0gueSxQjrQBqJ";
+// const API_KEY = "3dK1We529zTiCrg7i9TZ3N5MTAcD1MAb";
 // const BASE_URL = "/api/";
 
 // Validation des variables d'environnement

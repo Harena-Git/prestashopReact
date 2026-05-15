@@ -1,7 +1,7 @@
 import JSZip from "jszip";
 import { getProductInfo, findProductByReference } from "./prestashopCache";
 
-const API_KEY = "47iMNJ5UxnXUIdDgW2e0gueSxQjrQBqJ";
+const API_KEY = "3dK1We529zTiCrg7i9TZ3N5MTAcD1MAb";
 
 // Types MIME supportés par PrestaShop
 const MIME_TYPES = {
