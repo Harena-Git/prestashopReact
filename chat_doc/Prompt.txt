@@ -1,7 +1,2 @@
-Dans "http://localhost:5173/customers", 
-j'aimerai que tu ajoutes une connection de 
-client, mais une connection anonymous une 
-connection (utilisateur anonyme), cette utilisateur
-aura juste a acceder aux pages mais ces actions sur les 
-bouttons et etc ... n'auraient aucun effet.
-Peux-tu m'aider a faire cette tache ?
+Dans la section des clients dans notre projet ("http://localhost:5173/client/products") : J'aimerai ajouter une recherche multicritere de produits(nom, catgorie, intervalle de prix).Ajouter un nouveau sidebar (pour la recherche multicritere).
+Sans modifier directement, montres moi etape par etape comment ajouter cette fonctionnalite

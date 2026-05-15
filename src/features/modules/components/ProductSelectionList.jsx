@@ -44,6 +44,27 @@ function ProductSelectionList({
     callback(productId);
   };
 
+
+// Fonction utilitaire pour obtenir le badge ('HOT', 'NEW' ou null)
+const getProductBadge = (dateString) => {
+  if (!dateString) return null;
+  
+  const productDate = new Date(dateString);
+  const now = new Date(); // La date du jour
+  
+  // Différence en millisecondes
+  const diffTime = now.getTime() - productDate.getTime();
+  // Calcule la différence en jours (1000 ms * 60 s * 60 min * 24 h)
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays <= 1 && diffDays >= 0) {
+    return "HOT";
+  } else if (diffDays > 1 && diffDays <= 7) {
+    return "NEW";
+  }
+  return null; // Pas de badge si c'est plus vieux qu'une semaine
+};
+
   return (
     <div className="product-selection-list">
       <h3>{title}</h3>
@@ -56,30 +77,38 @@ function ProductSelectionList({
       />
       <ul className="product-list">
         {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <li
-              key={product.id}
-              className={product.id === selectedId ? "selected" : ""}
-              onClick={() => handleProductClick(product.id)}
-            >
-              {/* Colonne gauche : infos du produit */}
-              <div className="product-info">
-                <div className="product-name">{product.name}</div>
-                <div className="product-price">{product.price}€</div>
-              </div>
+          filteredProducts.map((product) => {
+            const badge = getProductBadge(product.date_add); // Ou product.date_availability selon l'API
 
-              {/* Colonne droite : boutons d'action */}
-              <div className="product-actions">
-                <button
-                  className="btn-edit"
-                  onClick={(e) => handleActionClick(e, () => addToCart(product), product.id)}
-                  title="Ajouter le produit au panier"
-                >
-                  Ajouter au panier
-                </button>
-              </div>
-            </li>
-          ))
+            return (
+              <li
+                key={product.id}
+                className={product.id === selectedId ? "selected" : ""}
+                onClick={() => handleProductClick(product.id)}
+              >
+                {/* Colonne gauche : infos du produit */}
+                <div className="product-info">
+                  <div className="product-name" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    {product.name}
+                    {badge === "HOT" && <span className="badge badge-hot">🔥 HOT</span>}
+                    {badge === "NEW" && <span className="badge badge-new">✨ NEW</span>}
+                  </div>
+                  <div className="product-price">{product.price}€</div>
+                </div>
+
+                {/* Colonne droite : boutons d'action */}
+                <div className="product-actions">
+                  <button
+                    className="btn-edit"
+                    onClick={(e) => handleActionClick(e, () => addToCart(product), product.id)}
+                    title="Ajouter le produit au panier"
+                  >
+                    Ajouter au panier
+                  </button>
+                </div>
+              </li>
+            );
+          })
         ) : (
           <li className="no-results">Aucun produit trouvé</li>
         )}
