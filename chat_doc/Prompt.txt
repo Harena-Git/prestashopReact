@@ -1,2 +1,4 @@
-Dans la section des clients dans notre projet ("http://localhost:5173/client/products") : J'aimerai ajouter une recherche multicritere de produits(nom, catgorie, intervalle de prix).Ajouter un nouveau sidebar (pour la recherche multicritere).
-Sans modifier directement, montres moi etape par etape comment ajouter cette fonctionnalite
+Dans la section des clients dans notre projet ("http://localhost:5173/client/products") :
+J'aimerai ajouter une recherche multicritere de produits(nom, catgorie, intervalle de prix).
+Ajouter un nouveau sidebar (pour la recherche multicritere).
+Sans modifier directement, montres moi etape par etape comment ajouter cette fonctionnalite.
