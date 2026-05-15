@@ -1,8 +1,7 @@
-Lors de l'import des fichiers.
-Quand on import le 3eme fichier selon :
-le fichie de type : @import-data-mai-26 - fichier3.csv
-Dans la colonne "etat" de cet import, lorsque cette colonne
-est vide, elle est automatiquement initialiser comme "dans le panier"
-Pour info, "etat" ne possedera que "dans le panier","annulé",
-"paiement accepté" logiquement.
-Peux-tu apporter les modifications necessaires pour cela ?
+Dans "http://localhost:5173/customers", 
+j'aimerai que tu ajoutes une connection de 
+client, mais une connection anonymous une 
+connection (utilisateur anonyme), cette utilisateur
+aura juste a acceder aux pages mais ces actions sur les 
+bouttons et etc ... n'auraient aucun effet.
+Peux-tu m'aider a faire cette tache ?

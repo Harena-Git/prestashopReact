@@ -33,9 +33,39 @@ function ListLoginClients() {
     navigate("/client/products");
   };
 
+  const handleAnonymousLogin = () => {
+    const anonymousClient = {
+      id: "anonymous",
+      firstname: "Utilisateur",
+      lastname: "Anonyme",
+      email: "N/A",
+      isAnonymous: true
+    };
+    defineCurrentClient(anonymousClient);
+    navigate("/client/products");
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>Liste des clients</h1>
+
+      <div style={{ marginBottom: "20px" }}>
+        <button 
+          onClick={handleAnonymousLogin}
+          style={{
+            padding: "10px 15px",
+            backgroundColor: "#6c757d",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            fontWeight: "bold"
+          }}
+        >
+          🕵️ Se connecter en tant qu'Anonyme
+        </button>
+      </div>
+
       {loading ? (
         <p>Chargement en cours...</p>
       ) : error ? (
