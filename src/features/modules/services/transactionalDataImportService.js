@@ -586,11 +586,8 @@ class TransactionalDataImportService {
       // ÉTAPE 3B : Transformer ORDERS
       this.log(`Étape 3B: Transformation CSV → ORDERS XML...`);
 
-      // Filtrer les lignes qui ne sont pas "dans le panier" pour la transformation des commandes
-      const orderRows = csvData.filter((row) => {
-        const val = (row.etat || "").trim().toLowerCase();
-        return val !== "" && val !== "dans le panier";
-      });
+      // Toutes les lignes du fichier 3 génèrent une commande (avec état mappé)
+      const orderRows = csvData;
 
       const orderMapping = {
         ...TRANSACTIONS_FILE_MAPPING,
@@ -626,9 +623,7 @@ class TransactionalDataImportService {
         }
       }
 
-      this.log(
-        `✓ ${ordersResult.stats.valid} orders transformées (${csvData.length - orderRows.length} paniers seuls ignorés)`,
-      );
+      this.log(`✓ ${ordersResult.stats.valid} orders transformées`);
 
       // ÉTAPE 4 : Insertion CUSTOMERS d'abord
       // ... (code insertion customers inchangé)

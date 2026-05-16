@@ -285,11 +285,24 @@ export const TRANSACTIONS_FILE_MAPPING = {
       prestashopField: "current_state",
       transformation: async (value, context) => {
         const val = (value || "").trim().toLowerCase();
-        // Si vide -> "dans le panier"
-        if (val === "") return "dans le panier";
-        // Equivalence: "paiement effectué" -> "paiement accepté"
-        if (val === "paiement effectué") return "paiement accepté";
-        return val;
+        let label = val;
+
+        // Normalisation des labels
+        if (val === "") label = "dans le panier";
+        if (val === "paiement effectué") label = "paiement accepté";
+
+        // Utiliser le mapping d'état du contexte s'il existe (pour TransactionalDataImportService)
+        if (context && typeof context.getOrderStateIdByLabel === "function") {
+          return await context.getOrderStateIdByLabel(label);
+        }
+
+        // Fallback sur le mapping local si pas de contexte
+        const mapping = {
+          "dans le panier": 1,
+          annulé: 6,
+          "paiement accepté": 2,
+        };
+        return mapping[label] || 1;
       },
       validation: (value) => {
         const val = (value || "").trim().toLowerCase();
@@ -306,7 +319,7 @@ export const TRANSACTIONS_FILE_MAPPING = {
       resourceType: "order",
       async: true,
       stateMapping: {
-        "dans le panier": 1, // ID état temporaire (sera ignoré si on ne crée pas l'ordre)
+        "dans le panier": 1,
         annulé: 6,
         "paiement accepté": 2,
       },

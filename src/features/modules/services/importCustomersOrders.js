@@ -159,54 +159,48 @@ export async function importCustomersOrders(rows, log) {
       const cartId = extractIdFromXml(cartResponse, "cart");
       if (!cartId) throw new Error("Impossible de créer le panier");
 
-      // 6. Créer la commande SI l'état n'est pas "dans le panier"
-      if (rawEtat !== "" && rawEtat !== "dans le panier") {
-        const stateId = getOrderStateId(row.etat);
-        const orderXml = buildOrderXml({
-          customer_id: customerId,
-          address_id: addressId,
-          cart_id: cartId,
-          state_id: stateId,
-          date_add: dateAdd,
-          carrier_id: orderDefaults.carrierId,
-          currency_id: orderDefaults.currencyId,
-          lang_id: orderDefaults.langId,
-          shop_id: orderDefaults.shopId,
-          shop_group_id: orderDefaults.shopGroupId,
-          module: orderDefaults.module,
-          payment: orderDefaults.payment,
-          items: resolvedItems,
-          secure_key: secureKey,
-        });
+      // 6. Créer la commande
+      const stateId = getOrderStateId(row.etat);
+      const orderXml = buildOrderXml({
+        customer_id: customerId,
+        address_id: addressId,
+        cart_id: cartId,
+        state_id: stateId,
+        date_add: dateAdd,
+        carrier_id: orderDefaults.carrierId,
+        currency_id: orderDefaults.currencyId,
+        lang_id: orderDefaults.langId,
+        shop_id: orderDefaults.shopId,
+        shop_group_id: orderDefaults.shopGroupId,
+        module: orderDefaults.module,
+        payment: orderDefaults.payment,
+        items: resolvedItems,
+        secure_key: secureKey,
+      });
 
-        log(`  Ligne ${lineNum}: Création commande (état: ${stateId})...`);
-        const orderResponse = await postXml("orders", orderXml);
-        const orderId = extractIdFromXml(orderResponse, "order");
-        if (!orderId) throw new Error("Impossible de créer la commande");
+      log(`  Ligne ${lineNum}: Création commande (état: ${stateId})...`);
+      const orderResponse = await postXml("orders", orderXml);
+      const orderId = extractIdFromXml(orderResponse, "order");
+      if (!orderId) throw new Error("Impossible de créer la commande");
 
-        // Forcer l'application de l'état en ajoutant un historique à la commande
-        try {
-          const historyXml = `<?xml version="1.0" encoding="UTF-8"?>
+      // Forcer l'application de l'état en ajoutant un historique à la commande
+      try {
+        const historyXml = `<?xml version="1.0" encoding="UTF-8"?>
 <prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
   <order_history>
     <id_order>${orderId}</id_order>
     <id_order_state>${stateId}</id_order_state>
   </order_history>
 </prestashop>`;
-          await postXml("order_histories", historyXml);
-        } catch (historyErr) {
-          log(
-            `  ! Attention: Impossible de sauvegarder l'historique d'état pour la commande ${orderId}`,
-          );
-        }
-
-        log(`  ✓ Commande ID: ${orderId} (${resolvedItems.length} article(s))`);
-        ordersInserted++;
-      } else {
+        await postXml("order_histories", historyXml);
+      } catch (historyErr) {
         log(
-          `  ✓ Panier créé (ID: ${cartId}) — État "dans le panier", commande non générée.`,
+          `  ! Attention: Impossible de sauvegarder l'historique d'état pour la commande ${orderId}`,
         );
       }
+
+      log(`  ✓ Commande ID: ${orderId} (${resolvedItems.length} article(s))`);
+      ordersInserted++;
     } catch (err) {
       log(`  ✗ Ligne ${lineNum}: ${err.message}`);
       // All or Nothing : arrêt immédiat, les données insérées seront rollbackées

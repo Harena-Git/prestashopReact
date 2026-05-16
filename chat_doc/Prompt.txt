@@ -6,6 +6,10 @@ Quand l'etat est :
 Tout ces changements sont appliqués automatiquement lors de l'import des fichiers CSV pour eviter que prestashop les insert dans automatiquement
 dans l'etat 11.
 Je ne sais pas si on fait du mapping ou d'autre methode pour que ca fonctionne.
+Page : @DataImportPage.jsx
+Lien : "http://localhost:5173/admin/modules/data-import"
+
+Fais l'analyse, regarde si c'est deja inclus, corriges si ce n'est pas le cas.
 
 ========================================================================
 
@@ -19,6 +23,10 @@ des conditions d'affichage.
 
 Dans "http://localhost:5173/admin/dashboard", on doit lister tout les commandes a part les commandes annulées, et totaliser le chiffre Total
 pour chaque section correctement.
+
+========================================================================
+
+frontOffice : état de “mes commandes”
 
 ========================================================================
 
