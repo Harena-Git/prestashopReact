@@ -51,14 +51,17 @@ Done
 creer un nouveaux element de sidebar dans "http://localhost:5173/admin/orders" qui va permettre de gérer le stock des produits
 creer une page qui permet d’ajouter en stock les produits
 
-NB : page a implementer
+NB : page a implementer.
 
+Done
 
 ========================================================================
 
 rajouter un tableau sur l’évolution du stock journalier d’un produit
 mahazo micréer endpoint 1 (1 ihany ) ianareo ao am prestashop hiantsoana an’ilay code
 StockAvailable::updateQuantity($idProduct, 0, $delta)
+
+Mikitika code prestashop
 
 ========================================================================
 
