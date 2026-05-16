@@ -16,6 +16,7 @@ import DataImportPage from "../features/modules/pages/DataImportPage";
 import PanierPages from "../features/modules/pages/PanierPages";
 import OrderDashboard from "../features/modules/components/OrderDashboard";
 import ClientOrdersPage from "../features/modules/pages/ClientOrdersPage";
+import StockManagementPage from "../features/modules/pages/StockManagementPage";
 
 function NotFoundPage() {
   return <h1>404 - Page introuvable</h1>;
@@ -48,6 +49,7 @@ function AppRouter() {
           />
           <Route path="/admin/orders" element={<ListCommande />} />
           <Route path="/admin/dashboard" element={<OrderDashboard />} />
+          <Route path="/admin/stock" element={<StockManagementPage />} />
         </Route>
 
         {/* Routes normales avec Sidebar normal */}

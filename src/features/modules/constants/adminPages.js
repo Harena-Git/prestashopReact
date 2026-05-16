@@ -29,4 +29,10 @@ export const ADMIN_PAGES = [
     path: "/admin/dashboard",
     showInSidebar: true,
   },
+  {
+    id: "stock-management",
+    label: "Gestion de Stock",
+    path: "/admin/stock",
+    showInSidebar: true,
+  },
 ];
