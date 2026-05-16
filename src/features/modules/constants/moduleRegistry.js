@@ -94,9 +94,19 @@ export const MODULE_REGISTRY = {
 };
 
 /**
- * Mapping : nom de fichier d'import → modules à supprimer lors du rollback
- * L'ordre respecte les contraintes FK PrestaShop (enfant avant parent)
+ * Ordre de suppression recommandé pour respecter les contraintes d'intégrité (FK)
+ * On supprime les "enfants" avant les "parents".
  */
+export const DELETION_ORDER = [
+  "orders", // Dépend de tout
+  "carts", // Dépend de customers et products
+  "addresses", // Dépend de customers
+  "combinations", // Dépend de products
+  "products", // Dépend de categories
+  "customers",
+  "categories",
+];
+
 export const ROLLBACK_MODULES_BY_FILE = {
   Produits: ["combinations", "products"],
   Déclinaisons: ["combinations"],

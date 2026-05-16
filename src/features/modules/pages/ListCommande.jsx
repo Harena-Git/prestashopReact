@@ -89,62 +89,132 @@ function ListCommande() {
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            <th style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>ID</th>
-            <th style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>Client</th>
-            <th style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>Montant</th>
-            <th style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>Statut</th>
-            <th style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>Actions</th>
+            <th style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>
+              ID
+            </th>
+            <th style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>
+              Client
+            </th>
+            <th style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>
+              Montant
+            </th>
+            <th style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>
+              Statut
+            </th>
+            <th style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => {
-            const orderId = normaliseField(order.id);
-            const currentState = normaliseField(order.current_state);
-            const customerId = normaliseField(order.id_customer);
-            const amount = normaliseField(order.total_paid);
-            const stateLabel = getOrderStateLabel(currentState);
-            const isUpdating = updatingOrderId === orderId;
+          {orders.length === 0 ? (
+            <tr>
+              <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
+                Aucune commande trouvée pour les états autorisés (Paiement
+                effectué, Annulé, Dans le panier).
+              </td>
+            </tr>
+          ) : (
+            orders.map((order) => {
+              const orderId = normaliseField(order.id);
+              const currentState = normaliseField(order.current_state);
+              const customerId = normaliseField(order.id_customer);
+              const amount = normaliseField(order.total_paid);
+              const stateLabel = getOrderStateLabel(currentState);
+              const isUpdating = updatingOrderId === orderId;
 
-            return (
-              <tr key={orderId}>
-                <td style={{ borderBottom: "1px solid #eaeaea", padding: "10px" }}>{orderId}</td>
-                <td style={{ borderBottom: "1px solid #eaeaea", padding: "10px" }}>{customerId}</td>
-                <td style={{ borderBottom: "1px solid #eaeaea", padding: "10px" }}>{amount}</td>
-                <td style={{ borderBottom: "1px solid #eaeaea", padding: "10px" }}>{stateLabel}</td>
-                <td style={{ borderBottom: "1px solid #eaeaea", padding: "10px" }}>
-                  <button
-                    onClick={() => handleChangeStatus(orderId, PAYMENT_DONE_STATE_ID, "Paiement effectué")}
-                    disabled={isUpdating || String(currentState) === String(PAYMENT_DONE_STATE_ID)}
+              return (
+                <tr key={orderId}>
+                  <td
                     style={{
-                      marginRight: "8px",
-                      padding: "8px 12px",
-                      backgroundColor: "#28a745",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: isUpdating ? "not-allowed" : "pointer",
+                      borderBottom: "1px solid #eaeaea",
+                      padding: "10px",
                     }}
                   >
-                    Paiement effectué
-                  </button>
-                  <button
-                    onClick={() => handleChangeStatus(orderId, ORDER_CANCELED_STATE_ID, "Annulé")}
-                    disabled={isUpdating || String(currentState) === String(ORDER_CANCELED_STATE_ID)}
+                    {orderId}
+                  </td>
+                  <td
                     style={{
-                      padding: "8px 12px",
-                      backgroundColor: "#dc3545",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: isUpdating ? "not-allowed" : "pointer",
+                      borderBottom: "1px solid #eaeaea",
+                      padding: "10px",
                     }}
                   >
-                    Annuler
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
+                    {customerId}
+                  </td>
+                  <td
+                    style={{
+                      borderBottom: "1px solid #eaeaea",
+                      padding: "10px",
+                    }}
+                  >
+                    {amount}
+                  </td>
+                  <td
+                    style={{
+                      borderBottom: "1px solid #eaeaea",
+                      padding: "10px",
+                    }}
+                  >
+                    {stateLabel}
+                  </td>
+                  <td
+                    style={{
+                      borderBottom: "1px solid #eaeaea",
+                      padding: "10px",
+                    }}
+                  >
+                    <button
+                      onClick={() =>
+                        handleChangeStatus(
+                          orderId,
+                          PAYMENT_DONE_STATE_ID,
+                          "Paiement effectué",
+                        )
+                      }
+                      disabled={
+                        isUpdating ||
+                        String(currentState) === String(PAYMENT_DONE_STATE_ID)
+                      }
+                      style={{
+                        marginRight: "8px",
+                        padding: "8px 12px",
+                        backgroundColor: "#28a745",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: isUpdating ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      Paiement effectué
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleChangeStatus(
+                          orderId,
+                          ORDER_CANCELED_STATE_ID,
+                          "Annulé",
+                        )
+                      }
+                      disabled={
+                        isUpdating ||
+                        String(currentState) === String(ORDER_CANCELED_STATE_ID)
+                      }
+                      style={{
+                        padding: "8px 12px",
+                        backgroundColor: "#dc3545",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: isUpdating ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      Annuler
+                    </button>
+                  </td>
+                </tr>
+              );
+            })
+          )}
         </tbody>
       </table>
     </div>

@@ -585,6 +585,13 @@ class TransactionalDataImportService {
 
       // ÉTAPE 3B : Transformer ORDERS
       this.log(`Étape 3B: Transformation CSV → ORDERS XML...`);
+
+      // Filtrer les lignes qui ne sont pas "dans le panier" pour la transformation des commandes
+      const orderRows = csvData.filter((row) => {
+        const val = (row.etat || "").trim().toLowerCase();
+        return val !== "" && val !== "dans le panier";
+      });
+
       const orderMapping = {
         ...TRANSACTIONS_FILE_MAPPING,
         columns: Object.fromEntries(
@@ -593,23 +600,38 @@ class TransactionalDataImportService {
           ),
         ),
       };
-      const ordersResult = await csvToXmlService.transformCsvData(
-        csvData,
-        orderMapping,
-        context,
-      );
 
-      totalErrors =
-        ordersResult.validationErrors.length +
-        ordersResult.transformationErrors.length;
+      let ordersResult = {
+        xmlDataList: [],
+        stats: { valid: 0 },
+        validationErrors: [],
+        transformationErrors: [],
+      };
 
-      if (totalErrors > 0) {
-        throw new Error(`${totalErrors} erreur(s) dans transformation ORDERS`);
+      if (orderRows.length > 0) {
+        ordersResult = await csvToXmlService.transformCsvData(
+          orderRows,
+          orderMapping,
+          context,
+        );
+
+        totalErrors =
+          ordersResult.validationErrors.length +
+          ordersResult.transformationErrors.length;
+
+        if (totalErrors > 0) {
+          throw new Error(
+            `${totalErrors} erreur(s) dans transformation ORDERS`,
+          );
+        }
       }
 
-      this.log(`✓ ${ordersResult.stats.valid} orders transformées`);
+      this.log(
+        `✓ ${ordersResult.stats.valid} orders transformées (${csvData.length - orderRows.length} paniers seuls ignorés)`,
+      );
 
       // ÉTAPE 4 : Insertion CUSTOMERS d'abord
+      // ... (code insertion customers inchangé)
       this.log(`Étape 4: Insertion des CUSTOMERS...`);
       const customersInsertResult = await this.insertDataTransactional(
         customersResult.xmlDataList,
@@ -625,16 +647,19 @@ class TransactionalDataImportService {
       this.log(`✓ ${customersInsertResult.successCount} customers insérés`);
 
       // ÉTAPE 5 : Insertion ORDERS ensuite
-      this.log(`Étape 5: Insertion des ORDERS...`);
-      const ordersInsertResult = await this.insertDataTransactional(
-        ordersResult.xmlDataList,
-        "orders",
-      );
-
-      if (ordersInsertResult.errors.length > 0) {
-        throw new Error(
-          `Erreurs insertion ORDERS: ${ordersInsertResult.errors.map((e) => e.error).join("; ")}`,
+      let ordersInsertResult = { successCount: 0, errors: [] };
+      if (ordersResult.xmlDataList.length > 0) {
+        this.log(`Étape 5: Insertion des ORDERS...`);
+        ordersInsertResult = await this.insertDataTransactional(
+          ordersResult.xmlDataList,
+          "orders",
         );
+
+        if (ordersInsertResult.errors.length > 0) {
+          throw new Error(
+            `Erreurs insertion ORDERS: ${ordersInsertResult.errors.map((e) => e.error).join("; ")}`,
+          );
+        }
       }
 
       this.log(`✓ ${ordersInsertResult.successCount} orders insérées`);

@@ -1,13 +1,9 @@
 import Papa from "papaparse";
 
-// Fonction de normalisation des en-têtes CSV (insensible à la casse et aux accents)
+// Fonction de normalisation des en-têtes CSV (insensible à la casse UNIQUEMENT)
 export function normalizeHeader(header) {
   if (!header) return "";
-  return header
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // Supprime les accents
-    .trim();
+  return header.toLowerCase().trim();
 }
 
 // Parse un fichier CSV et retourne un tableau de lignes (objets JS)

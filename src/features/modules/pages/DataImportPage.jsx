@@ -131,14 +131,14 @@ function DataImportPage() {
         <div className="files-section">
           <FileInput
             label=" Fichier 1 — Produits"
-            hint="Colonnes: date_availability_produit, nom, reference, prix_ttc, taxe, categorie, prix_achat"
+            hint="Colonnes: date_availability_produit, nom, reference, prix_ttc, Taxe, categorie, prix_achat"
             file={files.fichier1_products}
             onChange={(f) => handleFile("fichier1_products", f)}
             disabled={importing}
           />
           <FileInput
             label=" Fichier 2 — Déclinaisons & Stock"
-            hint="Colonnes: reference, specificite, karazany, stock_initial, prix_vente_ttc"
+            hint="Colonnes: reference, specificité, karazany, stock_initial, prix_vente_ttc"
             file={files.fichier2_combinations}
             onChange={(f) => handleFile("fichier2_combinations", f)}
             disabled={importing}

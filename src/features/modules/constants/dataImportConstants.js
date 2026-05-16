@@ -53,7 +53,10 @@ export const PRODUCTS_FILE_MAPPING = {
         // Convertir "12,5" → 12.50 (virgule française → point)
         return parseFloat(value.replace(",", ".")).toFixed(2);
       },
-      validation: (value) => !isNaN(parseFloat(value.replace(",", "."))),
+      validation: (value) => {
+        const num = parseFloat(value.replace(",", "."));
+        return !isNaN(num) && num >= 0;
+      },
       required: true,
     },
 
@@ -63,7 +66,10 @@ export const PRODUCTS_FILE_MAPPING = {
         // Convertir prix d'achat
         return parseFloat(value.replace(",", ".")).toFixed(2);
       },
-      validation: (value) => !isNaN(parseFloat(value.replace(",", "."))),
+      validation: (value) => {
+        const num = parseFloat(value.replace(",", "."));
+        return !isNaN(num) && num >= 0;
+      },
       required: false,
     },
 
@@ -130,7 +136,7 @@ export const COMBINATIONS_FILE_MAPPING = {
       dependency: "fichier1", // Dépend de fichier 1
     },
 
-    specificite: {
+    specificité: {
       prestashopField: "id_attribute_group",
       transformation: async (value, context) => {
         // Si valeur vide → produit sans attribut
@@ -156,7 +162,7 @@ export const COMBINATIONS_FILE_MAPPING = {
         }
 
         // Chercher/créer attribut avec sa valeur
-        // Nécessite le groupe d'attribut (specificite)
+        // Nécessite le groupe d'attribut (specificité)
         // Exemple: "ngoza" → ID attribut
         return await context.getOrCreateAttribute(
           value,
@@ -166,7 +172,7 @@ export const COMBINATIONS_FILE_MAPPING = {
       validation: (value) => !value || value.trim().length > 0,
       required: false,
       async: true,
-      dependsOn: ["specificite"], // Dépend du groupe attribut
+      dependsOn: ["specificité"], // Dépend du groupe attribut
     },
 
     stock_initial: {
@@ -181,7 +187,10 @@ export const COMBINATIONS_FILE_MAPPING = {
         }
         return qty;
       },
-      validation: (value) => /^\d+$/.test(value),
+      validation: (value) => {
+        const num = parseInt(value, 10);
+        return /^\d+$/.test(value) && num >= 0;
+      },
       required: true,
     },
 
@@ -196,8 +205,11 @@ export const COMBINATIONS_FILE_MAPPING = {
         // Prix spécifique à la déclinaison
         return parseFloat(value.replace(",", ".")).toFixed(2);
       },
-      validation: (value) =>
-        !value || !isNaN(parseFloat(value.replace(",", "."))),
+      validation: (value) => {
+        if (!value || value.trim() === "") return true;
+        const num = parseFloat(value.replace(",", "."));
+        return !isNaN(num) && num >= 0;
+      },
       required: false,
     },
   },
@@ -272,21 +284,31 @@ export const TRANSACTIONS_FILE_MAPPING = {
     etat: {
       prestashopField: "current_state",
       transformation: async (value, context) => {
-        // Si vide, initialiser à "dans le panier"
-        const etatValue =
-          !value || value.trim() === "" ? "dans le panier" : value;
-        // Mapper texte état → ID état Prestashop
-        return await context.getOrderStateIdByLabel(etatValue);
+        const val = (value || "").trim().toLowerCase();
+        // Si vide -> "dans le panier"
+        if (val === "") return "dans le panier";
+        // Equivalence: "paiement effectué" -> "paiement accepté"
+        if (val === "paiement effectué") return "paiement accepté";
+        return val;
       },
-      validation: (value) => true,
+      validation: (value) => {
+        const val = (value || "").trim().toLowerCase();
+        const allowed = [
+          "",
+          "paiement accepté",
+          "paiement effectué",
+          "annulé",
+          "dans le panier",
+        ];
+        return allowed.includes(val);
+      },
       required: false,
       resourceType: "order",
       async: true,
       stateMapping: {
-        "dans le panier": 1, // À ajuster selon l'ID Prestashop si nécessaire
+        "dans le panier": 1, // ID état temporaire (sera ignoré si on ne crée pas l'ordre)
         annulé: 6,
         "paiement accepté": 2,
-        "payment accepted": 2,
       },
     },
 
