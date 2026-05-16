@@ -87,6 +87,27 @@ export async function getProductDetailsService(productId) {
       return lang ? lang["#text"] : "Nom non trouvé";
     };
 
+    // Récupérer le stock (ps_stock_availables)
+    // Un produit simple a généralement un stock_available lié à son id_product avec id_product_attribute=0
+    let quantity = 0;
+    try {
+      const client = new PrestashopClient();
+      const stockData = await client.get(
+        `stock_availables?filter[id_product]=${productId}&filter[id_product_attribute]=0`,
+      );
+      const stocks = Array.isArray(stockData.stock_availables)
+        ? stockData.stock_availables
+        : [stockData.stock_availables];
+      if (stocks[0] && stocks[0].quantity !== undefined) {
+        quantity = parseInt(stocks[0].quantity, 10);
+      }
+    } catch (stockError) {
+      console.warn(
+        `Impossible de récupérer le stock pour le produit ${productId}:`,
+        stockError,
+      );
+    }
+
     // On transforme les données brutes en un objet simple et facile à utiliser.
     const simplifiedProduct = {
       id: productData.id,
@@ -95,6 +116,7 @@ export async function getProductDetailsService(productId) {
       reference: productData.reference,
       description: getName(productData.description),
       categoryId: productData.id_category_default, // Ajout du categoryId
+      quantity: quantity, // Ajout de la quantité en stock
     };
 
     return simplifiedProduct;
