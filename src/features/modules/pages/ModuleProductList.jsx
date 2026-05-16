@@ -166,6 +166,9 @@ function ModuleProductList() {
                 <strong>Prix :</strong> {selectedProduct.price} €
               </p>
               <p>
+                <strong>Stock disponible :</strong> {selectedProduct.quantity}
+              </p>
+              <p>
                 <strong>Référence :</strong> {selectedProduct.reference}
               </p>
               <p>

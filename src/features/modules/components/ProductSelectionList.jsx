@@ -19,7 +19,6 @@ function ProductSelectionList({
   onDelete = () => {},
   title = "Liste des Produits",
 }) {
-
   const { addToCart } = useContext(ClientContext);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedId, setSelectedId] = useState(null);
@@ -44,26 +43,25 @@ function ProductSelectionList({
     callback(productId);
   };
 
+  // Fonction utilitaire pour obtenir le badge ('HOT', 'NEW' ou null)
+  const getProductBadge = (dateString) => {
+    if (!dateString) return null;
 
-// Fonction utilitaire pour obtenir le badge ('HOT', 'NEW' ou null)
-const getProductBadge = (dateString) => {
-  if (!dateString) return null;
-  
-  const productDate = new Date(dateString);
-  const now = new Date(); // La date du jour
-  
-  // Différence en millisecondes
-  const diffTime = now.getTime() - productDate.getTime();
-  // Calcule la différence en jours (1000 ms * 60 s * 60 min * 24 h)
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const productDate = new Date(dateString);
+    const now = new Date(); // La date du jour
 
-  if (diffDays <= 1 && diffDays >= 0) {
-    return "HOT";
-  } else if (diffDays > 1 && diffDays <= 7) {
-    return "NEW";
-  }
-  return null; // Pas de badge si c'est plus vieux qu'une semaine
-};
+    // Différence en millisecondes
+    const diffTime = now.getTime() - productDate.getTime();
+    // Calcule la différence en jours (1000 ms * 60 s * 60 min * 24 h)
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays <= 1 && diffDays >= 0) {
+      return "HOT";
+    } else if (diffDays > 1 && diffDays <= 7) {
+      return "NEW";
+    }
+    return null; // Pas de badge si c'est plus vieux qu'une semaine
+  };
 
   return (
     <div className="product-selection-list">
@@ -88,19 +86,50 @@ const getProductBadge = (dateString) => {
               >
                 {/* Colonne gauche : infos du produit */}
                 <div className="product-info">
-                  <div className="product-name" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    className="product-name"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
                     {product.name}
-                    {badge === "HOT" && <span className="badge badge-hot">🔥 HOT</span>}
-                    {badge === "NEW" && <span className="badge badge-new">✨ NEW</span>}
+                    {badge === "HOT" && (
+                      <span className="badge badge-hot">🔥 HOT</span>
+                    )}
+                    {badge === "NEW" && (
+                      <span className="badge badge-new">✨ NEW</span>
+                    )}
                   </div>
-                  <div className="product-price">{product.price}€</div>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "15px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div className="product-price">{product.price}€</div>
+                    <div
+                      className="product-stock"
+                      style={{
+                        fontSize: "0.85rem",
+                        color: product.quantity > 0 ? "#28a745" : "#dc3545",
+                        fontWeight: "500",
+                      }}
+                    >
+                      Stock: {product.quantity}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Colonne droite : boutons d'action */}
                 <div className="product-actions">
                   <button
                     className="btn-edit"
-                    onClick={(e) => handleActionClick(e, () => addToCart(product), product.id)}
+                    onClick={(e) =>
+                      handleActionClick(e, () => addToCart(product), product.id)
+                    }
                     title="Ajouter le produit au panier"
                   >
                     Ajouter au panier

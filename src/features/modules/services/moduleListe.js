@@ -88,24 +88,46 @@ export async function getProductDetailsService(productId) {
     };
 
     // Récupérer le stock (ps_stock_availables)
-    // Un produit simple a généralement un stock_available lié à son id_product avec id_product_attribute=0
     let quantity = 0;
     try {
       const client = new PrestashopClient();
-      const stockData = await client.get(
-        `stock_availables?filter[id_product]=${productId}&filter[id_product_attribute]=0`,
-      );
-      const stocks = Array.isArray(stockData.stock_availables)
-        ? stockData.stock_availables
-        : [stockData.stock_availables];
-      if (stocks[0] && stocks[0].quantity !== undefined) {
-        quantity = parseInt(stocks[0].quantity, 10);
+
+      // Tentative 1 : Utiliser les associations du produit si présentes
+      // PrestaShop inclut souvent des liens vers stock_availables dans l'objet product
+      const stockAssoc = productData.associations?.stock_availables;
+      const stockId = Array.isArray(stockAssoc)
+        ? stockAssoc[0]?.id
+        : stockAssoc?.id;
+
+      if (stockId) {
+        const stockRecord = await client.get(`stock_availables/${stockId}`);
+        const stock = stockRecord?.stock_available || stockRecord;
+        if (stock && stock.quantity !== undefined) {
+          quantity = parseInt(stock.quantity, 10);
+        }
+      } else {
+        // Tentative 2 : Recherche par filtre (Fallback)
+        const stockData = await client.get(
+          `stock_availables?filter[id_product]=${productId}&filter[id_product_attribute]=0`,
+        );
+
+        // Normalisation de la réponse PrestaShop (peut être un objet ou un tableau)
+        const stocks = stockData.stock_availables
+          ? Array.isArray(stockData.stock_availables)
+            ? stockData.stock_availables
+            : [stockData.stock_availables]
+          : [];
+
+        if (stocks.length > 0 && stocks[0].quantity !== undefined) {
+          quantity = parseInt(stocks[0].quantity, 10);
+        }
       }
     } catch (stockError) {
       console.warn(
-        `Impossible de récupérer le stock pour le produit ${productId}:`,
-        stockError,
+        `[STOCK DEBUG] Erreur pour produit ${productId}:`,
+        stockError.message,
       );
+      quantity = 0;
     }
 
     // On transforme les données brutes en un objet simple et facile à utiliser.
