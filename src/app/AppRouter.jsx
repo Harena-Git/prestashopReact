@@ -14,6 +14,7 @@ import ListCommande from "../features/modules/pages/ListCommande";
 import { AuthContext } from "../contexts/AuthContext";
 import DataImportPage from "../features/modules/pages/DataImportPage";
 import PanierPages from "../features/modules/pages/PanierPages";
+import OrderDashboard from "../features/modules/components/OrderDashboard";
 
 function NotFoundPage() {
   return <h1>404 - Page introuvable</h1>;
@@ -29,14 +30,23 @@ function AppRouter() {
         <Route path="/login" element={<LoginPage />} />
 
         {/* Routes Admin avec Admin Sidebar - PROTÉGÉES */}
-        <Route 
-          element={isAuthenticated ? <AdminLayout /> : <Navigate to="/login" replace />}
+        <Route
+          element={
+            isAuthenticated ? <AdminLayout /> : <Navigate to="/login" replace />
+          }
         >
           <Route path="/admin" element={<AdminPage />} />
-          <Route path="/admin/modules/cleanup" element={<ModuleCleanupPage />} />
+          <Route
+            path="/admin/modules/cleanup"
+            element={<ModuleCleanupPage />}
+          />
           <Route path="/admin/modules/import" element={<ModuleImportPage />} />
-          <Route path="/admin/modules/data-import" element={<DataImportPage />} />
+          <Route
+            path="/admin/modules/data-import"
+            element={<DataImportPage />}
+          />
           <Route path="/admin/orders" element={<ListCommande />} />
+          <Route path="/admin/dashboard" element={<OrderDashboard />} />
         </Route>
 
         {/* Routes normales avec Sidebar normal */}
@@ -47,10 +57,12 @@ function AppRouter() {
 
         {/* Routes client avec sidebar dédiée */}
         <Route element={<ClientLayout />}>
-          <Route path="/client" element={<Navigate to="/client/products" replace />} />
+          <Route
+            path="/client"
+            element={<Navigate to="/client/products" replace />}
+          />
           <Route path="/client/products" element={<ModuleProductList />} />
           <Route path="/client/cart" element={<PanierPages />} />
-
         </Route>
 
         <Route path="/home" element={<Navigate to="/" replace />} />

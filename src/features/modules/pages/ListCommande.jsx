@@ -187,18 +187,10 @@ function ListCommande() {
                     >
                       Paiement effectué
                     </button>
+
                     <button
-                      onClick={() =>
-                        handleChangeStatus(
-                          orderId,
-                          ORDER_CANCELED_STATE_ID,
-                          "Annulé",
-                        )
-                      }
-                      disabled={
-                        isUpdating ||
-                        String(currentState) === String(ORDER_CANCELED_STATE_ID)
-                      }
+                      onClick={() => alert("A implementer")}
+                      disabled={isUpdating}
                       style={{
                         padding: "8px 12px",
                         backgroundColor: "#dc3545",

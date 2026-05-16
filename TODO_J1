@@ -1,10 +1,41 @@
-- le compte anonymous (id = 1)
+- le compte anonymous (id = 1) (OK)
 est totalement ignore lors de la suppression des
 donnees des cliens.
-- guest peut faire des paniers et commandes
+- guest peut faire des paniers et commandes (OK)
 mais ne peuvent pas faire des imports
 
-- import csv, pas sensible a la casse, mais sensible aux accents
+- import csv, pas sensible a la casse, mais sensible aux accents (OK)
 dans les colonnes des fichiers csv importer.
-- manque ou surplus des images importer lors de l'importation,
+- manque ou surplus des images importer lors de l'importation, (OK)
 on acceptes toujours.
+
+===========================================================================
+
+- tableau de bord :
+    - lister les commandes (fonction deja integrer)
+        - api (prestashop.api.js)
+        - metier
+        - page
+        -integration
+    - filtre jours : nombre de commande + montant (total) par jour)
+    - total general : des commandes
+    - NB : les commandes annulees et dans le panier ne sont pas pris en compte (etat)
+    - commande trier par sa jours de creation
+
+-frontOffice : état de “mes commandes”
+
+- tableau d'evolution sur le stock journalier
+    (mahazo micréer endpoint 1 (1 ihany ) ianareo ao am prestashop hiantsoana an’ilay code
+    StockAvailable::updateQuantity($idProduct, 0, $delta)
+
+- import 1 seul delinaison (pas de combinaison)
+
+- verification dates des fichiers d'import format attendue : DD/MM/YYYY
+
+- afficher la quantite en stock sur la fiche du produit
+
+- anonyme, panier == validation commande (mitaky connection client)
+- paiement a distance accepter = paiement effectue (csv)
+- afficher dashboard koa ny commande dans panier
+- api endpoints 1 ihany no azo atao
+- boutton valider paiement mbola tsy mandeha

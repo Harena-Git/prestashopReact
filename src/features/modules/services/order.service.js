@@ -61,3 +61,78 @@ export async function updateOrderStatusService(orderId, stateId) {
   const xmlData = buildOrderStatusHistoryXml(orderId, stateId);
   return createResource("order_histories", xmlData);
 }
+
+/**
+ * Calcule le résumé des commandes avec filtrage par date optionnel.
+ * @param {string} startDate - Date de début (ex: "2024-05-01")
+ * @param {string} endDate - Date de fin (ex: "2024-05-31")
+ */
+export async function getOrdersSummaryByDay(startDate = null, endDate = null) {
+  // 1. On récupère toutes les commandes via le service existant
+  let orders = await listOrdersService();
+
+  // 2. On applique le filtre SI l'utilisateur a saisi des dates
+  if (startDate || endDate) {
+    orders = orders.filter((order) => {
+      // On extrait la date de la commande (format YYYY-MM-DD)
+      const orderDate = order.date_add.split(" ")[0];
+
+      // On vérifie si la date est dans l'intervalle
+      if (startDate && orderDate < startDate) return false;
+      if (endDate && orderDate > endDate) return false;
+
+      return true; // La commande passe le filtre
+    });
+  }
+
+  // 3. Groupement par jour (calcul des totaux)
+  const summaryMap = orders.reduce((acc, order) => {
+    const date = order.date_add.split(" ")[0];
+    const amount = parseFloat(order.total_paid) || 0;
+
+    if (!acc[date]) {
+      acc[date] = { date, totalAmount: 0, count: 0 };
+    }
+
+    acc[date].totalAmount += amount;
+    acc[date].count += 1;
+
+    return acc;
+  }, {});
+
+  // Retourne le tableau trié par date décroissante
+  return Object.values(summaryMap).sort((a, b) => b.date.localeCompare(a.date));
+}
+
+/**
+ * Calcule le montant total et le nombre de toutes les commandes validées
+ * dans l'ensemble du système (sans filtre de date).
+ */
+export async function getAbsoluteGlobalTotal() {
+  // listOrdersService filtre déjà pour n'avoir que les états valides (Payé, etc.)
+  const orders = await listOrdersService();
+
+  return orders.reduce(
+    (acc, order) => {
+      const amount = parseFloat(order.total_paid) || 0;
+      acc.totalAmount += amount;
+      acc.count += 1;
+      return acc;
+    },
+    { totalAmount: 0, count: 0 },
+  );
+}
+
+/**
+ * Construit le XML nécessaire pour changer le statut d'une commande dans PrestaShop.
+ * C'était cette fonction qui manquait pour faire fonctionner le bouton.
+ */
+export function buildOrderStatusHistoryXml(orderId, stateId) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+  <order_history>
+    <id_order>${orderId}</id_order>
+    <id_order_state>${stateId}</id_order_state>
+  </order_history>
+</prestashop>`;
+}
