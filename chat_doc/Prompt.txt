@@ -1,1 +1,39 @@
 Dans l'import des fichier csv de type @import-data-mai-26 - fichier3.csv
+Quand l'etat est :
+    - paiement accepté : on y touche pas parce que cela fonctionne deja comme il faut
+    - vide, on le met automatiquement avec l'etat "dans le panier"
+    - annulé, on le met automatiquement avec l'etat "annulé"
+Tout ces changements sont appliqués automatiquement lors de l'import des fichiers CSV pour eviter que prestashop les insert dans automatiquement
+dans l'etat 11.
+Je ne sais pas si on fait du mapping ou d'autre methode pour que ca fonctionne.
+
+========================================================================
+
+Dans "http://localhost:5173/admin/orders", on doit lister tout les
+commandes peut importe leurs etat, et chequer si le boutton "Paiement effectué" fonctionne correctement.
+Il ne faut pas le confondre avec la fonction du dashboard
+("http://localhost:5173/admin/dashboard") qui possede
+des conditions d'affichage.
+
+========================================================================
+
+Dans "http://localhost:5173/admin/dashboard", on doit lister tout les commandes a part les commandes annulées, et totaliser le chiffre Total
+pour chaque section correctement.
+
+========================================================================
+
+rajouter une page qui permet d’ajouter en stock les produits
+
+========================================================================
+
+rajouter un tableau sur l’évolution du stock journalier d’un produit
+mahazo micréer endpoint 1 (1 ihany ) ianareo ao am prestashop hiantsoana an’ilay code
+StockAvailable::updateQuantity($idProduct, 0, $delta)
+
+========================================================================
+
+Afficher la quantité en stock disponible sur la fiche produit
+
+========================================================================
+
+L'utilisateur Client Anonyme peux voir les paniers, mais pour valider un panier, il faut être connecté (faire un login de client) .
