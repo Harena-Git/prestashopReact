@@ -141,7 +141,7 @@ export async function importCustomersOrders(rows, log) {
 
       // 5. Créer le panier avec la secure_key du client
       // (PrestaShop exige que panier et commande aient la même secure_key que le client)
-      const secureKey = await ensureCustomerSecureKey(email, customerId);
+      const { secureKey } = await ensureCustomerSecureKey(email, customerId);
       const orderDefaults = await getOrderDefaults();
       const cartXml = buildCartXml({
         customer_id: customerId,

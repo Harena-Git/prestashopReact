@@ -32,12 +32,26 @@ export function getOrderStateLabel(stateId) {
  * Liste toutes les commandes (filtrées par états autorisés).
  * Utilise le client JSON pour de meilleures performances et une extraction de données fiable.
  */
-export async function listOrdersService() {
+/**
+ * Liste toutes les commandes.
+ * @param {boolean} excludeCanceled - Si vrai, exclut les commandes avec l'état 6 (Annulé).
+ */
+export async function listOrdersService(excludeCanceled = false) {
   const client = new PrestashopClient();
   const data = await client.get("orders");
 
   // PrestaShop JSON retourne { orders: [...] }
-  return Array.isArray(data.orders) ? data.orders : [];
+  const orders = Array.isArray(data.orders) ? data.orders : [];
+
+  if (excludeCanceled) {
+    return orders.filter((order) => {
+      if (!order) return false;
+      const stateId = parseInt(order.current_state, 10);
+      return stateId !== ORDER_CANCELED_STATE_ID;
+    });
+  }
+
+  return orders;
 }
 
 /**
@@ -57,12 +71,13 @@ export async function updateOrderStatusService(orderId, stateId) {
 
 /**
  * Calcule le résumé des commandes avec filtrage par date optionnel.
+ * Exclut les commandes annulées (requis pour le dashboard).
  * @param {string} startDate - Date de début (ex: "2024-05-01")
  * @param {string} endDate - Date de fin (ex: "2024-05-31")
  */
 export async function getOrdersSummaryByDay(startDate = null, endDate = null) {
-  // 1. On récupère toutes les commandes via le service existant
-  let orders = await listOrdersService();
+  // 1. On récupère les commandes en excluant les annulées pour les stats
+  let orders = await listOrdersService(true);
 
   // 2. On applique le filtre SI l'utilisateur a saisi des dates
   if (startDate || endDate) {
@@ -102,8 +117,8 @@ export async function getOrdersSummaryByDay(startDate = null, endDate = null) {
  * dans l'ensemble du système (sans filtre de date).
  */
 export async function getAbsoluteGlobalTotal() {
-  // listOrdersService filtre déjà pour n'avoir que les états valides (Payé, etc.)
-  const orders = await listOrdersService();
+  // On exclut les commandes annulées pour le total global
+  const orders = await listOrdersService(true);
 
   return orders.reduce(
     (acc, order) => {

@@ -426,22 +426,41 @@ export async function findOrCreateCustomer(email, nom, pwd, dateAdd) {
 }
 
 // Assure la secure_key d'un client (utilisée pour la création du panier/commande)
+/**
+ * Assure l'ID et la secure_key d'un client (utilisée pour la création du panier/commande)
+ * Si l'ID fourni est invalide (ex: base de données réinitialisée), tente de retrouver le client par email.
+ * @returns {Promise<{id: number, secureKey: string}>}
+ */
 export async function ensureCustomerSecureKey(email, customerId) {
-  const cached = cache.customerKeys[email];
-  if (cached) return cached;
+  const cachedKey = cache.customerKeys[email];
+  const cachedId = cache.customers[email] || customerId;
 
-  const id = customerId || cache.customers[email];
+  if (cachedKey && cachedId) {
+    return { id: parseInt(cachedId, 10), secureKey: cachedKey };
+  }
+
+  const id = cachedId;
   if (id) {
-    const fullData = await client.get(`customers/${id}`);
-    const fullCustomer = fullData?.customer || fullData?.customers || fullData;
-    const secureKey = String(fullCustomer?.secure_key || "");
-    if (secureKey) {
-      cache.customerKeys[email] = secureKey;
-      return secureKey;
+    try {
+      const fullData = await client.get(`customers/${id}`);
+      const fullCustomer =
+        fullData?.customer || fullData?.customers || fullData;
+      const secureKey = String(fullCustomer?.secure_key || "");
+      if (secureKey) {
+        const finalId = parseInt(fullCustomer.id, 10);
+        cache.customers[email] = finalId;
+        cache.customerKeys[email] = secureKey;
+        return { id: finalId, secureKey };
+      }
+    } catch (err) {
+      // Si 404, le client n'existe plus avec cet ID, on continue la recherche par email
+      if (!err.message.includes("404")) {
+        throw err;
+      }
     }
   }
 
-  // Dernier recours: recherche par email
+  // Recherche par email si l'ID a échoué ou n'était pas présent
   const data = await client.get(
     `customers?filter[email]=[${email}]&display=full`,
   );
@@ -449,15 +468,17 @@ export async function ensureCustomerSecureKey(email, customerId) {
   for (const cust of customersByEmail) {
     if (String(cust.email).toLowerCase() === email.toLowerCase()) {
       const secureKey = String(cust.secure_key || "");
+      const finalId = parseInt(cust.id, 10);
       if (secureKey) {
+        cache.customers[email] = finalId;
         cache.customerKeys[email] = secureKey;
-        return secureKey;
+        return { id: finalId, secureKey };
       }
     }
   }
 
   throw new Error(
-    `Secure_key introuvable pour le client "${email}" — impossible de créer la commande`,
+    `Le client avec l'email "${email}" est introuvable sur le serveur. Veuillez vous reconnecter.`,
   );
 }
 

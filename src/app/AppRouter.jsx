@@ -15,6 +15,7 @@ import { AuthContext } from "../contexts/AuthContext";
 import DataImportPage from "../features/modules/pages/DataImportPage";
 import PanierPages from "../features/modules/pages/PanierPages";
 import OrderDashboard from "../features/modules/components/OrderDashboard";
+import ClientOrdersPage from "../features/modules/pages/ClientOrdersPage";
 
 function NotFoundPage() {
   return <h1>404 - Page introuvable</h1>;
@@ -63,6 +64,7 @@ function AppRouter() {
           />
           <Route path="/client/products" element={<ModuleProductList />} />
           <Route path="/client/cart" element={<PanierPages />} />
+          <Route path="/client/orders" element={<ClientOrdersPage />} />
         </Route>
 
         <Route path="/home" element={<Navigate to="/" replace />} />

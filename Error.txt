@@ -1,1 +1,32 @@
-Recherche Mult-Critere : id (categorie tsa mandeha)
+prestashop.api.js:244
+ GET http://localhost:5173/api/customers/23?ws_key=3dK1We529zTiCrg7i9TZ3N5MTAcD1MAb&output_format=JSON&display=full 404 (Not Found)
+(anonymous)	@	prestashop.api.js:244
+(anonymous)	@	prestashopCache.js:435
+(anonymous)	@	frontendOrderService.js:27
+await in (anonymous)
+(anonymous)	@	PanierPages.jsx:24
+(anonymous)	@	PanierPages.jsx:86
+<button>
+(anonymous)	@	PanierPages.jsx:85
+(anonymous)	@	PanierPages.jsx:48
+<PanierPages>
+AppRouter	@	AppRouter.jsx:66
+(anonymous)	@	@react-refresh:228
+performReactRefresh	@	@react-refresh:217
+(anonymous)	@	@react-refresh:604
+PanierPages.jsx:29 Error: GET customers/23: 404 -
+    at PrestashopClient.get (prestashop.api.js:250:13)
+    at async ensureCustomerSecureKey (prestashopCache.js:435:22)
+    at async validateOrderForProduct (frontendOrderService.js:27:21)
+    at async handleValidateOrder (PanierPages.jsx:24:23)
+(anonymous)	@	PanierPages.jsx:29
+await in (anonymous)
+(anonymous)	@	PanierPages.jsx:86
+<button>
+(anonymous)	@	PanierPages.jsx:85
+(anonymous)	@	PanierPages.jsx:48
+<PanierPages>
+AppRouter	@	AppRouter.jsx:66
+(anonymous)	@	@react-refresh:228
+performReactRefresh	@	@react-refresh:217
+(anonymous)	@	@react-refresh:604

@@ -21,10 +21,19 @@ Il ne faut pas le confondre avec la fonction du dashboard
 ("http://localhost:5173/admin/dashboard") qui possede
 des conditions d'affichage.
 
+Done
+
 ========================================================================
 
 Dans "http://localhost:5173/admin/dashboard", on doit lister tout les commandes a part les commandes annulées, et totaliser le chiffre Total
 pour chaque section correctement.
+
+Done
+
+=======================================================================
+
+Dans "http://localhost:5173/admin/orders", mbola misy probleme @ resaka
+etat
 
 ========================================================================
 
@@ -32,6 +41,10 @@ frontOffice : état de “mes commandes”
 Dans "http://localhost:5173/client/products"
 Nous allons ajouter un elements dans le sidebar qui va afficher
 l'etat de commande de chaque client connecte.
+
+A inclure directement dans le composant Sidebar client
+
+Done
 
 ========================================================================
 
