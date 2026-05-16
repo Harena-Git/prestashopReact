@@ -48,7 +48,10 @@ Done
 
 ========================================================================
 
-rajouter une page qui permet d’ajouter en stock les produits
+creer un nouveaux element de sidebar dans "http://localhost:5173/admin/orders" qui va permettre de gérer le stock des produits
+creer une page qui permet d’ajouter en stock les produits
+
+NB : page a implementer
 
 
 ========================================================================
@@ -62,6 +65,8 @@ StockAvailable::updateQuantity($idProduct, 0, $delta)
 Afficher la quantité en stock disponible sur la fiche produit
 Dans "http://localhost:5173/client/products"
 Il faut afficher les quantités disponibles en stock pour chaque produit.
+
+Done
 
 ========================================================================
 
