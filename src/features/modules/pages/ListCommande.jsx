@@ -110,8 +110,7 @@ function ListCommande() {
           {orders.length === 0 ? (
             <tr>
               <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
-                Aucune commande trouvée pour les états autorisés (Paiement
-                effectué, Annulé, Dans le panier).
+                Aucune commande trouvée.
               </td>
             </tr>
           ) : (
@@ -189,8 +188,17 @@ function ListCommande() {
                     </button>
 
                     <button
-                      onClick={() => alert("A implementer")}
-                      disabled={isUpdating}
+                      onClick={() =>
+                        handleChangeStatus(
+                          orderId,
+                          ORDER_CANCELED_STATE_ID,
+                          "Annulé",
+                        )
+                      }
+                      disabled={
+                        isUpdating ||
+                        String(currentState) === String(ORDER_CANCELED_STATE_ID)
+                      }
                       style={{
                         padding: "8px 12px",
                         backgroundColor: "#dc3545",

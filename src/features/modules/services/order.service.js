@@ -37,14 +37,7 @@ export async function listOrdersService() {
   const data = await client.get("orders");
 
   // PrestaShop JSON retourne { orders: [...] }
-  const orders = Array.isArray(data.orders) ? data.orders : [];
-
-  return orders.filter((order) => {
-    if (!order) return false;
-    // En JSON, current_state est directement une valeur (string/number)
-    const stateId = parseInt(order.current_state, 10);
-    return ALLOWED_ORDER_STATES.includes(stateId);
-  });
+  return Array.isArray(data.orders) ? data.orders : [];
 }
 
 /**

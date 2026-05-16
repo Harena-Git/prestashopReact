@@ -11,6 +11,8 @@ Lien : "http://localhost:5173/admin/modules/data-import"
 
 Fais l'analyse, regarde si c'est deja inclus, corriges si ce n'est pas le cas.
 
+Done
+
 ========================================================================
 
 Dans "http://localhost:5173/admin/orders", on doit lister tout les
@@ -27,10 +29,14 @@ pour chaque section correctement.
 ========================================================================
 
 frontOffice : état de “mes commandes”
+Dans "http://localhost:5173/client/products"
+Nous allons ajouter un elements dans le sidebar qui va afficher
+l'etat de commande de chaque client connecte.
 
 ========================================================================
 
 rajouter une page qui permet d’ajouter en stock les produits
+
 
 ========================================================================
 
