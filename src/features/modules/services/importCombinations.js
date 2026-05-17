@@ -9,6 +9,7 @@ import {
 import { buildCombinationXml, buildStockXml } from "./xmlBuilder";
 import { PrestashopClient } from "../../../api/prestashop.api";
 import { XMLParser } from "fast-xml-parser";
+import { updateStockWithMovement } from "./stock.service";
 
 const client = new PrestashopClient();
 const xmlParser = new XMLParser({ ignoreAttributes: false });
@@ -36,27 +37,26 @@ function toArray(raw) {
 // Met à jour la quantité en stock pour un produit ou une combinaison
 async function updateStock(productId, combinationId, quantity) {
   const combId = combinationId || 0;
+
+  // L'import CSV définit un stock ABSOLU.
+  // Notre service de mouvement attend un DELTA.
+  // On doit donc d'abord récupérer le stock actuel pour calculer la différence.
   const data = await client.get(
     `stock_availables?filter[id_product]=[${productId}]&filter[id_product_attribute]=[${combId}]&display=full`,
   );
   const stocks = toArray(data.stock_availables);
 
-  if (stocks.length === 0) {
-    console.warn(
-      `Stock introuvable pour produit ${productId}, combinaison ${combId}`,
-    );
-    return;
-  }
+  const currentQty = stocks[0] ? parseInt(stocks[0].quantity, 10) : 0;
+  const delta = quantity - currentQty;
 
-  const stockId = parseInt(stocks[0].id, 10);
-  const xml = buildStockXml({
-    id: stockId,
-    product_id: productId,
-    combination_id: combId,
-    quantity,
+  if (delta === 0) return; // Pas de changement
+
+  return updateStockWithMovement({
+    productId,
+    attributeId: combId,
+    quantityChange: delta,
+    reason: "Initialisation / Mise à jour via Import CSV",
   });
-
-  await putXml(`stock_availables/${stockId}`, xml);
 }
 
 // Importe toutes les déclinaisons et le stock du fichier 2

@@ -11,6 +11,7 @@ import {
   formatDate,
 } from "./xmlBuilder";
 import { XMLParser } from "fast-xml-parser";
+import { updateStockWithMovement } from "./stock.service";
 
 const xmlParser = new XMLParser({ ignoreAttributes: false });
 
@@ -120,6 +121,21 @@ export async function validateOrderForProduct(client, product) {
     await postXml("order_histories", historyXml);
   } catch (historyErr) {
     console.warn("Impossible de sauvegarder l'historique d'Ã©tat.", historyErr);
+  }
+
+  // 7. DIMINUER LE STOCK (NOUVELLE RÈGLE : MOUVEMENT DE STOCK)
+  try {
+    await updateStockWithMovement({
+      productId: parseInt(product.id, 10),
+      attributeId: 0,
+      quantityChange: -1, // Retrait suite à une vente
+      reason: `Vente (Commande #${orderId})`,
+    });
+  } catch (stockErr) {
+    console.warn(
+      "Attention: Impossible de mettre à jour le stock après la vente.",
+      stockErr.message,
+    );
   }
 
   return orderId;
