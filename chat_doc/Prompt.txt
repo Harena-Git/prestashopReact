@@ -73,12 +73,26 @@ et aussi de prestashop, dans l'import csv, mettre une condition pour importer 1 
 Lien : http://localhost:5173/admin/modules/data-import
 
 Done
+========================================================================
+
+Et en fait, il y a eu un probleme sur les stock_movements,stock_availables, etc ... de notre prestashop, et j'ai du creer un nouveaux endpoint dans prestashop pour faire de faire correctement "http://localhost:5173/admin/modules/data-import" sans faire de l'update directe.
+Et j'aimerai que les methodes que tu as citer aux dessus fonctionnent bien mais en modifiant en utilisant le endpoint que je viens de creer.
+Fichier reference endpoint (prestashop) : [@endpoint_info.txt](file:///D:/Evaluation/prestashopReact/endpoint_info.txt)
+Les refences API disponible ajouter avec cet endpoint : [@Les_AIP.xml](file:///D:/Evaluation/prestashopReact/doc/Les_AIP.xml)
+Le scrip de base : [@create.sql](file:///D:/Evaluation/prestashopReact/db/create.sql)
+
+Done
+
 
 ========================================================================
 
-L'utilisateur Client Anonyme (par defaut id = 1) peux voir les paniers, mais pour valider un panier, il faut être connecté (faire un login de client).
+Changement de fonctionnement :
+L'utilisateur Client Anonyme (par defaut id = 1) peux voir les paniers, mais pour valider un panier, il faut être connecté (quand c'est l'anonyme qui est connecté, et qu'il clique sur "valider", on le rend directment dans la page de connexion
+"http://localhost:5173/customers").
 
-Pour valider un panier, il faut être connecté (faire un login de client ou juste lister les clients et en choisir 1).
+Du coup, pour valider un panier, il faut être connecté.
+
+Done
 
 ========================================================================
 
