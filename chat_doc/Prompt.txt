@@ -76,7 +76,7 @@ Done
 
 ========================================================================
 
-L'utilisateur Client Anonyme peux voir les paniers, mais pour valider un panier, il faut être connecté (faire un login de client).
+L'utilisateur Client Anonyme (par defaut id = 1) peux voir les paniers, mais pour valider un panier, il faut être connecté (faire un login de client).
 
 Pour valider un panier, il faut être connecté (faire un login de client ou juste lister les clients et en choisir 1).
 
@@ -103,3 +103,8 @@ A part c'est de l'erreur.
 A afficher dans le Dashboard
  - commande totaliser avec panier
  - commande totaliser sans panier
+
+
+=======================================================================
+
+Tuto Excel By Tony

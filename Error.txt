@@ -1,66 +1,107 @@
+Dans notre projet basé sur PrestaShop, corriger la gestion actuelle du stock.
 
-Dans le module d’import CSV de notre projet basé sur PrestaShop, corriger la logique actuelle des déclinaisons.
+Dans la page : "http://localhost:5173/admin/stock"
 
-Actuellement, le système interprète à tort plusieurs lignes de déclinaison simples comme des combinaisons PrestaShop.
+Cette logique est incorrecte pour notre besoin métier, car elle ne conserve aucun historique des modifications de stock.
 
-Or, dans notre besoin métier :
-
-* un produit peut avoir plusieurs valeurs d’une seule déclinaison
-
-  * exemple : plusieurs tailles
-  * ou plusieurs couleurs
-* mais un produit ne doit jamais avoir plusieurs types de déclinaisons simultanément
-
-  * exemple interdit : taille + couleur
+Nous devons désormais implémenter une vraie gestion par mouvements de stock.
 
 ---
 
-Le système DOIT autoriser l’import de ce type de CSV :
+Nouvelle logique attendue :
 
-```csv
-reference,specificité,karazany,stock_initial,prix_vente_ttc
-T_01,taille,ngoza,13,"12,5"
-T_01,taille,kely,10,15
-P_01,couleur,mainty,5,"23,49"
-P_01,couleur,fotsy,3,"18,99"
-C_03,,,10,
-M_02,,,11,
+Chaque modification de stock doit obligatoirement :
+
+1. créer un mouvement de stock dans la table `stock_movements`
+2. puis recalculer et mettre à jour le stock actuel
+
+Le stock actuel ne doit plus être modifié directement sans trace.
+
+---
+
+Architecture attendue :
+
+### Table du stock actuel
+
+```text id="4e9jlwm"
+product_stock
+- product_id
+- quantity
+- updated_at
 ```
 
-Explication :
-
-* `T_01` possède uniquement des déclinaisons de type `taille`
-* `P_01` possède uniquement des déclinaisons de type `couleur`
-* `C_03` et `M_02` sont des produits simples
-* ceci ne représente PAS des combinaisons PrestaShop
+Cette table contient uniquement le stock courant final.
 
 ---
 
-Le système NE DOIT PAS autoriser ce type de CSV :
+### Table des mouvements de stock
 
-```csv
-reference,taille,couleur,karazany,stock_initial,prix_vente_ttc
-T_01,taille,ngoza,rouge,13,"12,5"
-T_02,taille,kely,rouge,13,"12,5"
+```text id="0rf2mv"
+stock_movements
+- id
+- product_id
+- movement_type
+- quantity
+- previous_stock
+- new_stock
+- reason
+- created_at
+- created_by
 ```
 
-Car ici :
+---
 
-* un même produit utilise plusieurs attributs simultanément (`taille` + `couleur`)
-* cela crée des combinaisons PrestaShop
-* les combinaisons multiples ne sont pas supportées dans notre projet
+Lorsqu’un utilisateur ajoute ou retire du stock :
+
+Exemple :
+
+* stock actuel = 20
+* ajout = +5
+
+Le système doit :
+
+1. enregistrer un mouvement :
+
+   * previous_stock = 20
+   * quantity = +5
+   * new_stock = 25
+2. mettre à jour le stock actuel à 25
 
 ---
 
-Règle métier attendue :
+Les opérations suivantes doivent générer des mouvements :
 
-* autoriser :
+* ajout manuel de stock
+* retrait manuel
+* ventes
+* import CSV
+* corrections
+* réapprovisionnement
 
-  * produits simples
-  * produits avec une seule dimension de déclinaison
-* refuser :
+---
 
-  * produits avec plusieurs attributs de déclinaison combinés ensemble
+Important :
 
-Page concernée :
-[Interface d’import CSV](http://localhost:5173/admin/modules/data-import?utm_source=chatgpt.com)
+* ne plus faire de mise à jour directe du stock sans historique
+* toute modification doit être traçable
+* le système doit permettre plus tard :
+
+  * un historique complet du stock
+  * un tableau d’évolution journalier
+  * un audit des modifications
+
+---
+
+Flux attendu :
+
+```text id="m4cch4"
+Utilisateur modifie le stock
+    ↓
+Création d’un mouvement de stock
+    ↓
+Calcul du nouveau stock
+    ↓
+Mise à jour du stock actuel
+    ↓
+Historisation complète
+```
