@@ -57,14 +57,6 @@ Done
 
 ========================================================================
 
-rajouter un tableau sur l’évolution du stock journalier d’un produit
-mahazo micréer endpoint 1 (1 ihany ) ianareo ao am prestashop hiantsoana an’ilay code
-StockAvailable::updateQuantity($idProduct, 0, $delta)
-
-Mikitika code prestashop
-
-========================================================================
-
 Afficher la quantité en stock disponible sur la fiche produit
 Dans "http://localhost:5173/client/products"
 Il faut afficher les quantités disponibles en stock pour chaque produit.
@@ -73,8 +65,27 @@ Done
 
 ========================================================================
 
+import 1 seul delinaison (pas de combinaison)
+Non a la combinaison
+
+========================================================================
+
 L'utilisateur Client Anonyme peux voir les paniers, mais pour valider un panier, il faut être connecté (faire un login de client) .
 
 ========================================================================
 
-import 1 seul delinaison (pas de combinaison)
+rajouter un tableau sur l’évolution du stock journalier d’un produit
+mahazo micréer endpoint 1 (1 ihany ) ianareo ao am prestashop hiantsoana an’ilay code
+StockAvailable::updateQuantity($idProduct, 0, $delta)
+
+Mikitika code prestashop
+
+=======================================================================
+
+Checquer pour chaque modification
+
+
+=======================================================================
+
+Cheque de format de la date en version : DD/MM/YYYY
+A part c'est de l'erreur.
