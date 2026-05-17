@@ -1,0 +1,4 @@
+reference,specificité,karazany,stock_initial,prix_vente_ttc
+REF_SIMPLE,taille,unique,50,10
+REF_MULTI,taille,S,10,20
+REF_MULTI,taille,M,10,20

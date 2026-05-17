@@ -1,0 +1,2 @@
+date,nom,email,pwd,adresse,achat,etat
+17/05/2026,Client Test,test@example.com,password,Antananarivo,"[(""REF_SIMPLE"";1;""unique"")]",paiement accepté

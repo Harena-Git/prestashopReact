@@ -19,6 +19,63 @@ export async function runImport(files, onLog) {
 
   const results = [];
 
+  // === ANALYSE PRÉALABLE DES DÉCLINAISONS (Fichier 2) ===
+  // Règle métier :
+  // - Autorisé : Produit simple ou produit avec UNE SEULE dimension (ex: uniquement taille)
+  // - Interdit : Produit avec PLUSIEURS dimensions simultanées (ex: taille + couleur)
+  if (files.fichier2_combinations) {
+    try {
+      const rows = await parseCsvFile(files.fichier2_combinations);
+
+      // 1. Vérification des colonnes (Headers)
+      // Si on trouve à la fois "taille" et "couleur" (ou autres colonnes d'attributs multiples)
+      const headers = Object.keys(rows[0] || {}).map((h) => h.toLowerCase());
+      const hasMultipleAttrColumns =
+        headers.includes("taille") && headers.includes("couleur");
+
+      if (hasMultipleAttrColumns) {
+        const errorMsg =
+          "L'import est annulé car le fichier contient plusieurs colonnes d'attributs (taille + couleur). Les combinaisons multiples ne sont pas supportées.";
+        log(`❌ ${errorMsg}`);
+        throw new Error(errorMsg);
+      }
+
+      // 2. Vérification par référence
+      const attributeTypesByRef = {}; // { REF: Set(['taille', 'couleur']) }
+
+      for (const row of rows) {
+        const ref = row.reference?.trim().toUpperCase();
+        if (!ref) continue;
+
+        const spec = row.specificité?.trim().toLowerCase();
+        if (spec) {
+          if (!attributeTypesByRef[ref]) {
+            attributeTypesByRef[ref] = new Set();
+          }
+          attributeTypesByRef[ref].add(spec);
+        }
+      }
+
+      const multiVariants = Object.entries(attributeTypesByRef)
+        .filter(([_, types]) => types.size > 1)
+        .map(([ref]) => ref);
+
+      if (multiVariants.length > 0) {
+        const errorMsg = `L'import est annulé car les produits suivants utilisent plusieurs types de déclinaisons (ex: taille ET couleur) : ${multiVariants.join(", ")}. Seule une dimension est autorisée par produit.`;
+        log(`❌ ${errorMsg}`);
+        throw new Error(errorMsg);
+      }
+
+      log("  ✓ Pré-analyse des déclinaisons : OK (Unidimensionnel)");
+    } catch (err) {
+      // Si c'est notre erreur de validation, on la propage pour arrêter runImport
+      if (err.message.includes("plusieurs déclinaisons")) {
+        throw err;
+      }
+      log(`❌ Erreur lors de la pré-analyse du fichier 2 : ${err.message}`);
+    }
+  }
+
   // === FICHIER 1 : PRODUITS ===
   if (files.fichier1_products) {
     log(" Début import Fichier 1 — Produits...");

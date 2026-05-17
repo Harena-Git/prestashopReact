@@ -1,0 +1,3 @@
+date_availability_produit,nom,reference,prix_ttc,taxe,categorie,prix_achat
+17/05/2026,Produit Simple,REF_SIMPLE,10,20%,Akanjo,5
+17/05/2026,Produit Multi,REF_MULTI,20,20%,Akanjo,10

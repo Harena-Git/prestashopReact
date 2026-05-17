@@ -67,10 +67,18 @@ Done
 
 import 1 seul delinaison (pas de combinaison)
 Non a la combinaison
+Dans l'import csv, en se rendant compte de notre projet
+et aussi de prestashop, dans l'import csv, mettre une condition pour importer 1 seul delinaison (pas de combinaison)
+
+Lien : http://localhost:5173/admin/modules/data-import
+
+Done
 
 ========================================================================
 
-L'utilisateur Client Anonyme peux voir les paniers, mais pour valider un panier, il faut être connecté (faire un login de client) .
+L'utilisateur Client Anonyme peux voir les paniers, mais pour valider un panier, il faut être connecté (faire un login de client).
+
+Pour valider un panier, il faut être connecté (faire un login de client ou juste lister les clients et en choisir 1).
 
 ========================================================================
 
@@ -82,10 +90,16 @@ Mikitika code prestashop
 
 =======================================================================
 
-Checquer pour chaque modification
-
+Checquer les stock pour chaque modification
+Insert, Update, Delete
 
 =======================================================================
 
 Cheque de format de la date en version : DD/MM/YYYY
 A part c'est de l'erreur.
+
+=======================================================================
+
+A afficher dans le Dashboard
+ - commande totaliser avec panier
+ - commande totaliser sans panier
