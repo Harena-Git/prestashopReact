@@ -1,0 +1,25 @@
+Utilisation de l'endpoint
+URL : http://localhost/orig/api/stock_deltas?ws_key=TA_CLE_API
+GET: api/stock_detlas
+POST: api/stock_detlas
+
+Méthode : POST
+
+Body (XML) :
+
+xml
+<?xml version="1.0" encoding="UTF-8"?>
+<prestashop>
+  <stock_delta>
+    <id_product>160</id_product>
+    <id_product_attribute>0</id_product_attribute>
+    <delta>5</delta>
+  </stock_delta>
+</prestashop>
+Explication :
+
+id_product : l'ID du produit dans PrestaShop
+
+id_product_attribute : 0 (pour le produit parent, pas de déclinaison)
+
+delta : la quantité à ajouter (positive) ou retirer (négative)
