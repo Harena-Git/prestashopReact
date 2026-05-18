@@ -3,6 +3,7 @@ import {
   fetchModuleRecord,
   PrestashopClient,
 } from "../../../api/prestashop.api";
+import { getProductTotalStock } from "./stock.service";
 
 /**
  * Récupère les IDs de tous les produits, puis les détails de chaque produit.
@@ -87,41 +88,10 @@ export async function getProductDetailsService(productId) {
       return lang ? lang["#text"] : "Nom non trouvé";
     };
 
-    // Récupérer le stock (ps_stock_availables)
     let quantity = 0;
     try {
       const client = new PrestashopClient();
-
-      // Tentative 1 : Utiliser les associations du produit si présentes
-      // PrestaShop inclut souvent des liens vers stock_availables dans l'objet product
-      const stockAssoc = productData.associations?.stock_availables;
-      const stockId = Array.isArray(stockAssoc)
-        ? stockAssoc[0]?.id
-        : stockAssoc?.id;
-
-      if (stockId) {
-        const stockRecord = await client.get(`stock_availables/${stockId}`);
-        const stock = stockRecord?.stock_available || stockRecord;
-        if (stock && stock.quantity !== undefined) {
-          quantity = parseInt(stock.quantity, 10);
-        }
-      } else {
-        // Tentative 2 : Recherche par filtre (Fallback)
-        const stockData = await client.get(
-          `stock_availables?filter[id_product]=${productId}&filter[id_product_attribute]=0`,
-        );
-
-        // Normalisation de la réponse PrestaShop (peut être un objet ou un tableau)
-        const stocks = stockData.stock_availables
-          ? Array.isArray(stockData.stock_availables)
-            ? stockData.stock_availables
-            : [stockData.stock_availables]
-          : [];
-
-        if (stocks.length > 0 && stocks[0].quantity !== undefined) {
-          quantity = parseInt(stocks[0].quantity, 10);
-        }
-      }
+      quantity = await getProductTotalStock(productId, client);
     } catch (stockError) {
       console.warn(
         `[STOCK DEBUG] Erreur pour produit ${productId}:`,

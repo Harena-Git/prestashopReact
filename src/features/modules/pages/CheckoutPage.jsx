@@ -56,26 +56,73 @@ export default function CheckoutPage() {
     }
   };
 
+  const handleConfirmSingleItem = async (item) => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Attention : validateFullOrder devra probablement être adapté 
+      // pour accepter un tableau d'un seul élément [item]
+      const orderId = await validateFullOrder(currentClient, [item]);
+
+      // Vider uniquement cet article du panier global
+      const newGlobalCart = cart.filter(cartItem => cartItem !== item);
+      if (setCart) {
+          setCart(newGlobalCart);
+      }
+      localStorage.setItem("cart", JSON.stringify(newGlobalCart));
+
+      alert(`Commande pour l'article ${item.name} validée !`);
+      // Optionnel: navigate("/client/orders");
+    } catch (err) {
+      console.error(err);
+      setError(`Erreur lors de la validation : ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}>
       <h1>Validation de la commande</h1>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "20px" }}>
         {/* Liste des articles */}
-        <div style={{ border: "1px solid #ddd", padding: "20px", borderRadius: "8px", background: "#f9f9f9" }}>
-          <h3>Récapitulatif des articles</h3>
-          {clientCart.map((item, idx) => (
-            <div key={idx} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #eee" }}>
-              <span>{item.name} (x1)</span>
-              <span>{Number(item.price).toFixed(2)} €</span>
-            </div>
-          ))}
-
-          <div style={{ marginTop: "20px" }}>
-            <p><strong>Mode de livraison :</strong> Livraison Standard (Gratuit)</p>
-            <p><strong>Mode de paiement :</strong> Paiement à la livraison</p>
-          </div>
-        </div>
+<div style={{ border: "1px solid #ddd", padding: "20px", borderRadius: "8px", background: "#f9f9f9" }}>
+  <h3>Vos articles séparés</h3>
+  {clientCart.map((item, idx) => (
+    <div key={idx} style={{ 
+      display: "flex", 
+      alignItems: "center", 
+      justifyContent: "space-between", 
+      padding: "15px", 
+      marginBottom: "10px", 
+      border: "1px solid #eee",
+      borderRadius: "5px",
+      background: "#fff"
+    }}>
+      <div>
+        <strong>{item.name}</strong>
+        <p style={{ margin: "5px 0 0" }}>Prix : {Number(item.price).toFixed(2)} €</p>
+      </div>
+      
+      {/* Bouton individuel pour cet article */}
+      <button
+        onClick={() => handleConfirmSingleItem(item)}
+        disabled={loading}
+        style={{
+          padding: "8px 15px",
+          backgroundColor: loading ? "#ccc" : "#28a745",
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: loading ? "not-allowed" : "pointer"
+      }}
+      >
+      Acheter cet article
+      </button>
+      </div>
+      ))}
+      </div>
 
         {/* Résumé du total */}
         <div style={{ border: "1px solid #ddd", padding: "20px", borderRadius: "8px", background: "#fff", height: "fit-content" }}>

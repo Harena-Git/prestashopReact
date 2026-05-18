@@ -1,10 +1,9 @@
 import { XMLParser } from "fast-xml-parser";
 
-// Charger les variables d'environnement
-// const API_KEY = import.meta.env.VITE_API_KEY;
-// const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const API_KEY = "6dJbxw1z6F0DDpG9PK7Ew2u2AhyOo08G";
-const BASE_URL = "/api/";
+// Clé unique pour tous les appels (GET JSON + POST XML)
+export const API_KEY =
+  import.meta.env.VITE_API_KEY || "6dJbxw1z6F0DDpG9PK7Ew2u2AhyOo08G";
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api/";
 
 // Validation des variables d'environnement
 if (!API_KEY) {
@@ -231,7 +230,7 @@ export async function updateResource(resourceName, xmlData) {
  * Enveloppe les appels fetch pour les méthodes get/post
  */
 export class PrestashopClient {
-  constructor(apiKey = "3dK1We529zTiCrg7i9TZ3N5MTAcD1MAb", baseUrl = "/api/") {
+  constructor(apiKey = API_KEY, baseUrl = BASE_URL) {
     this.apiKey = apiKey;
     this.baseUrl = baseUrl;
   }

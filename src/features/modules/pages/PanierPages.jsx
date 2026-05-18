@@ -138,7 +138,7 @@ export default function PanierPages() {
                   )}
                 </div>
 
-                <button
+                {/* <button
                   onClick={() => handleValidateOrder(produit)}
                   disabled={validatingItems[produit.id]}
                   style={{
@@ -157,7 +157,7 @@ export default function PanierPages() {
                   {validatingItems[produit.id]
                     ? "Validation en cours..."
                     : "Valider Commande"}
-                </button>
+                </button> */}
               </div>
             ))}
 

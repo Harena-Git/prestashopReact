@@ -1,5 +1,9 @@
 // src/contexts/ClientContext.jsx
 import { createContext, useState, useEffect } from "react";
+import {
+  resolveProductForCart,
+  saveCartToDatabase,
+} from "../features/modules/services/cartService";
 
 // 1. Création du contexte (Famoronana ilay Context)
 // Ce contexte servira à stocker et partager les données du client partout dans l'application
@@ -73,7 +77,7 @@ export function ClientProvider({ children }) {
     localStorage.removeItem("currentClient");
   };
 
-  const addToCart = (product) => {
+  const addToCart = async (product) => {
     if (!currentClient) {
       console.warn("Aucun client défini, impossible d'ajouter au panier");
       return;
@@ -81,10 +85,27 @@ export function ClientProvider({ children }) {
 
     const clientId = currentClient.id;
 
+    // Résoudre déclinaison (combination) + prix effectif si nécessaire
+    const resolvedProduct = await resolveProductForCart(product);
+
+    console.log("[CART][addToCart] click", {
+      clientId,
+      productId: product?.id,
+      productRef: product?.reference,
+      inputPrice: product?.price,
+      resolvedPrice: resolvedProduct?.price,
+      resolvedCombinationId:
+        resolvedProduct?.combination_id || resolvedProduct?.id_product_attribute || 0,
+    });
+
     // On vérifie si le produit est déjà dans le panier pour ce client
-    const existingProduct = cart.find(
-      (item) => item.id === product.id && item.clientId === clientId,
-    );
+    const existingProduct = cart.find((item) => {
+      if (item.clientId !== clientId) return false;
+      if (String(item.id) !== String(resolvedProduct.id)) return false;
+      const a = item.combination_id || item.id_product_attribute || 0;
+      const b = resolvedProduct.combination_id || resolvedProduct.id_product_attribute || 0;
+      return String(a) === String(b);
+    });
 
     let newCart;
     if (existingProduct) {
@@ -96,15 +117,24 @@ export function ClientProvider({ children }) {
     } else {
       // Sinon, on rajoute le produit aux produits existants
       // On utilise cartQuantity pour la quantité commandée afin de ne pas écraser la quantité en stock
-      newCart = [...cart, { ...product, cartQuantity: 1, clientId }];
+      newCart = [...cart, { ...resolvedProduct, cartQuantity: 1, clientId }];
     }
 
     // On met a jour le State et le LocalStorage
     setCart(newCart);
     localStorage.setItem("cart", JSON.stringify(newCart));
-    alert(
-      "Produit ajouté au panier avec succès ! / Tafiditra soa aman-tsara tao anaty harona !",
-    );
+
+    try {
+      const cartItemsForClient = newCart.filter(item => item.clientId === clientId);
+      const cartId = await saveCartToDatabase(currentClient, cartItemsForClient);
+      
+      console.log(`Panier enregistré via API avec l'ID: ${cartId}`);
+      alert("Produit ajouté au panier avec succès ! (et enregistré en base d'après l'API)");
+      
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement du panier via l'API", error);
+      alert("Produit ajouté localement, mais erreur de connexion avec la base de données.");
+    }
   };
 
   const removeFromCart = (productId) => {

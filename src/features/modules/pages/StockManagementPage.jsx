@@ -10,6 +10,7 @@ function StockManagementPage() {
   const [addAmounts, setAddAmounts] = useState({});
   const [message, setMessage] = useState(null);
   const [expandedProductId, setExpandedProductId] = useState(null);
+  const [evolutionRefreshKey, setEvolutionRefreshKey] = useState(0);
 
   const loadProducts = async () => {
     setLoading(true);
@@ -53,18 +54,23 @@ function StockManagementPage() {
         quantityChange: amountToAdd,
       });
 
+      const displayedQty = result.newTotalStock ?? result.newStock;
+
       setMessage({
         type: "success",
-        text: `Stock mis à jour pour "${product.name}" (+${amountToAdd}). Nouveau total: ${result.newStock}`,
+        text: `Stock mis à jour pour "${product.name}" (+${amountToAdd}). Nouveau total: ${displayedQty}`,
       });
 
-      // Mettre à jour la liste locale
       setProducts((prev) =>
         prev.map((p) =>
-          p.id === product.id ? { ...p, quantity: result.newStock } : p,
+          p.id === product.id ? { ...p, quantity: displayedQty } : p,
         ),
       );
       setAddAmounts((prev) => ({ ...prev, [product.id]: "" }));
+
+      if (expandedProductId === product.id) {
+        setEvolutionRefreshKey((k) => k + 1);
+      }
     } catch (error) {
       console.error("Erreur mise à jour stock:", error);
       setMessage({ type: "error", text: `Erreur: ${error.message}` });
@@ -245,7 +251,10 @@ function StockManagementPage() {
               {expandedProductId === product.id && (
                 <tr key={`evo-${product.id}`}>
                   <td colSpan="5" style={{ padding: "0 12px", borderBottom: "1px solid #dee2e6" }}>
-                    <DailyStockEvolutionTable productId={product.id} />
+                    <DailyStockEvolutionTable
+                      productId={product.id}
+                      refreshKey={evolutionRefreshKey}
+                    />
                   </td>
                 </tr>
               )}

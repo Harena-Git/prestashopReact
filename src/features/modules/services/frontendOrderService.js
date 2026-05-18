@@ -65,10 +65,21 @@ export async function validateOrderForProduct(client, product) {
   const dateAdd = formatDate(new Date().toLocaleDateString("fr-FR")); // aujourd'hui
 
   const price = toNum(product.price);
+  const combinationId =
+    parseInt(product?.combination_id || product?.id_product_attribute || 0, 10) ||
+    0;
+
+  console.log("[ORDER][validateOrderForProduct] input", {
+    productId: product?.id,
+    reference: product?.reference,
+    inputPrice: product?.price,
+    parsedPrice: price,
+    combinationId,
+  });
   const items = [
     {
       product_id: parseInt(product.id, 10),
-      combination_id: 0, // Par defaut
+      combination_id: combinationId,
       name: product.name || "Produit sans nom",
       quantity: 1, // On ajoute 1 par 1 via le bouton
       unit_price_ht: price,
@@ -181,6 +192,17 @@ export async function validateFullOrder(client, items) {
   }));
 
   console.log("[CHECKOUT] Articles formatés pour la commande:", orderRows);
+  console.log(
+    "[CHECKOUT] Debug prix panier (raw -> parsed):",
+    (items || []).map((i) => ({
+      id: i?.id,
+      reference: i?.reference,
+      rawPrice: i?.price,
+      parsedPrice: toNum(i?.price),
+      combination_id: i?.combination_id || i?.id_product_attribute || 0,
+      cartQuantity: i?.cartQuantity,
+    })),
+  );
 
   // 5. CREER PANIER (ps_cart)
   const cartXml = buildCartXml({

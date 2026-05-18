@@ -164,3 +164,13 @@ Tuto Excel By Tony
 
 Appach : "C:\xampp\htdocs"
 Mysql : "D:\xampp\htdocs"
+
+
+Dans "http://localhost:5173/client/checkout"
+Lors de de validation d'un validation de commande pour certaines produits (T_01 et P01 dans @import-data-mai-26 - fichier1.csv
+, @import-data-mai-26 - fichier2.csv)
+la valeur afficher dans "http://localhost:5173/client/orders" est de 0 euro,
+pour ces produits, je constate que les produits avec des declinaisons, possedent
+tous ces erreurs.
+Peux-tu verifier l'erreur pour que les products avec des combinaisons fonctionnent normalement en
+lors des validations des commandes.

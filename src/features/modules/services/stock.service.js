@@ -1,22 +1,101 @@
-import {
-  PrestashopClient,
-  createResource,
-  updateResource,
-} from "../../../api/prestashop.api";
-import { XMLParser } from "fast-xml-parser";
+import { PrestashopClient, createResource } from "../../../api/prestashop.api";
 
 /**
- * Service pour la gestion des stocks via le nouvel endpoint sécurisé 'stock_deltas'.
- * Cet endpoint gère nativement la création des mouvements de stock et la mise à jour
- * des quantités disponibles de manière atomique.
+ * Service stock : écriture via stock_deltas, lecture via stock_availables / stock_movements.
  */
+
+function normalizeList(value) {
+  if (!value) return [];
+  return Array.isArray(value) ? value : [value];
+}
+
+function todayDateString() {
+  return new Date().toISOString().split("T")[0];
+}
+
+/**
+ * Somme les quantités de tous les stock_availables d'un produit (toutes déclinaisons).
+ */
+export async function getProductTotalStock(productId, client = new PrestashopClient()) {
+  const data = await client.get(`stock_availables?filter[id_product]=${productId}`);
+  const records = normalizeList(data?.stock_availables);
+  return records.reduce((sum, r) => sum + parseInt(r.quantity || 0, 10), 0);
+}
+
+/**
+ * Agrège les mouvements PrestaShop en lignes journalières.
+ * @param {Array} movements - stock_movements
+ * @param {number} currentTotalStock - stock actuel (somme des déclinaisons)
+ * @returns {Array<{date, initialStock, inputs, outputs, finalStock}>}
+ */
+export function aggregateDailyStockEvolution(movements, currentTotalStock) {
+  const validMovements = movements.filter((m) => m?.date_add);
+
+  if (validMovements.length === 0) {
+    const today = todayDateString();
+    return [
+      {
+        date: today,
+        initialStock: currentTotalStock,
+        inputs: 0,
+        outputs: 0,
+        finalStock: currentTotalStock,
+      },
+    ];
+  }
+
+  const dailyMap = {};
+
+  validMovements.forEach((mvt) => {
+    const dateStr = String(mvt.date_add).split(" ")[0];
+    if (!dateStr) return;
+
+    if (!dailyMap[dateStr]) {
+      dailyMap[dateStr] = { inputs: 0, outputs: 0 };
+    }
+
+    const qty = Math.abs(parseInt(mvt.physical_quantity || mvt.quantity || 0, 10));
+    const sign = parseInt(mvt.sign, 10);
+
+    if (sign === 1) {
+      dailyMap[dateStr].inputs += qty;
+    } else if (sign === -1) {
+      dailyMap[dateStr].outputs += qty;
+    } else if (qty > 0) {
+      // Fallback si sign absent : delta positif = entrée
+      const delta = parseInt(mvt.delta ?? mvt.physical_quantity, 10);
+      if (delta >= 0) dailyMap[dateStr].inputs += qty;
+      else dailyMap[dateStr].outputs += qty;
+    }
+  });
+
+  const sortedDates = Object.keys(dailyMap).sort(
+    (a, b) => new Date(b) - new Date(a),
+  );
+
+  const todayStr = todayDateString();
+  if (!sortedDates.includes(todayStr)) {
+    sortedDates.unshift(todayStr);
+    dailyMap[todayStr] = { inputs: 0, outputs: 0 };
+  }
+
+  const result = [];
+  let simulatedStock = currentTotalStock;
+
+  for (const date of sortedDates) {
+    const { inputs, outputs } = dailyMap[date];
+    const finalStock = simulatedStock;
+    const initialStock = finalStock - inputs + outputs;
+
+    result.push({ date, initialStock, inputs, outputs, finalStock });
+    simulatedStock = initialStock;
+  }
+
+  return result;
+}
 
 /**
  * Enregistre un mouvement de stock via l'endpoint personnalisé stock_deltas.
- * @param {Object} data
- * @param {number} data.productId - ID du produit
- * @param {number} data.attributeId - ID de la déclinaison (0 par défaut)
- * @param {number} data.quantityChange - Quantité à ajouter (+) ou retirer (-)
  */
 export async function updateStockWithMovement({
   productId,
@@ -26,19 +105,11 @@ export async function updateStockWithMovement({
   const client = new PrestashopClient();
 
   if (quantityChange === 0) {
-    // Si pas de changement, on récupère juste le stock actuel pour le retour
-    const current = await fetchCurrentStock(client, productId, attributeId);
+    const current = await fetchVariantStock(client, productId, attributeId);
     return { previousStock: current, newStock: current, quantityChange: 0 };
   }
 
-  // 1. RÉCUPÉRER LE STOCK AVANT (Pour information et vérification)
-  const previousStock = await fetchCurrentStock(client, productId, attributeId);
-
-  // 2. APPELER LE NOUVEL ENDPOINT 'stock_deltas'
-  // Cet endpoint est plus fiable car il évite les updates directs sur stock_availables
-  console.log(
-    `[STOCK] Appel stock_deltas pour Produit ${productId} (Delta: ${quantityChange})`,
-  );
+  const previousStock = await fetchVariantStock(client, productId, attributeId);
 
   const deltaXml = `<?xml version="1.0" encoding="UTF-8"?>
 <prestashop>
@@ -52,131 +123,46 @@ export async function updateStockWithMovement({
   try {
     await createResource("stock_deltas", deltaXml);
   } catch (err) {
-    console.error(`[STOCK ERROR] Échec de l'appel stock_deltas:`, err.message);
+    console.error("[STOCK ERROR] Échec stock_deltas:", err.message);
     throw new Error(`Impossible de mettre à jour le stock : ${err.message}`);
   }
 
-  // 3. VÉRIFICATION : RÉCUPÉRER LE NOUVEAU STOCK
-  // On attend un court instant ou on recharge directement pour confirmer l'impact
-  const newStock = await fetchCurrentStock(client, productId, attributeId);
+  const newStock = await fetchVariantStock(client, productId, attributeId);
+  const newTotalStock = await getProductTotalStock(productId, client);
 
-  console.log(
-    `[STOCK] Vérification terminée: ${previousStock} -> ${newStock} (Attendu: ${previousStock + quantityChange})`,
-  );
-
-  return { previousStock, newStock, quantityChange };
+  return {
+    previousStock,
+    newStock,
+    newTotalStock,
+    quantityChange,
+  };
 }
 
-/**
- * Fonction interne pour récupérer la quantité actuelle de manière propre
- */
-async function fetchCurrentStock(client, productId, attributeId) {
+async function fetchVariantStock(client, productId, attributeId) {
   try {
     const data = await client.get(
       `stock_availables?filter[id_product]=${productId}&filter[id_product_attribute]=${attributeId}`,
     );
-
-    // Normalisation de la réponse PrestaShop (objet unique ou tableau)
-    const stockAvails = data.stock_availables;
-    const record = Array.isArray(stockAvails) ? stockAvails[0] : stockAvails;
-
-    return record ? parseInt(record.quantity, 10) : 0;
+    const records = normalizeList(data?.stock_availables);
+    return records.length > 0 ? parseInt(records[0].quantity, 10) : 0;
   } catch (err) {
-    console.warn(
-      `[STOCK WARNING] Impossible de lire le stock actuel:`,
-      err.message,
-    );
+    console.warn("[STOCK WARNING] Lecture stock:", err.message);
     return 0;
   }
 }
 
 /**
- * Récupère l'évolution synthétique du stock journalier pour un produit.
- * (Date, Stock Initial, Entrées, Sorties/Ventes, Stock Final)
+ * Évolution journalière : date, stock initial, entrées, sorties, stock final.
  */
 export async function getDailyStockEvolution(productId) {
   const client = new PrestashopClient();
-  
-  try {
-    // 1. Récupérer le stock actuel (somme de tous les stock_availables de ce produit)
-    let currentTotalStock = 0;
-    const availData = await client.get(`stock_availables?filter[id_product]=${productId}&display=full`);
-    if (availData && availData.stock_availables) {
-      const records = Array.isArray(availData.stock_availables) ? availData.stock_availables : [availData.stock_availables];
-      currentTotalStock = records.reduce((sum, r) => sum + parseInt(r.quantity || 0, 10), 0);
-    }
 
-    // 2. Récupérer les mouvements de stock (triés du plus récent au plus ancien)
-    const mvtsData = await client.get(`stock_movements?filter[id_product]=${productId}&sort=[date_add_DESC]&display=full`);
-    const mvtsRaw = mvtsData?.stock_movements || [];
-    const movements = Array.isArray(mvtsRaw) ? mvtsRaw : [mvtsRaw];
-    
-    // Si aucun mouvement, on retourne juste une ligne pour aujourd'hui avec le stock actuel
-    if (movements.length === 0) {
-      const today = new Date().toISOString().split("T")[0];
-      return [{
-        date: today,
-        initialStock: currentTotalStock,
-        inputs: 0,
-        outputs: 0,
-        finalStock: currentTotalStock,
-      }];
-    }
+  const currentTotalStock = await getProductTotalStock(productId, client);
 
-    // 3. Agréger les mouvements par jour
-    const dailyMap = {};
-    movements.forEach(mvt => {
-      const dateStr = (mvt.date_add || "").split(" ")[0]; // "YYYY-MM-DD"
-      if (!dateStr) return;
-      
-      if (!dailyMap[dateStr]) {
-        dailyMap[dateStr] = { inputs: 0, outputs: 0 };
-      }
-      
-      const qty = parseInt(mvt.physical_quantity || 0, 10);
-      if (parseInt(mvt.sign, 10) === 1) {
-        dailyMap[dateStr].inputs += qty;
-      } else {
-        dailyMap[dateStr].outputs += qty;
-      }
-    });
+  const mvtsData = await client.get(
+    `stock_movements?filter[id_product]=${productId}&sort=[date_add_DESC]`,
+  );
 
-    // 4. Calculer rétrospectivement le stock (initial et final) pour chaque jour
-    // On trie les dates par ordre décroissant (du plus récent au plus ancien)
-    const sortedDates = Object.keys(dailyMap).sort((a, b) => new Date(b) - new Date(a));
-    const result = [];
-    
-    let simulatedStock = currentTotalStock;
-
-    // S'il n'y a pas eu de mouvement aujourd'hui, on ajoute quand même la ligne d'aujourd'hui
-    const todayStr = new Date().toISOString().split("T")[0];
-    if (!sortedDates.includes(todayStr)) {
-      sortedDates.unshift(todayStr);
-      dailyMap[todayStr] = { inputs: 0, outputs: 0 };
-    }
-
-    for (const date of sortedDates) {
-      const { inputs, outputs } = dailyMap[date];
-      
-      const finalStock = simulatedStock;
-      // stock_initial = stock_final - entrées + sorties
-      const initialStock = finalStock - inputs + outputs;
-      
-      result.push({
-        date,
-        initialStock,
-        inputs,
-        outputs,
-        finalStock
-      });
-      
-      // Le stock initial de ce jour devient le stock final de la veille
-      simulatedStock = initialStock;
-    }
-
-    return result;
-  } catch (error) {
-    console.error(`[STOCK EVOLUTION] Erreur API pour produit ${productId}:`, error.message);
-    throw error;
-  }
+  const movements = normalizeList(mvtsData?.stock_movements);
+  return aggregateDailyStockEvolution(movements, currentTotalStock);
 }

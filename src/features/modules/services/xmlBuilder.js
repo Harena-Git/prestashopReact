@@ -269,8 +269,8 @@ export function buildOrderXml({
     .map(
       (item) => `
       <order_row>
-        <id_product>${item.product_id}</id_product>
-        <id_product_attribute>${item.combination_id || 0}</id_product_attribute>
+        <product_id>${item.product_id}</product_id>
+        <product_attribute_id>${item.combination_id || 0}</product_attribute_id>
         <id_customization>0</id_customization>
         <product_name><![CDATA[${item.name}]]></product_name>
         <product_quantity>${item.quantity}</product_quantity>
