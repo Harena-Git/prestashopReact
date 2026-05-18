@@ -9,11 +9,13 @@ import {
 const ORDER_STATE_LABELS = {
   1: "Dans le panier",
   2: "Paiement effectué",
+  5: "Livré",
   6: "Annulé",
 };
 
-export const ALLOWED_ORDER_STATES = [1, 2, 6];
+export const ALLOWED_ORDER_STATES = [1, 2, 5, 6];
 export const PAYMENT_DONE_STATE_ID = 2;
+export const ORDER_DELIVERED_STATE_ID = 5;
 export const ORDER_CANCELED_STATE_ID = 6;
 export const IN_CART_STATE_ID = 1;
 

@@ -13,18 +13,23 @@ BackOffice :
             -Ajout des nouveaux colonnes dans notre code pour adapter le csv set(etat)
                 - ajout : annulé (6) et livré (5)   (OK)
             -Modifier le format de la date csv en DD/MM/YYYY (OK)
+
+    /admin/orders :     (OK)
+            -Ajout des bouttons annuler/livrer dans les liste des commandes (fonctionnel)
+                faire fonctionner directement via un appel api
+
     /admin/stock :
             -Tableau de evaluation des stocks 
                 - correction du tableau suivit : appel d'un seul api
                 - affichage des mvts et date mvt
-    /admin/dashboard :
+
+    /admin/dashboard :  
             -Affichage des statistiques de vente et d'achat
-    /admin/stock :
-            -Ajout des bouttons annuler/livrer dans les liste des commandes (fonctionnel)
-                faire fonctionner directement via un appel api
+
     /admin/stat/vente :
             -Creation de tableau de statistique qui permet d’avoir le montant total des
                 ventes , le montant total d’achat, et le bénéfice par catégorie de produit
+
     admin/stat/quantite (/admin/dashboard) :
             -Creation tableau
         Catégorie | Qté physique | Qté reservé | Qté disponible

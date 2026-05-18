@@ -5,6 +5,7 @@ import {
   getOrderStateLabel,
   PAYMENT_DONE_STATE_ID,
   ORDER_CANCELED_STATE_ID,
+  ORDER_DELIVERED_STATE_ID,
 } from "../services/order.service";
 
 function normaliseField(value) {
@@ -121,6 +122,7 @@ function ListCommande() {
               const amount = normaliseField(order.total_paid);
               const stateLabel = getOrderStateLabel(currentState);
               const isUpdating = updatingOrderId === orderId;
+              const isDelivered = String(currentState) === String(ORDER_DELIVERED_STATE_ID);
 
               return (
                 <tr key={orderId}>
@@ -172,6 +174,7 @@ function ListCommande() {
                       }
                       disabled={
                         isUpdating ||
+                        isDelivered ||
                         String(currentState) === String(PAYMENT_DONE_STATE_ID)
                       }
                       style={{
@@ -181,7 +184,8 @@ function ListCommande() {
                         color: "white",
                         border: "none",
                         borderRadius: "4px",
-                        cursor: isUpdating ? "not-allowed" : "pointer",
+                        cursor: (isUpdating || isDelivered) ? "not-allowed" : "pointer",
+                        opacity: (isUpdating || isDelivered) ? 0.6 : 1,
                       }}
                     >
                       Paiement effectué
@@ -197,6 +201,7 @@ function ListCommande() {
                       }
                       disabled={
                         isUpdating ||
+                        isDelivered ||
                         String(currentState) === String(ORDER_CANCELED_STATE_ID)
                       }
                       style={{
@@ -205,11 +210,39 @@ function ListCommande() {
                         color: "white",
                         border: "none",
                         borderRadius: "4px",
-                        cursor: isUpdating ? "not-allowed" : "pointer",
+                        cursor: (isUpdating || isDelivered) ? "not-allowed" : "pointer",
+                        opacity: (isUpdating || isDelivered) ? 0.6 : 1,
                       }}
                     >
                       Annuler
                     </button>
+
+                    <button
+                      onClick={() =>
+                        handleChangeStatus(
+                          orderId,
+                          ORDER_DELIVERED_STATE_ID,
+                          "Livré"
+                        )
+                      }
+                      disabled={
+                        isUpdating ||
+                        isDelivered
+                      }
+                      style={{
+                        marginLeft: "8px",
+                        padding: "8px 12px",
+                        backgroundColor: "#3d35dc",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: (isUpdating || isDelivered) ? "not-allowed" : "pointer",
+                        opacity: (isUpdating || isDelivered) ? 0.6 : 1,
+                      }}
+                    >
+                      Livré
+                    </button>
+
                   </td>
                 </tr>
               );
