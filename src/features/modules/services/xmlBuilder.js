@@ -3,7 +3,22 @@
 
 // Convertit "DD/MM/YYYY" en "YYYY-MM-DD 00:00:00"
 export function formatDate(ddmmyyyy) {
+  // Regex pour formater strictement: deux chiffres, un slash, deux chiffres, un slash, 4 chiffres
+  const regexDate = /^\d{2}\/\d{2}\/\d{4}$/;
+  
+  if (!regexDate.test(String(ddmmyyyy))) {
+    throw new Error(`Le format de la date "${ddmmyyyy}" est invalide. Seul le format "DD/MM/YYYY" est accepté.`);
+  }
+
   const [d, m, y] = String(ddmmyyyy).split("/");
+  
+  // Validation supplémentaire (optionnel, mais recommandé) pour s'assurer des vrais jours/mois :
+  const day = parseInt(d, 10);
+  const month = parseInt(m, 10);
+  if (day < 1 || day > 31 || month < 1 || month > 12) {
+    throw new Error(`La date "${ddmmyyyy}" est invalide, jour ou mois incorrect.`);
+  }
+
   return `${y}-${m}-${d} 00:00:00`;
 }
 

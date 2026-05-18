@@ -32,6 +32,7 @@ function extractIdFromXml(xmlText, singular) {
 const ORDER_STATES = {
   "paiement accepté": 2,
   "paiement effectué": 2,
+  livré: 5,
   annulé: 6,
   "dans le panier": 1,
 };
@@ -42,7 +43,7 @@ function getOrderStateId(etat) {
   // Validation des états autorisés
   if (val !== "" && !ORDER_STATES.hasOwnProperty(val)) {
     throw new Error(
-      `État "${etat}" non autorisé. Valeurs possibles: paiement accepté, annulé, dans le panier (ou vide)`,
+      `État "${etat}" non autorisé. Valeurs possibles: paiement accepté, paiement effectué, livré, annulé, dans le panier (ou vide)`
     );
   }
 
