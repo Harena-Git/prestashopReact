@@ -55,7 +55,6 @@ async function updateStock(productId, combinationId, quantity) {
     productId,
     attributeId: combId,
     quantityChange: delta,
-    reason: "Initialisation / Mise à jour via Import CSV",
   });
 }
 

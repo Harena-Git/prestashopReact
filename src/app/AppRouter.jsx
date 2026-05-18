@@ -6,6 +6,7 @@ import ClientLayout from "../layouts/ClientLayout";
 import ModuleCleanupPage from "../features/modules/pages/ModuleCleanupPage";
 import ModuleImportPage from "../features/modules/pages/ModuleImportPage";
 import ModuleProductList from "../features/modules/pages/ModuleProductList";
+import CheckoutPage from "../features/modules/pages/CheckoutPage";
 import HomePage from "../features/modules/pages/HomePage";
 import LoginPage from "../features/modules/pages/LoginPage";
 import AdminPage from "../features/modules/pages/AdminPage";
@@ -19,7 +20,12 @@ import ClientOrdersPage from "../features/modules/pages/ClientOrdersPage";
 import StockManagementPage from "../features/modules/pages/StockManagementPage";
 
 function NotFoundPage() {
-  return <h1>404 - Page introuvable</h1>;
+  return (
+    <div style={{ padding: "40px", textAlign: "center" }}>
+      <h1>404 - Page introuvable</h1>
+      <p>L'URL demandée n'existe pas.</p>
+    </div>
+  );
 }
 
 function AppRouter() {
@@ -28,47 +34,40 @@ function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Routes publiques sans Sidebar */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* Routes Admin avec Admin Sidebar - PROTÉGÉES */}
+        {/* Admin - Protégé */}
         <Route
+          path="/admin"
           element={
             isAuthenticated ? <AdminLayout /> : <Navigate to="/login" replace />
           }
         >
-          <Route path="/admin" element={<AdminPage />} />
-          <Route
-            path="/admin/modules/cleanup"
-            element={<ModuleCleanupPage />}
-          />
-          <Route path="/admin/modules/import" element={<ModuleImportPage />} />
-          <Route
-            path="/admin/modules/data-import"
-            element={<DataImportPage />}
-          />
-          <Route path="/admin/orders" element={<ListCommande />} />
-          <Route path="/admin/dashboard" element={<OrderDashboard />} />
-          <Route path="/admin/stock" element={<StockManagementPage />} />
+          <Route index element={<AdminPage />} />
+          <Route path="modules/cleanup" element={<ModuleCleanupPage />} />
+          <Route path="modules/import" element={<ModuleImportPage />} />
+          <Route path="modules/data-import" element={<DataImportPage />} />
+          <Route path="orders" element={<ListCommande />} />
+          <Route path="dashboard" element={<OrderDashboard />} />
+          <Route path="stock" element={<StockManagementPage />} />
         </Route>
 
-        {/* Routes normales avec Sidebar normal */}
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/customers" element={<ListLoginClients />} />
+        {/* Public - Sidebar Navigation */}
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="customers" element={<ListLoginClients />} />
         </Route>
 
-        {/* Routes client avec sidebar dédiée */}
-        <Route element={<ClientLayout />}>
-          <Route
-            path="/client"
-            element={<Navigate to="/client/products" replace />}
-          />
-          <Route path="/client/products" element={<ModuleProductList />} />
-          <Route path="/client/cart" element={<PanierPages />} />
-          <Route path="/client/orders" element={<ClientOrdersPage />} />
+        {/* Client - Sidebar Spécifique */}
+        <Route path="/client" element={<ClientLayout />}>
+          <Route index element={<Navigate to="products" replace />} />
+          <Route path="products" element={<ModuleProductList />} />
+          <Route path="cart" element={<PanierPages />} />
+          <Route path="checkout" element={<CheckoutPage />} />
+          <Route path="orders" element={<ClientOrdersPage />} />
         </Route>
 
+        {/* Fallbacks */}
         <Route path="/home" element={<Navigate to="/" replace />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

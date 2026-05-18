@@ -17,4 +17,10 @@ export const CLIENT_SIDEBAR_PAGES = [
     path: "/client/orders",
     showInSidebar: true,
   },
+  {
+    id: "client-checkout",
+    label: "Validation Commande",
+    path: "/client/checkout",
+    showInSidebar: true,
+  },
 ];

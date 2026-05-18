@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { listAllProducts } from "../services/moduleListe";
 import { updateStockWithMovement } from "../services/stock.service";
+import StockEvolutionTable from "../components/StockEvolutionTable";
 
 function StockManagementPage() {
   const [products, setProducts] = useState([]);
@@ -8,6 +9,7 @@ function StockManagementPage() {
   const [updatingId, setUpdatingId] = useState(null);
   const [addAmounts, setAddAmounts] = useState({});
   const [message, setMessage] = useState(null);
+  const [expandedProductId, setExpandedProductId] = useState(null);
 
   const loadProducts = async () => {
     setLoading(true);
@@ -49,7 +51,6 @@ function StockManagementPage() {
         productId: product.id,
         attributeId: 0,
         quantityChange: amountToAdd,
-        reason: "Ajout manuel depuis l'interface d'administration",
       });
 
       setMessage({
@@ -146,7 +147,8 @@ function StockManagementPage() {
           </thead>
           <tbody>
             {products.map((product) => (
-              <tr key={product.id}>
+              <React.Fragment key={product.id}>
+                <tr key={`row-${product.id}`}>
                 <td
                   style={{ padding: "12px", borderBottom: "1px solid #dee2e6" }}
                 >
@@ -218,13 +220,37 @@ function StockManagementPage() {
                       borderRadius: "4px",
                       cursor:
                         updatingId === product.id ? "not-allowed" : "pointer",
+                      marginBottom: "4px"
                     }}
                   >
                     {updatingId === product.id ? "..." : "Ajouter au stock"}
                   </button>
+                  <br />
+                  <button
+                    onClick={() => setExpandedProductId(expandedProductId === product.id ? null : product.id)}
+                    style={{
+                      padding: "8px 16px",
+                      backgroundColor: "#6c757d",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      fontSize: "0.85em"
+                    }}
+                  >
+                    {expandedProductId === product.id ? "Cacher évol." : "Évolution"}
+                  </button>
                 </td>
               </tr>
-            ))}
+              {expandedProductId === product.id && (
+                <tr key={`evo-${product.id}`}>
+                  <td colSpan="5" style={{ padding: "0 12px", borderBottom: "1px solid #dee2e6" }}>
+                    <StockEvolutionTable productId={product.id} />
+                  </td>
+                </tr>
+              )}
+            </React.Fragment>
+          ))}
           </tbody>
         </table>
       )}

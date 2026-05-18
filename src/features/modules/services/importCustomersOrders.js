@@ -15,6 +15,7 @@ import {
   formatDate,
 } from "./xmlBuilder";
 import { XMLParser } from "fast-xml-parser";
+import { updateStockWithMovement } from "./stock.service";
 
 const xmlParser = new XMLParser({ ignoreAttributes: false });
 
@@ -197,6 +198,23 @@ export async function importCustomersOrders(rows, log) {
         log(
           `  ! Attention: Impossible de sauvegarder l'historique d'état pour la commande ${orderId}`,
         );
+      }
+
+      // 7. MISE À JOUR DU STOCK (DIMINUTION)
+      // On diminue le stock pour chaque article de la commande importée
+      for (const item of resolvedItems) {
+        try {
+          await updateStockWithMovement({
+            productId: item.product_id,
+            attributeId: item.combination_id,
+            quantityChange: -item.quantity,
+          });
+          log(`  ✓ Stock mis à jour pour "${item.name}" (-${item.quantity})`);
+        } catch (stockErr) {
+          log(
+            `  ⚠️ Attention: Impossible de mettre à jour le stock pour "${item.name}": ${stockErr.message}`,
+          );
+        }
       }
 
       log(`  ✓ Commande ID: ${orderId} (${resolvedItems.length} article(s))`);

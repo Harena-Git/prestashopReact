@@ -102,10 +102,47 @@ StockAvailable::updateQuantity($idProduct, 0, $delta)
 
 Mikitika code prestashop
 
+Done
+
 =======================================================================
 
 Checquer les stock pour chaque modification
 Insert, Update, Delete
+Si tu regardes bien, on geres beaucoups de cas sur les stocks
+avec des inset et des update et des delete, peux-tu chequer que les stocks sont bien mis à jour, si on fait une modification, le stock doit être mis à jour correctement.
+Dans notre code ici ?
+
+Done
+
+=======================================================================
+
+IL y eu un imprevu, et j'aimerai avoir une nouvelle page :
+validation commande de clients (pour chaque client connecter) :
+-avec uniquement le choix “paiement à la livraison”
+-pas de frais de livraison
+
+Cette page aura pour but de valider les commandes de clients avec le choix "paiement à la livraison" et sans frais de livraison.
+
+Fais l'analyse de la page et détermines les éléments à afficher.
+En se rendant compte de prestashop, des fichiers de donnees dans le projet.
+
+Done
+
+=======================================================================
+
+Il y a un probleme a regler, quand je valide la commande
+dans "http://localhost:5173/client/checkout"
+et que je regarde dans "http://localhost:5173/client/orders"
+apres, les montant de certaines commandes sont de "0,00 €" que ce soit dans react ou dans prestashop.
+
+Il y a un probleme a regler dans le code.
+dans "http://localhost:5173/client/products"
+j'ai ajouter par exemple "Tshirt a 11.195701€"
+J'ai valider la commande dans "http://localhost:5173/client/cart".
+Le stock de ce produit apres a ete reduit a -2, et son
+montant dans "http://localhost:5173/client/orders" est de "0,00 €"
+
+Peux-tu regler ce probleme.
 
 =======================================================================
 

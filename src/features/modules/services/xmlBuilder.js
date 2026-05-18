@@ -304,21 +304,21 @@ export function buildOrderXml({
   <payment>${payment}</payment>
   <recyclable>0</recyclable>
   <gift>0</gift>
-  <total_discounts>0</total_discounts>
-  <total_discounts_tax_incl>0</total_discounts_tax_incl>
-  <total_discounts_tax_excl>0</total_discounts_tax_excl>
+  <total_discounts>0.000000</total_discounts>
+  <total_discounts_tax_incl>0.000000</total_discounts_tax_incl>
+  <total_discounts_tax_excl>0.000000</total_discounts_tax_excl>
   <total_paid>${totalIncl.toFixed(6)}</total_paid>
   <total_paid_tax_incl>${totalIncl.toFixed(6)}</total_paid_tax_incl>
   <total_paid_tax_excl>${totalExcl.toFixed(6)}</total_paid_tax_excl>
   <total_paid_real>${totalIncl.toFixed(6)}</total_paid_real>
   <total_products>${totalExcl.toFixed(6)}</total_products>
   <total_products_wt>${totalIncl.toFixed(6)}</total_products_wt>
-  <total_shipping>0</total_shipping>
-  <total_shipping_tax_incl>0</total_shipping_tax_incl>
-  <total_shipping_tax_excl>0</total_shipping_tax_excl>
-  <total_wrapping>0</total_wrapping>
-  <total_wrapping_tax_incl>0</total_wrapping_tax_incl>
-  <total_wrapping_tax_excl>0</total_wrapping_tax_excl>
+  <total_shipping>0.000000</total_shipping>
+  <total_shipping_tax_incl>0.000000</total_shipping_tax_incl>
+  <total_shipping_tax_excl>0.000000</total_shipping_tax_excl>
+  <total_wrapping>0.000000</total_wrapping>
+  <total_wrapping_tax_incl>0.000000</total_wrapping_tax_incl>
+  <total_wrapping_tax_excl>0.000000</total_wrapping_tax_excl>
   <round_mode>2</round_mode>
   <round_type>1</round_type>
   <date_add>${date_add}</date_add>

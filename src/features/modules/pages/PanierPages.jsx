@@ -160,6 +160,31 @@ export default function PanierPages() {
                 </button>
               </div>
             ))}
+
+            <div
+              style={{
+                marginTop: "20px",
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              <button
+                onClick={() => navigate("/client/checkout")}
+                style={{
+                  padding: "15px 30px",
+                  backgroundColor: "#28a745",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  fontSize: "1.1rem",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                }}
+              >
+                Passer à la caisse (Checkout)
+              </button>
+            </div>
           </div>
         ) : (
           <p>Votre panier est vide.</p>

@@ -38,7 +38,7 @@ export function getOrderStateLabel(stateId) {
  */
 export async function listOrdersService(excludeCanceled = false) {
   const client = new PrestashopClient();
-  const data = await client.get("orders");
+  const data = await client.get("orders?display=full");
 
   // PrestaShop JSON retourne { orders: [...] }
   const orders = Array.isArray(data.orders) ? data.orders : [];

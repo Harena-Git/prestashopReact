@@ -18,11 +18,14 @@ export function ClientProvider({ children }) {
   // Etat de panier
   const [cart, setCart] = useState(() => {
     const storedCart = localStorage.getItem("cart");
-    if(storedCart) {
+    if (storedCart) {
       try {
         return JSON.parse(storedCart);
       } catch (error) {
-        console.error("Erreur lors de la lecture du panier dans le localStorage", error);
+        console.error(
+          "Erreur lors de la lecture du panier dans le localStorage",
+          error,
+        );
         return [];
       }
     }
@@ -46,7 +49,10 @@ export function ClientProvider({ children }) {
         const parsedClientInfo = JSON.parse(storedClientInfo);
         setCurrentClient(parsedClientInfo);
       } catch (error) {
-        console.error("Erreur lors de la lecture du client dans le localStorage / Misy olana amin'ny famakiana ny client ao amin'ny localStorage", error);
+        console.error(
+          "Erreur lors de la lecture du client dans le localStorage / Misy olana amin'ny famakiana ny client ao amin'ny localStorage",
+          error,
+        );
       }
     }
   }, []); // Le tableau vide [] signifie que ceci ne s'exécute qu'une seule fois au chargement / Ny tableau vide [] midika fa indray mandeha ihany no mandeha ity rehefa mi-charger
@@ -68,7 +74,7 @@ export function ClientProvider({ children }) {
   };
 
   const addToCart = (product) => {
-    if(!currentClient) {
+    if (!currentClient) {
       console.warn("Aucun client défini, impossible d'ajouter au panier");
       return;
     }
@@ -76,28 +82,37 @@ export function ClientProvider({ children }) {
     const clientId = currentClient.id;
 
     // On vérifie si le produit est déjà dans le panier pour ce client
-    const existingProduct = cart.find(item => item.id === product.id && item.clientId === clientId);
+    const existingProduct = cart.find(
+      (item) => item.id === product.id && item.clientId === clientId,
+    );
 
     let newCart;
     if (existingProduct) {
-       // S'il existe déjà
-       alert("Ce produit est déjà dans votre panier / Efa ao anaty harona ity entana ity");
-       return; 
+      // S'il existe déjà
+      alert(
+        "Ce produit est déjà dans votre panier / Efa ao anaty harona ity entana ity",
+      );
+      return;
     } else {
-       // Sinon, on rajoute le produit aux produits existants
-       newCart = [...cart, { ...product, clientId }];
+      // Sinon, on rajoute le produit aux produits existants
+      // On utilise cartQuantity pour la quantité commandée afin de ne pas écraser la quantité en stock
+      newCart = [...cart, { ...product, cartQuantity: 1, clientId }];
     }
 
     // On met a jour le State et le LocalStorage
     setCart(newCart);
     localStorage.setItem("cart", JSON.stringify(newCart));
-    alert("Produit ajouté au panier avec succès ! / Tafiditra soa aman-tsara tao anaty harona !");
+    alert(
+      "Produit ajouté au panier avec succès ! / Tafiditra soa aman-tsara tao anaty harona !",
+    );
   };
 
   const removeFromCart = (productId) => {
-    if(!currentClient) return;
-    
-    const newCart = cart.filter(item => !(item.id === productId && item.clientId === currentClient.id));
+    if (!currentClient) return;
+
+    const newCart = cart.filter(
+      (item) => !(item.id === productId && item.clientId === currentClient.id),
+    );
     setCart(newCart);
     localStorage.setItem("cart", JSON.stringify(newCart));
   };
@@ -108,12 +123,13 @@ export function ClientProvider({ children }) {
   return (
     <ClientContext.Provider
       value={{
-        currentClient, 
-        defineCurrentClient, 
-        clearCurrentClient ,
+        currentClient,
+        defineCurrentClient,
+        clearCurrentClient,
         cart,
+        setCart, // Ajouté pour permettre de vider le panier globalement
         addToCart,
-        removeFromCart
+        removeFromCart,
       }}
     >
       {/* "children" représente tous les composants de l'application qui seront à l'intérieur du Provider */}
