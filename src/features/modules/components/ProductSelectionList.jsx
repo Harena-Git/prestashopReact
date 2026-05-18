@@ -22,6 +22,8 @@ function ProductSelectionList({
   const { addToCart } = useContext(ClientContext);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+  // Quantité par produit (clé = product.id, valeur = nombre saisi)
+  const [quantities, setQuantities] = useState({});
 
   // S'assurer que products est toujours un tableau.
   const validProducts = Array.isArray(products) ? products : [];
@@ -124,11 +126,35 @@ function ProductSelectionList({
                 </div>
 
                 {/* Colonne droite : boutons d'action */}
-                <div className="product-actions">
+                <div className="product-actions" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <input
+                    type="number"
+                    min="1"
+                    value={quantities[product.id] ?? 1}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      const val = Math.max(1, parseInt(e.target.value, 10) || 1);
+                      setQuantities((prev) => ({ ...prev, [product.id]: val }));
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    title="Quantité à ajouter au panier"
+                    style={{
+                      width: "60px",
+                      padding: "5px 6px",
+                      borderRadius: "4px",
+                      border: "1px solid #ccc",
+                      textAlign: "center",
+                      fontSize: "0.9rem",
+                    }}
+                  />
                   <button
                     className="btn-edit"
                     onClick={(e) =>
-                      handleActionClick(e, () => addToCart(product), product.id)
+                      handleActionClick(
+                        e,
+                        () => addToCart(product, quantities[product.id] ?? 1),
+                        product.id,
+                      )
                     }
                     title="Ajouter le produit au panier"
                   >

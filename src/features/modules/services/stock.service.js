@@ -14,11 +14,31 @@ function todayDateString() {
 }
 
 /**
- * Somme les quantités de tous les stock_availables d'un produit (toutes déclinaisons).
+ * Somme les quantités de tous les stock_availables d'un produit.
+ *
+ * IMPORTANT — double-comptage évité :
+ * Pour un produit avec déclinaisons, PrestaShop stocke :
+ *   - une ligne par déclinaison (id_product_attribute != 0) → stock réel de chaque variante
+ *   - une ligne agrégat (id_product_attribute == 0)         → somme auto-calculée par PS
+ * Sommer toutes les lignes reviendrait à compter le stock deux fois.
+ * On utilise donc uniquement les lignes déclinaisons quand elles existent,
+ * ou la ligne de base (attribute=0) pour les produits sans déclinaison.
  */
 export async function getProductTotalStock(productId, client = new PrestashopClient()) {
   const data = await client.get(`stock_availables?filter[id_product]=${productId}`);
   const records = normalizeList(data?.stock_availables);
+
+  // Séparer les lignes variantes des lignes agrégat/base
+  const variantRecords = records.filter(
+    (r) => String(r.id_product_attribute) !== "0",
+  );
+
+  if (variantRecords.length > 0) {
+    // Produit avec déclinaisons : sommer uniquement les stocks des variantes
+    return variantRecords.reduce((sum, r) => sum + parseInt(r.quantity || 0, 10), 0);
+  }
+
+  // Produit simple (sans déclinaison) : utiliser la ligne de base
   return records.reduce((sum, r) => sum + parseInt(r.quantity || 0, 10), 0);
 }
 

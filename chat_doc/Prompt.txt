@@ -1,178 +1,100 @@
-Dans l'import des fichier csv de type @import-data-mai-26 - fichier3.csv
-Quand l'etat est :
-    - paiement accepté : on y touche pas parce que cela fonctionne deja comme il faut
-    - vide, on le met automatiquement avec l'etat "dans le panier"
-    - annulé, on le met automatiquement avec l'etat "annulé"
-Tout ces changements sont appliqués automatiquement lors de l'import des fichiers CSV pour eviter que prestashop les insert dans automatiquement
-dans l'etat 11.
-Je ne sais pas si on fait du mapping ou d'autre methode pour que ca fonctionne.
-Page : @DataImportPage.jsx
-Lien : "http://localhost:5173/admin/modules/data-import"
+Tu es un expert en intégration API PrestaShop 1.7 / 8.x.
 
-Fais l'analyse, regarde si c'est deja inclus, corriges si ce n'est pas le cas.
+Je veux générer un tableau de suivi journalier des stocks en utilisant UNIQUEMENT l’API Webservice PrestaShop (pas d'accès direct à la base de données, pas de module custom).
 
-Done
+Objectif :
+Créer un tableau de suivi qui affiche :
 
-========================================================================
+1) Tous les mouvements de stock journaliers
+2) Le stock disponible actuel
+3) Les variations de stock (delta)
+4) Les ventes liées aux commandes
+5) Les remises en stock (retours / annulations)
+6) Les ajustements manuels si disponibles
 
-Dans "http://localhost:5173/admin/orders", on doit lister tout les
-commandes peut importe leurs etat, et chequer si le boutton "Paiement effectué" fonctionne correctement.
-Il ne faut pas le confondre avec la fonction du dashboard
-("http://localhost:5173/admin/dashboard") qui possede
-des conditions d'affichage.
+---
 
-Done
+### Contraintes :
+- Utiliser uniquement les endpoints API PrestaShop
+- Format JSON
+- Authentification par clé API (ws_key)
+- Compatible PrestaShop 1.7 et 8
+- Gérer le multiboutique si applicable
+- Gestion pagination API
+- Sécuriser les requêtes
 
-========================================================================
+---
 
-Dans "http://localhost:5173/admin/dashboard", on doit lister tout les commandes a part les commandes annulées, et totaliser le chiffre Total
-pour chaque section correctement.
+### Endpoints à exploiter :
 
-Done
+- /api/orders
+- /api/order_details
+- /api/stock_availables
+- /api/products
+- /api/product_combinations
+- /api/order_histories
+- /api/order_slip (pour retours)
+- /api/order_states
 
-=======================================================================
+---
 
-Dans "http://localhost:5173/admin/orders", mbola misy probleme @ resaka
-etat
+### Logique attendue :
 
-========================================================================
+1. Pour les sorties de stock (ventes) :
+   - Récupérer les commandes validées via /api/orders
+   - Récupérer les lignes produits via /api/order_details
+   - Considérer la quantité vendue comme mouvement négatif
 
-frontOffice : état de “mes commandes”
-Dans "http://localhost:5173/client/products"
-Nous allons ajouter un elements dans le sidebar qui va afficher
-l'etat de commande de chaque client connecte.
+2. Pour les retours :
+   - Utiliser /api/order_slip
+   - Quantité retournée = mouvement positif
 
-A inclure directement dans le composant Sidebar client
+3. Pour le stock actuel :
+   - Utiliser /api/stock_availables
+   - Champ quantity
 
-Done
+4. Calculer dynamiquement :
+   - Stock initial (si période définie)
+   - Total entrées
+   - Total sorties
+   - Stock théorique
+   - Comparaison avec stock réel
 
-========================================================================
+---
 
-creer un nouveaux element de sidebar dans "http://localhost:5173/admin/orders" qui va permettre de gérer le stock des produits
-creer une page qui permet d’ajouter en stock les produits
+### Résultat attendu :
 
-NB : page a implementer.
+1. Un tableau journalier avec colonnes :
 
-Done
+| Date | Référence | Produit | Déclinaison |
+| Type Mouvement | Quantité (+/-) |
+| Stock Avant | Stock Après |
+| ID Commande | Statut |
 
-========================================================================
+2. Un tableau stock actuel :
 
-Afficher la quantité en stock disponible sur la fiche produit
-Dans "http://localhost:5173/client/products"
-Il faut afficher les quantités disponibles en stock pour chaque produit.
+| Référence | Produit | Déclinaison |
+| Stock Actuel | Statut (OK / Faible / Rupture) |
 
-Done
+3. Un résumé journalier :
 
-========================================================================
+| Date | Nb Ventes | Total Sorti |
+| Total Retours | Total Net |
 
-import 1 seul delinaison (pas de combinaison)
-Non a la combinaison
-Dans l'import csv, en se rendant compte de notre projet
-et aussi de prestashop, dans l'import csv, mettre une condition pour importer 1 seul delinaison (pas de combinaison)
+---
 
-Lien : http://localhost:5173/admin/modules/data-import
+### Fournis :
 
-Done
-========================================================================
+- La logique complète de calcul
+- Les appels API exacts (GET)
+- Les exemples d’URL
+- Le pseudo-code en JavaScript
+- La gestion pagination
+- La gestion des filtres par date
+- Le calcul du delta de stock
+- La structure JSON finale à exploiter
 
-Et en fait, il y a eu un probleme sur les stock_movements,stock_availables, etc ... de notre prestashop, et j'ai du creer un nouveaux endpoint dans prestashop pour faire de faire correctement "http://localhost:5173/admin/modules/data-import" sans faire de l'update directe.
-Et j'aimerai que les methodes que tu as citer aux dessus fonctionnent bien mais en modifiant en utilisant le endpoint que je viens de creer.
-Fichier reference endpoint (prestashop) : [@endpoint_info.txt](file:///D:/Evaluation/prestashopReact/endpoint_info.txt)
-Les refences API disponible ajouter avec cet endpoint : [@Les_AIP.xml](file:///D:/Evaluation/prestashopReact/doc/Les_AIP.xml)
-Le scrip de base : [@create.sql](file:///D:/Evaluation/prestashopReact/db/create.sql)
+---
 
-Done
-
-
-========================================================================
-
-Changement de fonctionnement :
-L'utilisateur Client Anonyme (par defaut id = 1) peux voir les paniers, mais pour valider un panier, il faut être connecté (quand c'est l'anonyme qui est connecté, et qu'il clique sur "valider", on le rend directment dans la page de connexion
-"http://localhost:5173/customers").
-
-Du coup, pour valider un panier, il faut être connecté.
-
-Done
-
-========================================================================
-
-rajouter un tableau sur l’évolution du stock journalier d’un produit
-mahazo micréer endpoint 1 (1 ihany ) ianareo ao am prestashop hiantsoana an’ilay code
-StockAvailable::updateQuantity($idProduct, 0, $delta)
-
-Mikitika code prestashop
-
-Done
-
-=======================================================================
-
-Checquer les stock pour chaque modification
-Insert, Update, Delete
-Si tu regardes bien, on geres beaucoups de cas sur les stocks
-avec des inset et des update et des delete, peux-tu chequer que les stocks sont bien mis à jour, si on fait une modification, le stock doit être mis à jour correctement.
-Dans notre code ici ?
-
-Done
-
-=======================================================================
-
-IL y eu un imprevu, et j'aimerai avoir une nouvelle page :
-validation commande de clients (pour chaque client connecter) :
--avec uniquement le choix “paiement à la livraison”
--pas de frais de livraison
-
-Cette page aura pour but de valider les commandes de clients avec le choix "paiement à la livraison" et sans frais de livraison.
-
-Fais l'analyse de la page et détermines les éléments à afficher.
-En se rendant compte de prestashop, des fichiers de donnees dans le projet.
-
-Done
-
-=======================================================================
-
-Il y a un probleme a regler, quand je valide la commande
-dans "http://localhost:5173/client/checkout"
-et que je regarde dans "http://localhost:5173/client/orders"
-apres, les montant de certaines commandes sont de "0,00 €" que ce soit dans react ou dans prestashop.
-
-Il y a un probleme a regler dans le code.
-dans "http://localhost:5173/client/products"
-j'ai ajouter par exemple "Tshirt a 11.195701€"
-J'ai valider la commande dans "http://localhost:5173/client/cart".
-Le stock de ce produit apres a ete reduit a -2, et son
-montant dans "http://localhost:5173/client/orders" est de "0,00 €"
-
-Peux-tu regler ce probleme.
-
-=======================================================================
-
-Cheque de format de la date en version : DD/MM/YYYY
-A part c'est de l'erreur.
-
-=======================================================================
-
-A afficher dans le Dashboard
- - commande totaliser avec panier
- - commande totaliser sans panier
-
-
-=======================================================================
-
-Tuto Excel By Tony
-
-=======================================================================
-
-Appach : "C:\xampp\htdocs"
-Mysql : "D:\xampp\htdocs"
-
-
-Dans "http://localhost:5173/client/checkout"
-Lors de de validation d'un validation de commande pour certaines produits (T_01 et P01 dans @import-data-mai-26 - fichier1.csv
-, @import-data-mai-26 - fichier2.csv)
-pour ces produits, je constate que les produits avec des declinaisons, possedent
-tous des erreurs.
-Apres validation du produit dans "http://localhost:5173/client/checkout" et que je regarde dans 
-"http://localhost:5173/admin/stock", le stock est soustrais de -2, parfois encore plus, mais pas -1 suivant la normale
-pour les produits avec declinaisons exemple : T_01 et P01, je ne sais pas si l'API est appeles plus d'une fois ou je ne sais pas.
-quand on fait des validations d'achat.
-Peux-tu verifier et corriger l'erreur stp ?
+Important :
+Explique clairement comment reconstruire les mouvements de stock à partir des commandes puisque l’API PrestaShop ne fournit pas directement un historique des mouvements de stock.

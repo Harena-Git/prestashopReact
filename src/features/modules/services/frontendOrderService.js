@@ -184,13 +184,14 @@ export async function validateFullOrder(client, items) {
 
   const orderRows = items.map((item) => ({
     product_id: parseInt(item.id, 10),
-    combination_id: item.combination_id || 0,
+    // Correction : On donne la priorité à combination_id, puis id_product_attribute
+    combination_id: parseInt(item.combination_id || item.id_product_attribute || 0, 10), 
     name: item.name || "Produit sans nom",
-    quantity: parseInt(item.cartQuantity || 1, 10), // Utiliser cartQuantity au lieu du stock disponible
+    quantity: parseInt(item.cartQuantity || 1, 10), 
     unit_price_ht: toNum(item.price),
     unit_price_ttc: toNum(item.price),
   }));
-
+  
   console.log("[CHECKOUT] Articles formatés pour la commande:", orderRows);
   console.log(
     "[CHECKOUT] Debug prix panier (raw -> parsed):",

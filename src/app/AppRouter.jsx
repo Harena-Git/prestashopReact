@@ -18,6 +18,7 @@ import PanierPages from "../features/modules/pages/PanierPages";
 import OrderDashboard from "../features/modules/components/OrderDashboard";
 import ClientOrdersPage from "../features/modules/pages/ClientOrdersPage";
 import StockManagementPage from "../features/modules/pages/StockManagementPage";
+import StockMovementsPage from "../features/modules/pages/StockMovementsPage";
 
 function NotFoundPage() {
   return (
@@ -50,6 +51,7 @@ function AppRouter() {
           <Route path="orders" element={<ListCommande />} />
           <Route path="dashboard" element={<OrderDashboard />} />
           <Route path="stock" element={<StockManagementPage />} />
+          <Route path="stock-movements" element={<StockMovementsPage />} />
         </Route>
 
         {/* Public - Sidebar Navigation */}

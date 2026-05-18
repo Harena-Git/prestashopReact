@@ -1,2 +1,13 @@
-Forceny id : 8 daholo ny payement
-base : 8 id de etat
+Dans "http://localhost:5173/client/checkout"
+lorsqu'on clique sur "Acheter cet article" mais que il s'agit
+d'un produit avec declinaison (exemple verifiable T_01 et P_01 dans
+le fichier @import-data-mai-26 - fichier2.csv et @import-data-mai-26 - fichier3.csv),
+dans le stock il le stock doit etre -1, mais quand il s'agit d'un
+produit avec declinaison le stock fait -2 a chaque fois, parfois meme plus.
+Peux-tu analyser ? tester ? Debuguer pour que cela marche normalement.
+
+Apres le debug, dans "http://localhost:5173/client/products"
+A faire : il aura un input de parametre de nombre
+a cote de chaque produit qui va definir le quantite a ajouter dans le panier,
+et c'est cette quantite qui sera finalement inserer dans la base et calculable
+pour les operations de state dans les autre pages.

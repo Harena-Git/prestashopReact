@@ -77,12 +77,13 @@ export function ClientProvider({ children }) {
     localStorage.removeItem("currentClient");
   };
 
-  const addToCart = async (product) => {
+  const addToCart = async (product, quantity = 1) => {
     if (!currentClient) {
       console.warn("Aucun client défini, impossible d'ajouter au panier");
       return;
     }
 
+    const qty = Math.max(1, parseInt(quantity, 10) || 1);
     const clientId = currentClient.id;
 
     // Résoudre déclinaison (combination) + prix effectif si nécessaire
@@ -117,7 +118,7 @@ export function ClientProvider({ children }) {
     } else {
       // Sinon, on rajoute le produit aux produits existants
       // On utilise cartQuantity pour la quantité commandée afin de ne pas écraser la quantité en stock
-      newCart = [...cart, { ...resolvedProduct, cartQuantity: 1, clientId }];
+      newCart = [...cart, { ...resolvedProduct, cartQuantity: qty, clientId }];
     }
 
     // On met a jour le State et le LocalStorage

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   getOrdersSummaryByDay,
   getAbsoluteGlobalTotal,
+  getCategoryStatistics
 } from "../services/order.service";
 import "./OrderDashboard.css";
 
@@ -10,6 +11,8 @@ const OrderDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  const [categoryStats, setCategoryStats] = useState([]);
 
   // 1. État pour le total de la période filtrée
   const [totalFiltered, setTotalFiltered] = useState({ amount: 0, count: 0 });
@@ -23,6 +26,10 @@ const OrderDashboard = () => {
       // Récupération des données filtrées pour le tableau
       const summary = await getOrdersSummaryByDay(start, end);
       setData(summary);
+
+      // calcule des stats par catégorie (pour la section dédiée)
+      const catStats = await getCategoryStatistics();
+      setCategoryStats(catStats);
 
       // Calcul du total pour la période affichée
       const filtered = summary.reduce(
@@ -148,6 +155,39 @@ const OrderDashboard = () => {
                   })}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* NOUVEAU TABLEAU : Statistiques par catégorie */}
+          {categoryStats.length > 0 && (
+            <div style={{ marginTop: "40px" }}>
+              <h3>📊 Statistiques par Catégorie de produits</h3>
+              <table className="dashboard-table">
+                <thead>
+                  <tr>
+                    <th>Catégorie</th>
+                    <th>Ventes (Total HT)</th>
+                    <th>Achat (Total HT)</th>
+                    <th>Bénéfice (Marge)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categoryStats.map((stat, idx) => (
+                    <tr key={idx}>
+                      <td>{stat.categoryName}</td>
+                      <td className="amount-cell">
+                        {stat.totalSalesHT.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                      </td>
+                      <td className="amount-cell">
+                        {stat.totalPurchaseHT.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                      </td>
+                      <td className="amount-cell" style={{ color: stat.profit >= 0 ? "green" : "red", fontWeight: "bold" }}>
+                        {stat.profit.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </>

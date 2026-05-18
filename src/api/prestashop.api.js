@@ -272,3 +272,84 @@ export class PrestashopClient {
     return await response.json();
   }
 }
+
+/**
+ * Calcule le bénéfice et le montant total des ventes et achats par catégorie (Hors Taxe)
+ * @returns {Promise<Array>} Tableau de statistiques par catégorie.
+ */
+export async function getCategoryStatistics() {
+  const client = new PrestashopClient();
+  
+  // 1. Récupération des données (Commandes valides, Produits, Catégories) en parallèle
+  const [orders, productsData, categoriesData] = await Promise.all([
+    listOrdersService(true), // Exclut les commandes annulées (état 6)
+    client.get("products"),  // Pour obtenir les "wholesale_price" (Achat HT)
+    client.get("categories") // Pour obtenir les noms de catégories
+  ]);
+
+  // 2. Mapping des Produits pour un accès rapide
+  const products = Array.isArray(productsData?.products) ? productsData.products : [];
+  const productMap = {};
+  products.forEach(p => {
+    productMap[p.id] = {
+      categoryId: p.id_category_default || "0",
+      wholesalePrice: parseFloat(p.wholesale_price) || 0
+    };
+  });
+
+  // 3. Mapping des Catégories 
+  const categories = Array.isArray(categoriesData?.categories) ? categoriesData.categories : [];
+  const categoryMap = {};
+  categories.forEach(c => {
+    let name = "Catégorie inconnue";
+    if (c.name) {
+      if (Array.isArray(c.name)) name = c.name[0]?.value || name; // Multilingue
+      else if (typeof c.name === 'string') name = c.name;
+      else if (c.name.language) name = c.name.language.value || c.name.language || name;
+    }
+    categoryMap[c.id] = name;
+  });
+
+  // 4. Calcul des montants par catégorie
+  const stats = {};
+
+  orders.forEach(order => {
+    // Les détails des lignes (order_details) d'une commande via API JSON
+    let rows = [];
+    if (order.associations?.order_rows) {
+      const apiRows = order.associations.order_rows;
+      rows = Array.isArray(apiRows) ? apiRows : [apiRows];
+    }
+
+    rows.forEach(row => {
+      const productId = row.product_id;
+      const quantity = parseInt(row.product_quantity || row.quantity, 10) || 0;
+      // Prix de vente Unitaire HT défini dans la commande
+      const unitPriceHt = parseFloat(row.unit_price_tax_excl || row.product_price) || 0;
+
+      const pInfo = productMap[productId] || {};
+      const catId = pInfo.categoryId || "0";
+      const catName = categoryMap[catId] || `Catégorie ${catId}`;
+      const wholesalePrice = pInfo.wholesalePrice || 0;
+
+      if (!stats[catId]) {
+        stats[catId] = {
+          categoryId: catId,
+          categoryName: catName,
+          totalSalesHT: 0,
+          totalPurchaseHT: 0,
+          profit: 0
+        };
+      }
+
+      stats[catId].totalSalesHT += unitPriceHt * quantity;
+      stats[catId].totalPurchaseHT += wholesalePrice * quantity;
+    });
+  });
+
+  // 5. Calcul des bénéfices
+  return Object.values(stats).map(stat => {
+    stat.profit = stat.totalSalesHT - stat.totalPurchaseHT;
+    return stat;
+  }).sort((a, b) => b.totalSalesHT - a.totalSalesHT); // Classer par produit générant le plus de ventes
+}

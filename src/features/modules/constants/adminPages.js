@@ -35,4 +35,10 @@ export const ADMIN_PAGES = [
     path: "/admin/stock",
     showInSidebar: true,
   },
+  {
+    id: "stock-movements",
+    label: "Suivi mouvement",
+    path: "/admin/stock-movements",
+    showInSidebar: true,
+  },
 ];
