@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { listAllProducts } from "../services/moduleListe";
 import { updateStockWithMovement } from "../services/stock.service";
-import StockEvolutionTable from "../components/StockEvolutionTable";
+import DailyStockEvolutionTable from "../components/DailyStockEvolutionTable";
 
 function StockManagementPage() {
   const [products, setProducts] = useState([]);
@@ -245,7 +245,7 @@ function StockManagementPage() {
               {expandedProductId === product.id && (
                 <tr key={`evo-${product.id}`}>
                   <td colSpan="5" style={{ padding: "0 12px", borderBottom: "1px solid #dee2e6" }}>
-                    <StockEvolutionTable productId={product.id} />
+                    <DailyStockEvolutionTable productId={product.id} />
                   </td>
                 </tr>
               )}

@@ -89,3 +89,94 @@ async function fetchCurrentStock(client, productId, attributeId) {
     return 0;
   }
 }
+
+/**
+ * Récupère l'évolution synthétique du stock journalier pour un produit.
+ * (Date, Stock Initial, Entrées, Sorties/Ventes, Stock Final)
+ */
+export async function getDailyStockEvolution(productId) {
+  const client = new PrestashopClient();
+  
+  try {
+    // 1. Récupérer le stock actuel (somme de tous les stock_availables de ce produit)
+    let currentTotalStock = 0;
+    const availData = await client.get(`stock_availables?filter[id_product]=${productId}&display=full`);
+    if (availData && availData.stock_availables) {
+      const records = Array.isArray(availData.stock_availables) ? availData.stock_availables : [availData.stock_availables];
+      currentTotalStock = records.reduce((sum, r) => sum + parseInt(r.quantity || 0, 10), 0);
+    }
+
+    // 2. Récupérer les mouvements de stock (triés du plus récent au plus ancien)
+    const mvtsData = await client.get(`stock_movements?filter[id_product]=${productId}&sort=[date_add_DESC]&display=full`);
+    const mvtsRaw = mvtsData?.stock_movements || [];
+    const movements = Array.isArray(mvtsRaw) ? mvtsRaw : [mvtsRaw];
+    
+    // Si aucun mouvement, on retourne juste une ligne pour aujourd'hui avec le stock actuel
+    if (movements.length === 0) {
+      const today = new Date().toISOString().split("T")[0];
+      return [{
+        date: today,
+        initialStock: currentTotalStock,
+        inputs: 0,
+        outputs: 0,
+        finalStock: currentTotalStock,
+      }];
+    }
+
+    // 3. Agréger les mouvements par jour
+    const dailyMap = {};
+    movements.forEach(mvt => {
+      const dateStr = (mvt.date_add || "").split(" ")[0]; // "YYYY-MM-DD"
+      if (!dateStr) return;
+      
+      if (!dailyMap[dateStr]) {
+        dailyMap[dateStr] = { inputs: 0, outputs: 0 };
+      }
+      
+      const qty = parseInt(mvt.physical_quantity || 0, 10);
+      if (parseInt(mvt.sign, 10) === 1) {
+        dailyMap[dateStr].inputs += qty;
+      } else {
+        dailyMap[dateStr].outputs += qty;
+      }
+    });
+
+    // 4. Calculer rétrospectivement le stock (initial et final) pour chaque jour
+    // On trie les dates par ordre décroissant (du plus récent au plus ancien)
+    const sortedDates = Object.keys(dailyMap).sort((a, b) => new Date(b) - new Date(a));
+    const result = [];
+    
+    let simulatedStock = currentTotalStock;
+
+    // S'il n'y a pas eu de mouvement aujourd'hui, on ajoute quand même la ligne d'aujourd'hui
+    const todayStr = new Date().toISOString().split("T")[0];
+    if (!sortedDates.includes(todayStr)) {
+      sortedDates.unshift(todayStr);
+      dailyMap[todayStr] = { inputs: 0, outputs: 0 };
+    }
+
+    for (const date of sortedDates) {
+      const { inputs, outputs } = dailyMap[date];
+      
+      const finalStock = simulatedStock;
+      // stock_initial = stock_final - entrées + sorties
+      const initialStock = finalStock - inputs + outputs;
+      
+      result.push({
+        date,
+        initialStock,
+        inputs,
+        outputs,
+        finalStock
+      });
+      
+      // Le stock initial de ce jour devient le stock final de la veille
+      simulatedStock = initialStock;
+    }
+
+    return result;
+  } catch (error) {
+    console.error(`[STOCK EVOLUTION] Erreur API pour produit ${productId}:`, error.message);
+    throw error;
+  }
+}
