@@ -86,6 +86,16 @@ export function ClientProvider({ children }) {
     const qty = Math.max(1, parseInt(quantity, 10) || 1);
     const clientId = currentClient.id;
 
+    // ── Vérification du stock disponible ──────────────────────────────────
+    if (product.quantity === 0) {
+      alert("Ce produit est en rupture de stock.");
+      return;
+    }
+    if (product.quantity !== undefined && qty > product.quantity) {
+      alert(`Stock insuffisant. Stock disponible : ${product.quantity}`);
+      return;
+    }
+
     // Résoudre déclinaison (combination) + prix effectif si nécessaire
     const resolvedProduct = await resolveProductForCart(product);
 

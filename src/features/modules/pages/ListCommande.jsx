@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   listOrdersService,
   updateOrderStatusService,
+  processDeliveryStockUpdate,
   getOrderStateLabel,
   PAYMENT_DONE_STATE_ID,
   ORDER_CANCELED_STATE_ID,
@@ -45,6 +46,8 @@ function ListCommande() {
 
     try {
       await updateOrderStatusService(orderId, newStateId);
+
+      // Mise à jour locale de l'état
       setOrders((prev) =>
         prev.map((order) =>
           String(normaliseField(order.id)) === String(orderId)
@@ -52,6 +55,29 @@ function ListCommande() {
             : order,
         ),
       );
+
+      // ── Livraison : décrémentation du stock via stock_deltas ─────────────
+      if (String(newStateId) === String(ORDER_DELIVERED_STATE_ID)) {
+        const deliveredOrder = orders.find(
+          (o) => String(normaliseField(o.id)) === String(orderId),
+        );
+        if (deliveredOrder) {
+          try {
+            await processDeliveryStockUpdate(deliveredOrder);
+            setMessage(
+              `Commande ${orderId} marquée '${label}' — stock mis à jour.`,
+            );
+          } catch (stockErr) {
+            console.warn("[STOCK] Erreur mise à jour stock livraison :", stockErr);
+            setMessage(
+              `Commande ${orderId} marquée '${label}' (⚠️ stock non mis à jour : ${stockErr.message}).`,
+            );
+          }
+          setMessageType("success");
+          return;
+        }
+      }
+
       setMessage(`Statut de la commande ${orderId} mis à jour en '${label}'.`);
       setMessageType("success");
     } catch (error) {

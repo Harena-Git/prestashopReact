@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import {
   getOrdersSummaryByDay,
   getAbsoluteGlobalTotal,
-  getCategoryStatistics
+  fetchCartsSummary,
+  getCategoryStatistics,
 } from "../services/order.service";
 import "./OrderDashboard.css";
 
@@ -15,35 +16,41 @@ const OrderDashboard = () => {
   const [categoryStats, setCategoryStats] = useState([]);
 
   // 1. État pour le total de la période filtrée
-  const [totalFiltered, setTotalFiltered] = useState({ amount: 0, count: 0 });
+  const [totalFiltered, setTotalFiltered] = useState({ amount: 0, count: 0, totalOrdersOnly: 0, countOrdersOnly: 0 });
 
   // 2. État pour le total absolu (Toute la base)
-  const [totalAbsolute, setTotalAbsolute] = useState({ amount: 0, count: 0 });
+  const [totalAbsolute, setTotalAbsolute] = useState({ totalAmount: 0, count: 0, totalOrdersOnly: 0, countOrdersOnly: 0 });
+
+  // 3. Paniers actifs (ps_carts)
+  const [cartSummary, setCartSummary] = useState({ count: 0, totalAmount: 0 });
 
   const fetchStats = async (start = null, end = null) => {
     setLoading(true);
     try {
-      // Récupération des données filtrées pour le tableau
-      const summary = await getOrdersSummaryByDay(start, end);
+      // Toutes les données en parallèle
+      const [summary, absolute, catStats, carts] = await Promise.all([
+        getOrdersSummaryByDay(start, end),
+        getAbsoluteGlobalTotal(),
+        getCategoryStatistics(),
+        fetchCartsSummary(),
+      ]);
+
       setData(summary);
-
-      // calcule des stats par catégorie (pour la section dédiée)
-      const catStats = await getCategoryStatistics();
       setCategoryStats(catStats);
+      setTotalAbsolute(absolute);
+      setCartSummary(carts);
 
-      // Calcul du total pour la période affichée
+      // Total de la période filtrée : somme des jours du tableau
       const filtered = summary.reduce(
         (acc, day) => ({
           amount: acc.amount + day.totalAmount,
           count: acc.count + day.count,
+          totalOrdersOnly: acc.totalOrdersOnly + (day.totalOrdersOnly || 0),
+          countOrdersOnly: acc.countOrdersOnly + (day.countOrdersOnly || 0),
         }),
-        { amount: 0, count: 0 },
+        { amount: 0, count: 0, totalOrdersOnly: 0, countOrdersOnly: 0 },
       );
       setTotalFiltered(filtered);
-
-      // Récupération du total ABSOLU (Toute la base)
-      const absolute = await getAbsoluteGlobalTotal();
-      setTotalAbsolute(absolute);
     } catch (error) {
       console.error("Erreur:", error);
     } finally {
@@ -135,7 +142,16 @@ const OrderDashboard = () => {
               <div className="grand-total-footer">
                 <div>
                   <h4>Total sur la période filtrée</h4>
-                  <small>{totalFiltered.count} commande(s)</small>
+                  <small>{totalFiltered.count} entrée(s) (paniers + commandes)</small>
+                  {/* Sous-total commandes seules */}
+                  <div className="subtotal-orders-only">
+                    dont commandes seules :{" "}
+                    {totalFiltered.totalOrdersOnly.toLocaleString("fr-FR", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}{" "}
+                    ({totalFiltered.countOrdersOnly} commande{totalFiltered.countOrdersOnly !== 1 ? "s" : ""})
+                  </div>
                 </div>
                 <div className="grand-total-value">
                   {totalFiltered.amount.toLocaleString("fr-FR", {
@@ -147,7 +163,18 @@ const OrderDashboard = () => {
 
               {/* TOTAL ABSOLU (Toute la base de données) */}
               <div className="absolute-total-container">
-                <div className="absolute-total-label">💰 Total Global</div>
+                <div>
+                  <div className="absolute-total-label">💰 Total Global</div>
+                  {/* Sous-total commandes seules */}
+                  <div className="subtotal-orders-only" style={{ color: "#aaa" }}>
+                    dont commandes seules :{" "}
+                    {(totalAbsolute.totalOrdersOnly || 0).toLocaleString("fr-FR", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}{" "}
+                    ({totalAbsolute.countOrdersOnly || 0} commande{(totalAbsolute.countOrdersOnly || 0) !== 1 ? "s" : ""})
+                  </div>
+                </div>
                 <div className="absolute-total-value">
                   {totalAbsolute.totalAmount.toLocaleString("fr-FR", {
                     style: "currency",
@@ -155,6 +182,20 @@ const OrderDashboard = () => {
                   })}
                 </div>
               </div>
+
+              {/* PANIERS ACTIFS (ps_carts en base) */}
+              {cartSummary.count > 0 && (
+                <div className="carts-summary-bar">
+                  🛒 <strong>{cartSummary.count}</strong> panier{cartSummary.count !== 1 ? "s" : ""} actif{cartSummary.count !== 1 ? "s" : ""} en base —{" "}
+                  montant estimé :{" "}
+                  <strong>
+                    {cartSummary.totalAmount.toLocaleString("fr-FR", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}
+                  </strong>
+                </div>
+              )}
             </div>
           )}
 

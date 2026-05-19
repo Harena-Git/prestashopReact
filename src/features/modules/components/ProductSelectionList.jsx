@@ -126,41 +126,82 @@ function ProductSelectionList({
                 </div>
 
                 {/* Colonne droite : boutons d'action */}
-                <div className="product-actions" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <input
-                    type="number"
-                    min="1"
-                    value={quantities[product.id] ?? 1}
-                    onChange={(e) => {
-                      e.stopPropagation();
-                      const val = Math.max(1, parseInt(e.target.value, 10) || 1);
-                      setQuantities((prev) => ({ ...prev, [product.id]: val }));
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                    title="Quantité à ajouter au panier"
-                    style={{
-                      width: "60px",
-                      padding: "5px 6px",
-                      borderRadius: "4px",
-                      border: "1px solid #ccc",
-                      textAlign: "center",
-                      fontSize: "0.9rem",
-                    }}
-                  />
-                  <button
-                    className="btn-edit"
-                    onClick={(e) =>
-                      handleActionClick(
-                        e,
-                        () => addToCart(product, quantities[product.id] ?? 1),
-                        product.id,
-                      )
-                    }
-                    title="Ajouter le produit au panier"
-                  >
-                    Ajouter au panier
-                  </button>
-                </div>
+                {(() => {
+                  const qty = quantities[product.id] ?? 1;
+                  const outOfStock = product.quantity === 0;
+                  const insufficientStock = !outOfStock && qty > product.quantity;
+                  const cantAdd = outOfStock || insufficientStock;
+                  return (
+                    <div className="product-actions" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      {outOfStock ? (
+                        <span
+                          style={{
+                            padding: "3px 8px",
+                            borderRadius: "4px",
+                            backgroundColor: "#f8d7da",
+                            color: "#721c24",
+                            fontSize: "0.78rem",
+                            fontWeight: 700,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Rupture
+                        </span>
+                      ) : (
+                        <input
+                          type="number"
+                          min="1"
+                          max={product.quantity}
+                          value={qty}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            const val = Math.max(1, parseInt(e.target.value, 10) || 1);
+                            setQuantities((prev) => ({ ...prev, [product.id]: val }));
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          title="Quantité à ajouter au panier"
+                          style={{
+                            width: "60px",
+                            padding: "5px 6px",
+                            borderRadius: "4px",
+                            border: `1px solid ${insufficientStock ? "#dc3545" : "#ccc"}`,
+                            textAlign: "center",
+                            fontSize: "0.9rem",
+                          }}
+                        />
+                      )}
+                      {insufficientStock && (
+                        <span style={{ fontSize: "0.75rem", color: "#dc3545", whiteSpace: "nowrap" }}>
+                          Max {product.quantity}
+                        </span>
+                      )}
+                      <button
+                        className="btn-edit"
+                        disabled={cantAdd}
+                        onClick={(e) =>
+                          handleActionClick(
+                            e,
+                            () => addToCart(product, qty),
+                            product.id,
+                          )
+                        }
+                        title={
+                          outOfStock
+                            ? "Produit en rupture de stock"
+                            : insufficientStock
+                            ? `Quantité demandée supérieure au stock (${product.quantity})`
+                            : "Ajouter le produit au panier"
+                        }
+                        style={{
+                          opacity: cantAdd ? 0.5 : 1,
+                          cursor: cantAdd ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        Ajouter au panier
+                      </button>
+                    </div>
+                  );
+                })()}
               </li>
             );
           })

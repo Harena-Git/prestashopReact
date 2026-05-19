@@ -1,100 +1,19 @@
-Tu es un expert en intégration API PrestaShop 1.7 / 8.x.
+-Dans "http://localhost:5173/admin/orders", il y aura des regles 
+a inserer, Quand un produit a un etat "Livré" on ne peut plus le Modifier
+pour ni l'annuler et aura directement un impact dans la base (ajout de ligne
+dans les tables mouvement de stock via les API et et un mise a jours du stock)
 
-Je veux générer un tableau de suivi journalier des stocks en utilisant UNIQUEMENT l’API Webservice PrestaShop (pas d'accès direct à la base de données, pas de module custom).
+-Seulement les etat "Livré" pourra avoir des impacts dans les mouvements de stocks
 
-Objectif :
-Créer un tableau de suivi qui affiche :
+-Dans "http://localhost:5173/client/products" si le stock de produit n'est plus 
+ou l'input commander est superieur, il ne peut pas se faire a l'instant meme.
 
-1) Tous les mouvements de stock journaliers
-2) Le stock disponible actuel
-3) Les variations de stock (delta)
-4) Les ventes liées aux commandes
-5) Les remises en stock (retours / annulations)
-6) Les ajustements manuels si disponibles
+-les dashboard dans "http://localhost:5173/admin/dashboard" doivent etre toujours 
+que ce soit toujours (vennant des panier recement ajouter dans "http://localhost:5173/client/cart")
 
----
-
-### Contraintes :
-- Utiliser uniquement les endpoints API PrestaShop
-- Format JSON
-- Authentification par clé API (ws_key)
-- Compatible PrestaShop 1.7 et 8
-- Gérer le multiboutique si applicable
-- Gestion pagination API
-- Sécuriser les requêtes
-
----
-
-### Endpoints à exploiter :
-
-- /api/orders
-- /api/order_details
-- /api/stock_availables
-- /api/products
-- /api/product_combinations
-- /api/order_histories
-- /api/order_slip (pour retours)
-- /api/order_states
-
----
-
-### Logique attendue :
-
-1. Pour les sorties de stock (ventes) :
-   - Récupérer les commandes validées via /api/orders
-   - Récupérer les lignes produits via /api/order_details
-   - Considérer la quantité vendue comme mouvement négatif
-
-2. Pour les retours :
-   - Utiliser /api/order_slip
-   - Quantité retournée = mouvement positif
-
-3. Pour le stock actuel :
-   - Utiliser /api/stock_availables
-   - Champ quantity
-
-4. Calculer dynamiquement :
-   - Stock initial (si période définie)
-   - Total entrées
-   - Total sorties
-   - Stock théorique
-   - Comparaison avec stock réel
-
----
-
-### Résultat attendu :
-
-1. Un tableau journalier avec colonnes :
-
-| Date | Référence | Produit | Déclinaison |
-| Type Mouvement | Quantité (+/-) |
-| Stock Avant | Stock Après |
-| ID Commande | Statut |
-
-2. Un tableau stock actuel :
-
-| Référence | Produit | Déclinaison |
-| Stock Actuel | Statut (OK / Faible / Rupture) |
-
-3. Un résumé journalier :
-
-| Date | Nb Ventes | Total Sorti |
-| Total Retours | Total Net |
-
----
-
-### Fournis :
-
-- La logique complète de calcul
-- Les appels API exacts (GET)
-- Les exemples d’URL
-- Le pseudo-code en JavaScript
-- La gestion pagination
-- La gestion des filtres par date
-- Le calcul du delta de stock
-- La structure JSON finale à exploiter
-
----
-
-Important :
-Explique clairement comment reconstruire les mouvements de stock à partir des commandes puisque l’API PrestaShop ne fournit pas directement un historique des mouvements de stock.
+-Dans "http://localhost:5173/admin/dashboard", verifie si la somme "Total sur la période filtrée" et 
+"Total Global" sont les sommes des prix X quantite des commande d'etat "Dans le panier" et 
+"Paiement accepete".
+Juste en dessous de "Total sur la période filtrée" et 
+"Total Global", affiche la juste en bas la somme des commandes periodique et Global des commandes 
+(sans les paniers), affiche juste de maniere plus petit pour que ca fasse pas trop impression.

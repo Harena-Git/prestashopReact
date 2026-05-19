@@ -5,6 +5,28 @@ import {
   createResource,
   PrestashopClient,
 } from "../../../api/prestashop.api";
+import { updateStockWithMovement } from "./stock.service";
+
+// ─── Helpers internes ─────────────────────────────────────────────────────────
+
+function normalizeList(val) {
+  if (!val) return [];
+  return Array.isArray(val) ? val : [val];
+}
+
+/**
+ * Calcule le montant d'une commande à partir de ses lignes (prix unitaire × quantité).
+ * Fallback sur total_paid si aucune ligne n'est présente.
+ */
+function computeAmountFromRows(order) {
+  const rows = normalizeList(order.associations?.order_rows);
+  if (rows.length === 0) return parseFloat(order.total_paid) || 0;
+  return rows.reduce((sum, row) => {
+    const price = parseFloat(row.unit_price_tax_excl || row.product_price || 0);
+    const qty = parseInt(row.product_quantity || row.quantity || 0, 10);
+    return sum + price * qty;
+  }, 0);
+}
 
 const ORDER_STATE_LABELS = {
   1: "Dans le panier",
@@ -64,6 +86,29 @@ export async function updateOrderService(xmlData) {
 }
 
 /**
+ * Décrémente le stock de chaque produit d'une commande lorsqu'elle est marquée "Livrée".
+ * Seul l'état "Livré" doit impacter le stock (via stock_deltas).
+ */
+export async function processDeliveryStockUpdate(order) {
+  const rows = normalizeList(order.associations?.order_rows);
+  const promises = rows
+    .map((row) => {
+      const productId = parseInt(row.product_id, 10);
+      const attributeId = parseInt(row.product_attribute_id || 0, 10);
+      const quantity = parseInt(row.product_quantity || row.quantity || 0, 10);
+      if (!productId || quantity <= 0) return null;
+      return updateStockWithMovement({
+        productId,
+        attributeId,
+        quantityChange: -quantity,
+      });
+    })
+    .filter(Boolean);
+
+  await Promise.all(promises);
+}
+
+/**
  * Met à jour l'état d'une commande (en ajoutant un historique).
  */
 export async function updateOrderStatusService(orderId, stateId) {
@@ -78,39 +123,47 @@ export async function updateOrderStatusService(orderId, stateId) {
  * @param {string} endDate - Date de fin (ex: "2024-05-31")
  */
 export async function getOrdersSummaryByDay(startDate = null, endDate = null) {
-  // 1. On récupère les commandes en excluant les annulées pour les stats
-  let orders = await listOrdersService(true);
+  // 1. Toutes les commandes (sans exclusion a priori)
+  let orders = await listOrdersService(false);
 
-  // 2. On applique le filtre SI l'utilisateur a saisi des dates
+  // 2. Filtre sur les états "Dans le panier" (1) et "Paiement effectué" (2) uniquement
+  orders = orders.filter((o) => {
+    const s = parseInt(o.current_state, 10);
+    return s === IN_CART_STATE_ID || s === PAYMENT_DONE_STATE_ID;
+  });
+
+  // 3. Filtre par date si saisi
   if (startDate || endDate) {
     orders = orders.filter((order) => {
-      // On extrait la date de la commande (format YYYY-MM-DD)
-      const orderDate = order.date_add.split(" ")[0];
-
-      // On vérifie si la date est dans l'intervalle
+      const orderDate = (order.date_add || "").split(" ")[0];
       if (startDate && orderDate < startDate) return false;
       if (endDate && orderDate > endDate) return false;
-
-      return true; // La commande passe le filtre
+      return true;
     });
   }
 
-  // 3. Groupement par jour (calcul des totaux)
+  // 4. Groupement par jour — montant = prix × quantité depuis les lignes de commande
   const summaryMap = orders.reduce((acc, order) => {
-    const date = order.date_add.split(" ")[0];
-    const amount = parseFloat(order.total_paid) || 0;
+    const date = (order.date_add || "").split(" ")[0];
+    const amount = computeAmountFromRows(order);
+    const stateId = parseInt(order.current_state, 10);
 
     if (!acc[date]) {
-      acc[date] = { date, totalAmount: 0, count: 0 };
+      acc[date] = { date, totalAmount: 0, count: 0, totalOrdersOnly: 0, countOrdersOnly: 0 };
     }
 
     acc[date].totalAmount += amount;
     acc[date].count += 1;
 
+    // Sous-total commandes seules (sans les paniers = sans état 1)
+    if (stateId === PAYMENT_DONE_STATE_ID) {
+      acc[date].totalOrdersOnly += amount;
+      acc[date].countOrdersOnly += 1;
+    }
+
     return acc;
   }, {});
 
-  // Retourne le tableau trié par date décroissante
   return Object.values(summaryMap).sort((a, b) => b.date.localeCompare(a.date));
 }
 
@@ -119,18 +172,63 @@ export async function getOrdersSummaryByDay(startDate = null, endDate = null) {
  * dans l'ensemble du système (sans filtre de date).
  */
 export async function getAbsoluteGlobalTotal() {
-  // On exclut les commandes annulées pour le total global
-  const orders = await listOrdersService(true);
+  // Filtre : états "Dans le panier" (1) + "Paiement effectué" (2) uniquement
+  let orders = await listOrdersService(false);
+  orders = orders.filter((o) => {
+    const s = parseInt(o.current_state, 10);
+    return s === IN_CART_STATE_ID || s === PAYMENT_DONE_STATE_ID;
+  });
 
   return orders.reduce(
     (acc, order) => {
-      const amount = parseFloat(order.total_paid) || 0;
+      const amount = computeAmountFromRows(order);
+      const stateId = parseInt(order.current_state, 10);
       acc.totalAmount += amount;
       acc.count += 1;
+      if (stateId === PAYMENT_DONE_STATE_ID) {
+        acc.totalOrdersOnly += amount;
+        acc.countOrdersOnly += 1;
+      }
       return acc;
     },
-    { totalAmount: 0, count: 0 },
+    { totalAmount: 0, count: 0, totalOrdersOnly: 0, countOrdersOnly: 0 },
   );
+}
+
+/**
+ * Récupère un résumé des paniers actifs (ps_carts) avec leur montant estimé.
+ * Utilisé par le dashboard pour montrer les paniers pas encore passés en commande.
+ */
+export async function fetchCartsSummary() {
+  const client = new PrestashopClient();
+  try {
+    const [cartsData, productsData] = await Promise.all([
+      client.get("carts"),
+      client.get("products"),
+    ]);
+
+    // Map prix par produit
+    const priceMap = {};
+    normalizeList(productsData?.products).forEach((p) => {
+      priceMap[String(p.id)] = parseFloat(p.price) || 0;
+    });
+
+    const carts = normalizeList(cartsData?.carts);
+
+    let totalAmount = 0;
+    carts.forEach((cart) => {
+      const rows = normalizeList(cart.associations?.cart_rows);
+      rows.forEach((row) => {
+        const price = priceMap[String(row.id_product)] || 0;
+        const qty = parseInt(row.quantity || 1, 10);
+        totalAmount += price * qty;
+      });
+    });
+
+    return { count: carts.length, totalAmount };
+  } catch {
+    return { count: 0, totalAmount: 0 };
+  }
 }
 
 /**

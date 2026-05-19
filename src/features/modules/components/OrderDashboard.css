@@ -168,3 +168,23 @@
     border-radius: 10px 10px 0 0;
     margin-bottom: 0; /* Pour coller au bloc Absolute */
 }
+
+/* Sous-total commandes seules (affiché en petit sous chaque total) */
+.subtotal-orders-only {
+    margin-top: 5px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    opacity: 0.7;
+    color: #ccc;
+}
+
+/* Barre des paniers actifs */
+.carts-summary-bar {
+    margin-top: 8px;
+    background: #2c2c54;
+    color: #a29bfe;
+    padding: 10px 30px;
+    border-radius: 0 0 10px 10px;
+    font-size: 0.85rem;
+    border-top: 1px solid #333;
+}
