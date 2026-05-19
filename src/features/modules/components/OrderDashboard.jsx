@@ -16,10 +16,20 @@ const OrderDashboard = () => {
   const [categoryStats, setCategoryStats] = useState([]);
 
   // 1. État pour le total de la période filtrée
-  const [totalFiltered, setTotalFiltered] = useState({ amount: 0, count: 0, totalOrdersOnly: 0, countOrdersOnly: 0 });
+  const [totalFiltered, setTotalFiltered] = useState({
+    amount: 0,
+    count: 0,
+    totalOrdersOnly: 0,
+    countOrdersOnly: 0,
+  });
 
   // 2. État pour le total absolu (Toute la base)
-  const [totalAbsolute, setTotalAbsolute] = useState({ totalAmount: 0, count: 0, totalOrdersOnly: 0, countOrdersOnly: 0 });
+  const [totalAbsolute, setTotalAbsolute] = useState({
+    totalAmount: 0,
+    count: 0,
+    totalOrdersOnly: 0,
+    countOrdersOnly: 0,
+  });
 
   // 3. Paniers actifs (ps_carts)
   const [cartSummary, setCartSummary] = useState({ count: 0, totalAmount: 0 });
@@ -140,21 +150,23 @@ const OrderDashboard = () => {
             <div className="totals-footer-container">
               {/* TOTAL FILTRÉ (Période sélectionnée) */}
               <div className="grand-total-footer">
-                <div>
-                  <h4>Total sur la période filtrée</h4>
-                  <small>{totalFiltered.count} entrée(s) (paniers + commandes)</small>
-                  {/* Sous-total commandes seules */}
-                  <div className="subtotal-orders-only">
-                    dont commandes seules :{" "}
-                    {totalFiltered.totalOrdersOnly.toLocaleString("fr-FR", {
+                <div className="grand-total-labels">
+                  <h4 style={{ margin: 0 }}>Somme des ventes HT</h4>
+                  <div
+                    className="subtotal-carts-only"
+                    style={{ marginTop: "5px", color: "#666" }}
+                  >
+                    Somme des paniers HT :{" "}
+                    {(
+                      totalFiltered.amount - totalFiltered.totalOrdersOnly
+                    ).toLocaleString("fr-FR", {
                       style: "currency",
                       currency: "EUR",
-                    })}{" "}
-                    ({totalFiltered.countOrdersOnly} commande{totalFiltered.countOrdersOnly !== 1 ? "s" : ""})
+                    })}
                   </div>
                 </div>
                 <div className="grand-total-value">
-                  {totalFiltered.amount.toLocaleString("fr-FR", {
+                  {totalFiltered.totalOrdersOnly.toLocaleString("fr-FR", {
                     style: "currency",
                     currency: "EUR",
                   })}
@@ -164,15 +176,24 @@ const OrderDashboard = () => {
               {/* TOTAL ABSOLU (Toute la base de données) */}
               <div className="absolute-total-container">
                 <div>
-                  <div className="absolute-total-label">💰 Total Global</div>
+                  <div className="absolute-total-label">
+                    💰 Total Global (HT) + Panier
+                  </div>
                   {/* Sous-total commandes seules */}
-                  <div className="subtotal-orders-only" style={{ color: "#aaa" }}>
+                  <div
+                    className="subtotal-orders-only"
+                    style={{ color: "#aaa" }}
+                  >
                     dont commandes seules :{" "}
-                    {(totalAbsolute.totalOrdersOnly || 0).toLocaleString("fr-FR", {
-                      style: "currency",
-                      currency: "EUR",
-                    })}{" "}
-                    ({totalAbsolute.countOrdersOnly || 0} commande{(totalAbsolute.countOrdersOnly || 0) !== 1 ? "s" : ""})
+                    {(totalAbsolute.totalOrdersOnly || 0).toLocaleString(
+                      "fr-FR",
+                      {
+                        style: "currency",
+                        currency: "EUR",
+                      },
+                    )}{" "}
+                    ({totalAbsolute.countOrdersOnly || 0} commande
+                    {(totalAbsolute.countOrdersOnly || 0) !== 1 ? "s" : ""})
                   </div>
                 </div>
                 <div className="absolute-total-value">
@@ -186,8 +207,10 @@ const OrderDashboard = () => {
               {/* PANIERS ACTIFS (ps_carts en base) */}
               {cartSummary.count > 0 && (
                 <div className="carts-summary-bar">
-                  🛒 <strong>{cartSummary.count}</strong> panier{cartSummary.count !== 1 ? "s" : ""} actif{cartSummary.count !== 1 ? "s" : ""} en base —{" "}
-                  montant estimé :{" "}
+                  🛒 <strong>{cartSummary.count}</strong> panier
+                  {cartSummary.count !== 1 ? "s" : ""} actif
+                  {cartSummary.count !== 1 ? "s" : ""} en base — montant estimé
+                  :{" "}
                   <strong>
                     {cartSummary.totalAmount.toLocaleString("fr-FR", {
                       style: "currency",
@@ -217,17 +240,67 @@ const OrderDashboard = () => {
                     <tr key={idx}>
                       <td>{stat.categoryName}</td>
                       <td className="amount-cell">
-                        {stat.totalSalesHT.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                        {stat.totalSalesHT.toLocaleString("fr-FR", {
+                          style: "currency",
+                          currency: "EUR",
+                        })}
                       </td>
                       <td className="amount-cell">
-                        {stat.totalPurchaseHT.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                        {stat.totalPurchaseHT.toLocaleString("fr-FR", {
+                          style: "currency",
+                          currency: "EUR",
+                        })}
                       </td>
-                      <td className="amount-cell" style={{ color: stat.profit >= 0 ? "green" : "red", fontWeight: "bold" }}>
-                        {stat.profit.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                      <td
+                        className="amount-cell"
+                        style={{
+                          color: stat.profit >= 0 ? "green" : "red",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {stat.profit.toLocaleString("fr-FR", {
+                          style: "currency",
+                          currency: "EUR",
+                        })}
                       </td>
                     </tr>
                   ))}
                 </tbody>
+                <tfoot>
+                  <tr
+                    style={{
+                      fontWeight: "bold",
+                      backgroundColor: "#f9f9f9",
+                      borderTop: "2px solid #ccc",
+                    }}
+                  >
+                    <td>TOTAL GLOBAL</td>
+                    <td className="amount-cell">
+                      {categoryStats
+                        .reduce((acc, s) => acc + s.totalSalesHT, 0)
+                        .toLocaleString("fr-FR", {
+                          style: "currency",
+                          currency: "EUR",
+                        })}
+                    </td>
+                    <td className="amount-cell">
+                      {categoryStats
+                        .reduce((acc, s) => acc + s.totalPurchaseHT, 0)
+                        .toLocaleString("fr-FR", {
+                          style: "currency",
+                          currency: "EUR",
+                        })}
+                    </td>
+                    <td className="amount-cell">
+                      {categoryStats
+                        .reduce((acc, s) => acc + s.profit, 0)
+                        .toLocaleString("fr-FR", {
+                          style: "currency",
+                          currency: "EUR",
+                        })}
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           )}

@@ -68,7 +68,10 @@ function ListCommande() {
               `Commande ${orderId} marquée '${label}' — stock mis à jour.`,
             );
           } catch (stockErr) {
-            console.warn("[STOCK] Erreur mise à jour stock livraison :", stockErr);
+            console.warn(
+              "[STOCK] Erreur mise à jour stock livraison :",
+              stockErr,
+            );
             setMessage(
               `Commande ${orderId} marquée '${label}' (⚠️ stock non mis à jour : ${stockErr.message}).`,
             );
@@ -123,7 +126,10 @@ function ListCommande() {
               Client
             </th>
             <th style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>
-              Montant
+              Montant HT
+            </th>
+            <th style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>
+              Montant TTC
             </th>
             <th style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>
               Statut
@@ -136,7 +142,7 @@ function ListCommande() {
         <tbody>
           {orders.length === 0 ? (
             <tr>
-              <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
+              <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
                 Aucune commande trouvée.
               </td>
             </tr>
@@ -145,10 +151,12 @@ function ListCommande() {
               const orderId = normaliseField(order.id);
               const currentState = normaliseField(order.current_state);
               const customerId = normaliseField(order.id_customer);
-              const amount = normaliseField(order.total_paid);
+              const amountTTC = normaliseField(order.total_paid);
+              const amountHT = normaliseField(order.total_paid_tax_excl);
               const stateLabel = getOrderStateLabel(currentState);
               const isUpdating = updatingOrderId === orderId;
-              const isDelivered = String(currentState) === String(ORDER_DELIVERED_STATE_ID);
+              const isDelivered =
+                String(currentState) === String(ORDER_DELIVERED_STATE_ID);
 
               return (
                 <tr key={orderId}>
@@ -174,7 +182,15 @@ function ListCommande() {
                       padding: "10px",
                     }}
                   >
-                    {amount}
+                    {amountHT}
+                  </td>
+                  <td
+                    style={{
+                      borderBottom: "1px solid #eaeaea",
+                      padding: "10px",
+                    }}
+                  >
+                    {amountTTC}
                   </td>
                   <td
                     style={{
@@ -210,8 +226,9 @@ function ListCommande() {
                         color: "white",
                         border: "none",
                         borderRadius: "4px",
-                        cursor: (isUpdating || isDelivered) ? "not-allowed" : "pointer",
-                        opacity: (isUpdating || isDelivered) ? 0.6 : 1,
+                        cursor:
+                          isUpdating || isDelivered ? "not-allowed" : "pointer",
+                        opacity: isUpdating || isDelivered ? 0.6 : 1,
                       }}
                     >
                       Paiement effectué
@@ -236,8 +253,9 @@ function ListCommande() {
                         color: "white",
                         border: "none",
                         borderRadius: "4px",
-                        cursor: (isUpdating || isDelivered) ? "not-allowed" : "pointer",
-                        opacity: (isUpdating || isDelivered) ? 0.6 : 1,
+                        cursor:
+                          isUpdating || isDelivered ? "not-allowed" : "pointer",
+                        opacity: isUpdating || isDelivered ? 0.6 : 1,
                       }}
                     >
                       Annuler
@@ -248,13 +266,10 @@ function ListCommande() {
                         handleChangeStatus(
                           orderId,
                           ORDER_DELIVERED_STATE_ID,
-                          "Livré"
+                          "Livré",
                         )
                       }
-                      disabled={
-                        isUpdating ||
-                        isDelivered
-                      }
+                      disabled={isUpdating || isDelivered}
                       style={{
                         marginLeft: "8px",
                         padding: "8px 12px",
@@ -262,13 +277,13 @@ function ListCommande() {
                         color: "white",
                         border: "none",
                         borderRadius: "4px",
-                        cursor: (isUpdating || isDelivered) ? "not-allowed" : "pointer",
-                        opacity: (isUpdating || isDelivered) ? 0.6 : 1,
+                        cursor:
+                          isUpdating || isDelivered ? "not-allowed" : "pointer",
+                        opacity: isUpdating || isDelivered ? 0.6 : 1,
                       }}
                     >
                       Livré
                     </button>
-
                   </td>
                 </tr>
               );

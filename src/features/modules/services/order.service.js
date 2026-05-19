@@ -16,12 +16,19 @@ function normalizeList(val) {
 
 /**
  * Calcule le montant d'une commande à partir de ses lignes (prix unitaire × quantité).
- * Fallback sur total_paid si aucune ligne n'est présente.
+ * On privilégie le total_paid_tax_excl pour avoir le montant HT réel (incluant frais de port/remises).
  */
 function computeAmountFromRows(order) {
+  // On utilise le total payé HT s'il est disponible
+  if (order.total_paid_tax_excl) return parseFloat(order.total_paid_tax_excl);
+
   const rows = normalizeList(order.associations?.order_rows);
-  if (rows.length === 0) return parseFloat(order.total_paid) || 0;
+  // Fallback sur le total HT si pas de lignes, sinon TTC en dernier recours
+  if (rows.length === 0)
+    return parseFloat(order.total_paid_tax_excl || order.total_paid || 0);
+
   return rows.reduce((sum, row) => {
+    // unit_price_tax_excl est le prix HT dans PrestaShop
     const price = parseFloat(row.unit_price_tax_excl || row.product_price || 0);
     const qty = parseInt(row.product_quantity || row.quantity || 0, 10);
     return sum + price * qty;
@@ -41,8 +48,6 @@ export const ORDER_DELIVERED_STATE_ID = 5;
 export const ORDER_CANCELED_STATE_ID = 6;
 export const IN_CART_STATE_ID = 1;
 
-// ... (buildOrderStatusHistoryXml reste inchangé)
-
 export function getOrderStateLabel(stateId) {
   if (stateId === undefined || stateId === null) return "Inconnu";
   return (
@@ -52,10 +57,6 @@ export function getOrderStateLabel(stateId) {
   );
 }
 
-/**
- * Liste toutes les commandes (filtrées par états autorisés).
- * Utilise le client JSON pour de meilleures performances et une extraction de données fiable.
- */
 /**
  * Liste toutes les commandes.
  * @param {boolean} excludeCanceled - Si vrai, exclut les commandes avec l'état 6 (Annulé).
@@ -119,20 +120,22 @@ export async function updateOrderStatusService(orderId, stateId) {
 /**
  * Calcule le résumé des commandes avec filtrage par date optionnel.
  * Exclut les commandes annulées (requis pour le dashboard).
- * @param {string} startDate - Date de début (ex: "2024-05-01")
- * @param {string} endDate - Date de fin (ex: "2024-05-31")
  */
 export async function getOrdersSummaryByDay(startDate = null, endDate = null) {
-  // 1. Toutes les commandes (sans exclusion a priori)
+  // 1. Toutes les commandes
   let orders = await listOrdersService(false);
 
-  // 2. Filtre sur les états "Dans le panier" (1) et "Paiement effectué" (2) uniquement
+  // 2. Filtre sur les états valides : "Dans le panier" (1), "Paiement effectué" (2) et "Livré" (5)
   orders = orders.filter((o) => {
     const s = parseInt(o.current_state, 10);
-    return s === IN_CART_STATE_ID || s === PAYMENT_DONE_STATE_ID;
+    return (
+      s === IN_CART_STATE_ID ||
+      s === PAYMENT_DONE_STATE_ID ||
+      s === ORDER_DELIVERED_STATE_ID
+    );
   });
 
-  // 3. Filtre par date si saisi
+  // 3. Filtre par date
   if (startDate || endDate) {
     orders = orders.filter((order) => {
       const orderDate = (order.date_add || "").split(" ")[0];
@@ -142,21 +145,30 @@ export async function getOrdersSummaryByDay(startDate = null, endDate = null) {
     });
   }
 
-  // 4. Groupement par jour — montant = prix × quantité depuis les lignes de commande
+  // 4. Groupement par jour
   const summaryMap = orders.reduce((acc, order) => {
     const date = (order.date_add || "").split(" ")[0];
     const amount = computeAmountFromRows(order);
     const stateId = parseInt(order.current_state, 10);
 
     if (!acc[date]) {
-      acc[date] = { date, totalAmount: 0, count: 0, totalOrdersOnly: 0, countOrdersOnly: 0 };
+      acc[date] = {
+        date,
+        totalAmount: 0,
+        count: 0,
+        totalOrdersOnly: 0,
+        countOrdersOnly: 0,
+      };
     }
 
     acc[date].totalAmount += amount;
     acc[date].count += 1;
 
     // Sous-total commandes seules (sans les paniers = sans état 1)
-    if (stateId === PAYMENT_DONE_STATE_ID) {
+    if (
+      stateId === PAYMENT_DONE_STATE_ID ||
+      stateId === ORDER_DELIVERED_STATE_ID
+    ) {
       acc[date].totalOrdersOnly += amount;
       acc[date].countOrdersOnly += 1;
     }
@@ -172,11 +184,15 @@ export async function getOrdersSummaryByDay(startDate = null, endDate = null) {
  * dans l'ensemble du système (sans filtre de date).
  */
 export async function getAbsoluteGlobalTotal() {
-  // Filtre : états "Dans le panier" (1) + "Paiement effectué" (2) uniquement
+  // Filtre : états "Dans le panier" (1), "Paiement effectué" (2) et "Livré" (5)
   let orders = await listOrdersService(false);
   orders = orders.filter((o) => {
     const s = parseInt(o.current_state, 10);
-    return s === IN_CART_STATE_ID || s === PAYMENT_DONE_STATE_ID;
+    return (
+      s === IN_CART_STATE_ID ||
+      s === PAYMENT_DONE_STATE_ID ||
+      s === ORDER_DELIVERED_STATE_ID
+    );
   });
 
   return orders.reduce(
@@ -185,7 +201,10 @@ export async function getAbsoluteGlobalTotal() {
       const stateId = parseInt(order.current_state, 10);
       acc.totalAmount += amount;
       acc.count += 1;
-      if (stateId === PAYMENT_DONE_STATE_ID) {
+      if (
+        stateId === PAYMENT_DONE_STATE_ID ||
+        stateId === ORDER_DELIVERED_STATE_ID
+      ) {
         acc.totalOrdersOnly += amount;
         acc.countOrdersOnly += 1;
       }
@@ -197,7 +216,6 @@ export async function getAbsoluteGlobalTotal() {
 
 /**
  * Récupère un résumé des paniers actifs (ps_carts) avec leur montant estimé.
- * Utilisé par le dashboard pour montrer les paniers pas encore passés en commande.
  */
 export async function fetchCartsSummary() {
   const client = new PrestashopClient();
@@ -207,7 +225,6 @@ export async function fetchCartsSummary() {
       client.get("products"),
     ]);
 
-    // Map prix par produit
     const priceMap = {};
     normalizeList(productsData?.products).forEach((p) => {
       priceMap[String(p.id)] = parseFloat(p.price) || 0;
@@ -233,7 +250,6 @@ export async function fetchCartsSummary() {
 
 /**
  * Construit le XML nécessaire pour changer le statut d'une commande dans PrestaShop.
- * C'était cette fonction qui manquait pour faire fonctionner le bouton.
  */
 export function buildOrderStatusHistoryXml(orderId, stateId) {
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -247,62 +263,93 @@ export function buildOrderStatusHistoryXml(orderId, stateId) {
 
 /**
  * Calcule le bénéfice et le montant total des ventes et achats par catégorie (Hors Taxe)
- * @returns {Promise<Array>} Tableau de statistiques par catégorie.
+ * Seules les ventes confirmées (états 2 et 5) sont prises en compte pour les statistiques.
  */
 export async function getCategoryStatistics() {
   const client = new PrestashopClient();
-  
-  // 1. Récupération des données (Commandes valides, Produits, Catégories) en parallèle
-  const [orders, productsData, categoriesData] = await Promise.all([
-    listOrdersService(true), // Exclut les commandes annulées (état 6)
-    client.get("products"),  // Pour obtenir les "wholesale_price" (Achat HT)
-    client.get("categories") // Pour obtenir les noms de catégories
-  ]);
 
-  // 2. Mapping des Produits pour un accès rapide
-  const products = Array.isArray(productsData?.products) ? productsData.products : [];
+  const [ordersData, productsData, categoriesData, combinationsData] =
+    await Promise.all([
+      listOrdersService(false),
+      client.get("products"),
+      client.get("categories"),
+      client.get("combinations"),
+    ]);
+
+  // Filtrage strict : Paiement accepté (2) ou Livré (5)
+  const orders = (
+    Array.isArray(ordersData?.orders)
+      ? ordersData.orders
+      : Array.isArray(ordersData)
+        ? ordersData
+        : []
+  ).filter((o) => {
+    const s = parseInt(o.current_state, 10);
+    return s === PAYMENT_DONE_STATE_ID || s === ORDER_DELIVERED_STATE_ID;
+  });
+
+  const products = Array.isArray(productsData?.products)
+    ? productsData.products
+    : [];
   const productMap = {};
-  products.forEach(p => {
+  products.forEach((p) => {
     productMap[p.id] = {
       categoryId: p.id_category_default || "0",
-      wholesalePrice: parseFloat(p.wholesale_price) || 0
+      wholesalePrice: parseFloat(p.wholesale_price) || 0,
     };
   });
 
-  // 3. Mapping des Catégories 
-  const categories = Array.isArray(categoriesData?.categories) ? categoriesData.categories : [];
+  const combinations = Array.isArray(combinationsData?.combinations)
+    ? combinationsData.combinations
+    : [];
+  const combinationMap = {};
+  combinations.forEach((c) => {
+    combinationMap[c.id] = {
+      wholesalePrice: parseFloat(c.wholesale_price) || 0,
+    };
+  });
+
+  const categories = Array.isArray(categoriesData?.categories)
+    ? categoriesData.categories
+    : [];
   const categoryMap = {};
-  categories.forEach(c => {
+  categories.forEach((c) => {
     let name = "Catégorie inconnue";
     if (c.name) {
-      if (Array.isArray(c.name)) name = c.name[0]?.value || name; // Multilingue
-      else if (typeof c.name === 'string') name = c.name;
-      else if (c.name.language) name = c.name.language.value || c.name.language || name;
+      if (Array.isArray(c.name)) name = c.name[0]?.value || name;
+      else if (typeof c.name === "string") name = c.name;
+      else if (c.name.language)
+        name = c.name.language.value || c.name.language || name;
     }
     categoryMap[c.id] = name;
   });
 
-  // 4. Calcul des montants par catégorie
   const stats = {};
 
-  orders.forEach(order => {
-    // Les détails des lignes (order_details) d'une commande via API JSON
+  orders.forEach((order) => {
     let rows = [];
     if (order.associations?.order_rows) {
       const apiRows = order.associations.order_rows;
       rows = Array.isArray(apiRows) ? apiRows : [apiRows];
     }
 
-    rows.forEach(row => {
+    rows.forEach((row) => {
       const productId = row.product_id;
+      const combinationId = row.product_attribute_id;
       const quantity = parseInt(row.product_quantity || row.quantity, 10) || 0;
-      // Prix de vente Unitaire HT défini dans la commande
-      const unitPriceHt = parseFloat(row.unit_price_tax_excl || row.product_price) || 0;
+      const unitPriceHt =
+        parseFloat(row.unit_price_tax_excl || row.product_price) || 0;
 
       const pInfo = productMap[productId] || {};
+      const cInfo = combinationMap[combinationId] || {};
+
       const catId = pInfo.categoryId || "0";
       const catName = categoryMap[catId] || `Catégorie ${catId}`;
-      const wholesalePrice = pInfo.wholesalePrice || 0;
+
+      const wholesalePrice =
+        cInfo.wholesalePrice > 0
+          ? cInfo.wholesalePrice
+          : pInfo.wholesalePrice || 0;
 
       if (!stats[catId]) {
         stats[catId] = {
@@ -310,7 +357,7 @@ export async function getCategoryStatistics() {
           categoryName: catName,
           totalSalesHT: 0,
           totalPurchaseHT: 0,
-          profit: 0
+          profit: 0,
         };
       }
 
@@ -319,9 +366,10 @@ export async function getCategoryStatistics() {
     });
   });
 
-  // 5. Calcul des bénéfices
-  return Object.values(stats).map(stat => {
-    stat.profit = stat.totalSalesHT - stat.totalPurchaseHT;
-    return stat;
-  }).sort((a, b) => b.totalSalesHT - a.totalSalesHT);
+  return Object.values(stats)
+    .map((stat) => {
+      stat.profit = stat.totalSalesHT - stat.totalPurchaseHT;
+      return stat;
+    })
+    .sort((a, b) => b.totalSalesHT - a.totalSalesHT);
 }

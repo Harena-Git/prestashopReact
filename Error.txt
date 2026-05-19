@@ -1,2 +1,35 @@
-etat : "livré" =  "Livré" dans prestashop
-etat : "annulé" = "Annulé" dans prestashop 
+Total Vente HT  = Somme vente akanjo + accessoire
+Vente akanjo HT :
+- 2 T_01 kely = 30 TTC donc 26.88
+- 1 T_01 kely = 15 TTC donc 13.43
+- 4 T_01 kely = 60 TTC donc 53.74
+Total = 94.04
+
+Vente accessoire HT :
+- 1 C_03 = 5 TTC donc 4.73
+Total = 4.73
+TOTAL VENTE HT = 98.78
+
+
+Total Achat HT = Somme achat akanjo + accessoire
+Achat akanjo HT :
+- 2 T_01 kely = 17
+- 1 T_01 kely = 8.5
+- 4 T_01 kely = 34
+Total = 59.5
+
+Achat accessoire HT :
+- 1 C_03 = 2
+Total = 29
+TOTAL ACHAT HT = 61.5
+
+
+Total Bénéfice :
+Bénéfice akanjo = 34.54
+Bénéfice accessoire = 2.73
+TOTAL BENEFICE = 37.27
+
+
+94.04388715 - 59.5 = 34.54388715
+4.734848485 - 2 = 2.734848485
+34.54388715 + 2.734848485 = 37.27873564 = 37.28
