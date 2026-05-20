@@ -21,6 +21,7 @@ const EMPTY_FILES = {
   images_zip: null,
 };
 
+
 /**
  * Rollback : supprime les modules qui ont été partiellement insérés.
  * Respecte l'ordre FK : enfants supprimés avant les parents.
@@ -75,6 +76,14 @@ function DataImportPage() {
   const [importing, setImporting] = useState(false);
   const [logs, setLogs] = useState([]);
   const [results, setResults] = useState(null);
+  const [checked ,Setchecked ] = useState(false);
+
+  {/* fonction de retour a l'etat */}
+  const checkCliquer = (event) => {
+    const valeurCliquer = (event.target.values);
+  
+    Setchecked(valeurCliquer);
+  };
 
   const addLog = (msg) => setLogs((prev) => [...prev, msg]);
 
@@ -150,6 +159,9 @@ function DataImportPage() {
             onChange={(f) => handleFile("fichier3_transactions", f)}
             disabled={importing}
           />
+          {/* ALEA */}
+          <input type="checkbox" checked={checked} onechange={Setchecked} />
+
           <FileInput
             label=" Images (ZIP)"
             hint="Fichier ZIP contenant les images nommées d'après les références : T_01.png, P_01.jpeg..."
@@ -169,6 +181,7 @@ function DataImportPage() {
           >
             {importing ? " Import en cours..." : " Alefa le import"}
           </button>
+          
         </div>
 
         {/* Journal en temps réel */}

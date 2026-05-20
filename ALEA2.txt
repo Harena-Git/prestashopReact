@@ -1,0 +1,9 @@
+2- etat de mes commandes en tant que client :
+"client/order"
+
+My TODO :
+Boutton (duppliquer) de creation de duplication une commande (par commande)
+Quand on appuie sur le duppliquer -> afficher un input (nombre) pour mettre la quantite
+Boutton "duppliquer" avec nombre (parametre) appuier -> un Page de validation des 
+commandes pour checquer si les produits (stock) selectionnes sont assez, et afficher les quantites
+disponible. 

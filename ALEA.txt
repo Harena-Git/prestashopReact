@@ -1,0 +1,10 @@
+1- import :
+cage a cocher importer ou non les images
+"/admin/modules/data-import" 
+
+TODO :
+Dans l'option import de donnee :
+ajouter un checkbox pour avoir une option si on veut importer 
+les images ou non
+checkbox cocher : images non importer memes si elles sont selectionner.
+checkbox non-cocher : images impoter normalement.
